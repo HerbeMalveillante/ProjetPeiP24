@@ -1,6 +1,7 @@
 from rich import print
 import pygame
 import random
+import time
 
 
 pygame.init()
@@ -8,7 +9,6 @@ screen_width = 1200
 screen_height = 800
 pygame.display.set_caption("Labyrinth")
 font = pygame.font.Font("freesansbold.ttf", 20)
-screen = pygame.display.set_mode((screen_width, screen_height))
 
 
 class Color(object):
@@ -36,7 +36,8 @@ class Labyrinth(object):
         self.start = None
         self.end = None
 
-    def draw(self):
+    def draw(self, screen):
+        screen.fill(Color.darker)
         for i in range(self.width):
             for j in range(self.height):
                 # On dessine la case
@@ -232,6 +233,9 @@ class Labyrinth(object):
                 self.addWall(i, i + self.width)
 
     def generate(self):
+        print(f"Generating labyrinth of size {self.width} by {self.height}")
+        startTime = time.time()
+
         # La liste des cases courantes est une pile.
         # On commence avec un labyrinthe plein de murs.
         # On va choisir une case au hasard qui va être notre case de départ.
@@ -282,13 +286,19 @@ class Labyrinth(object):
             # On place la case courante au sommet de la pile
             stack.append(currentCase)
 
+            # self.draw()
+            # pygame.display.flip()  # Update the display
+
         # On choisit une case au hasard dans la liste des cases qui nous forcent à faire demi tour : ce sera la case de fin
         self.end = random.choice(potentialEnds)
 
+        print(f"generation complete in {round(time.time() - startTime, 3)} seconds")
 
-L = Labyrinth(15, 15, 30)
+
+L = Labyrinth(20, 20, 10)
 L.generate()
 
+screen = pygame.display.set_mode((screen_width, screen_height))
 # Game loop
 running = True
 while running:
@@ -300,8 +310,8 @@ while running:
     # Simulation
 
     # Drawing
-    screen.fill(Color.darker)
-    L.draw()
+
+    L.draw(screen)
 
     pygame.display.flip()  # Update the display
 
