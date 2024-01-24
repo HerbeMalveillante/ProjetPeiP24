@@ -32,9 +32,12 @@ class Labyrinth(object):
         self.caseSize = self.getCaseSize()
 
         # Only used for the generation algorithm and the maze solving algorithm.
-        # A maze do not have a start and an end.
+        # A maze can have a start and an end, but it is not necessary.
         self.start = None
         self.end = None
+        # start and end are currently set by the generate function : the start is the first case visited
+        # and the end is a random case among the cases that force the algorithm to backtrack
+        # We will change this later as the results are suboptimal.
 
     def draw(self, screen):
         screen.fill(Color.darker)
@@ -286,19 +289,16 @@ class Labyrinth(object):
             # On place la case courante au sommet de la pile
             stack.append(currentCase)
 
-            # self.draw()
-            # pygame.display.flip()  # Update the display
-
         # On choisit une case au hasard dans la liste des cases qui nous forcent à faire demi tour : ce sera la case de fin
         self.end = random.choice(potentialEnds)
 
         print(f"generation complete in {round(time.time() - startTime, 3)} seconds")
 
 
-L = Labyrinth(20, 20, 10)
+L = Labyrinth(50, 50, 30)
+screen = pygame.display.set_mode((screen_width, screen_height))
 L.generate()
 
-screen = pygame.display.set_mode((screen_width, screen_height))
 # Game loop
 running = True
 while running:
