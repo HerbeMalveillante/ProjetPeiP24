@@ -1,4 +1,4 @@
-from rich import print
+
 import pygame
 import random
 import time
