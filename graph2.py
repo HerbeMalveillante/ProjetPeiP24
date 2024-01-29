@@ -23,11 +23,58 @@ class Color(object):
 
 
 class Character(object):
-    def __init__(self, caseId=0):
-        self.caseId = 0
+    def __init__(self, caseId=0, labyrinth=None):
+        self.caseId = caseId
+        self.labyrinth = labyrinth
+
+    def caseIdToCoord(self, caseId):
+        # returns the x and y coordinates of the case based on the caseId.
+        # Assuming the labyrinth is a square.
+        # The caseId is the index of the case in the matrix.
+        # The x coordinate is the remainder of the caseId divided by the width of the labyrinth.
+        # The y coordinate is the quotient of the caseId divided by the width of the labyrinth.
+        return (caseId % self.labyrinth.width, caseId // self.labyrinth.width)
+
+    def draw(self, screen):
+        pygame.draw.circle(
+            screen,
+            Color.black,
+            (
+                self.labyrinth.padding // 2
+                + self.labyrinth.caseSize // 2
+                + self.labyrinth.caseSize * self.caseIdToCoord(self.caseId)[0],
+                self.labyrinth.padding // 2
+                + self.labyrinth.caseSize // 2
+                + self.labyrinth.caseSize * self.caseIdToCoord(self.caseId)[1],
+            ),
+            self.labyrinth.caseSize // 2,
+        )
 
     def move(self, direction):
-        pass
+        case1 = self.caseId
+        # direction : U, D, L, R
+        if direction == "U":
+            case2 = self.caseId - self.labyrinth.width
+        elif direction == "D":
+            case2 = self.caseId + self.labyrinth.width
+        elif direction == "L":
+            case2 = self.caseId - 1
+        elif direction == "R":
+            case2 = self.caseId + 1
+
+        if case2 < 0 or case2 >= self.labyrinth.width * self.labyrinth.height:
+            print("Invalid move : out of bounds")
+            return False
+
+        if (case1, case2) in self.labyrinth.walls or (
+            case2,
+            case1,
+        ) in self.labyrinth.walls:
+            print(f"Invalid move : wall between {case1} and {case2} in the way")
+            return False
+
+        self.caseId = case2
+        return True
 
 
 class Labyrinth(object):
@@ -83,7 +130,7 @@ class Labyrinth(object):
 
                 # on écrit le numéro de la case si la case est assez grande (au moins 35 pixels)
                 if self.caseSize > 35:
-                    text = font.render(str(self.matrix[i][j]), True, Color.medium)
+                    text = font.render(str(self.matrix[j][i]), True, Color.medium)
                     textRect = text.get_rect()
                     textRect.center = (
                         self.padding // 2 + i * self.caseSize + self.caseSize // 2,
@@ -136,21 +183,21 @@ class Labyrinth(object):
             # Le point d'arrivée est calculé de la même manière, mais on décale le point de la moitié de la taille d'une case vers la droite ou vers le bas.
             if orientation == "horizontal":
                 startPoint = (
-                    milieu[0] - self.caseSize // 2,
                     milieu[1],
+                    milieu[0] - self.caseSize // 2,
                 )
                 endPoint = (
-                    milieu[0] + self.caseSize // 2,
                     milieu[1],
+                    milieu[0] + self.caseSize // 2,
                 )
             else:
                 startPoint = (
-                    milieu[0],
                     milieu[1] - self.caseSize // 2,
+                    milieu[0],
                 )
                 endPoint = (
-                    milieu[0],
                     milieu[1] + self.caseSize // 2,
+                    milieu[0],
                 )
             # On dessine le mur
             pygame.draw.line(screen, Color.light, startPoint, endPoint, 3)
@@ -313,7 +360,8 @@ class Labyrinth(object):
         print(f"generation complete in {round(time.time() - startTime, 3)} seconds")
 
 
-L = Labyrinth(40, 40, 30)
+L = Labyrinth(80, 80, 30)
+C = Character(labyrinth=L)
 screen = pygame.display.set_mode((screen_width, screen_height))
 L.generate()
 
@@ -325,11 +373,28 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
+        if event.type == pygame.KEYUP:
+            key = pygame.key.name(event.key)
+            if key == "up":
+                C.move("U")
+            elif key == "down":
+                C.move("D")
+            elif key == "left":
+                C.move("L")
+            elif key == "right":
+                C.move("R")
+
+            print(
+                f"""Key Pressed : {pygame.key.name(event.key)}
+position : {C.caseId}"""
+            )
+
     # Simulation
 
     # Drawing
 
     L.draw(screen)
+    C.draw(screen)
 
     pygame.display.flip()  # Update the display
 
