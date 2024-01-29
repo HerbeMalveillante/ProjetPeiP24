@@ -5,7 +5,7 @@ import time
 
 
 pygame.init()
-screen_width = 1200
+screen_width = 900
 screen_height = 800
 pygame.display.set_caption("Labyrinth")
 font = pygame.font.Font("freesansbold.ttf", 20)
@@ -22,10 +22,19 @@ class Color(object):
     green = (166, 207, 152)
 
 
+class Character(object):
+    def __init__(self, caseId=0):
+        self.caseId = 0
+
+    def move(self, direction):
+        pass
+
+
 class Labyrinth(object):
-    def __init__(self, width=4, height=4, padding=30):
+    def __init__(self, width=4, height=4, padding=30, loopingRate=0.05):
         self.width = width
         self.height = height
+        self.loopingRate = loopingRate
         self.padding = padding
         self.matrix = [[j + i * width for j in range(height)] for i in range(width)]
         self.walls = []
@@ -289,13 +298,22 @@ class Labyrinth(object):
             # On place la case courante au sommet de la pile
             stack.append(currentCase)
 
+            if len(visitedCases) == self.width * self.height:
+                break  # opti : on arrête la génération si on a visité toutes les cases
+
         # On choisit une case au hasard dans la liste des cases qui nous forcent à faire demi tour : ce sera la case de fin
         self.end = random.choice(potentialEnds)
+
+        # On détruit un nombre aléatoire de murs pour créer des boucles dans le labyrinthe
+        amountToDestroy = round(len(self.walls) * self.loopingRate)
+        for i in range(amountToDestroy):
+            wall = random.choice(self.walls)
+            self.removeWall(wall[0], wall[1])
 
         print(f"generation complete in {round(time.time() - startTime, 3)} seconds")
 
 
-L = Labyrinth(90, 90, 30)
+L = Labyrinth(40, 40, 30)
 screen = pygame.display.set_mode((screen_width, screen_height))
 L.generate()
 
