@@ -295,7 +295,7 @@ class Labyrinth(object):
         print(f"generation complete in {round(time.time() - startTime, 3)} seconds")
 
 
-L = Labyrinth(50, 50, 30)
+L = Labyrinth(90, 90, 30)
 screen = pygame.display.set_mode((screen_width, screen_height))
 L.generate()
 
