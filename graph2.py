@@ -3,12 +3,19 @@ import pygame
 import random
 import time
 
-
 pygame.init()
-screen_width = 900
-screen_height = 800
-pygame.display.set_caption("Labyrinth")
-font = pygame.font.Font("freesansbold.ttf", 20)
+
+# TODO : Optimisiation des FPS en mettant une image du labyrinthe plutôt que de tout redessiner à chaque fois
+screen_width = None
+screen_height = None
+font = None
+
+
+def init(sw=900, sh=800, fnt=pygame.font.Font("freesansbold.ttf", 20)):
+    global screen_width, screen_height, font
+    screen_width = sw
+    screen_height = sh
+    font = fnt
 
 
 class Color(object):
@@ -26,6 +33,7 @@ class Character(object):
     def __init__(self, caseId=0, labyrinth=None):
         self.caseId = caseId
         self.labyrinth = labyrinth
+        self.moveCount = 0
 
     def caseIdToCoord(self, caseId):
         # returns the x and y coordinates of the case based on the caseId.
@@ -74,6 +82,7 @@ class Character(object):
             return False
 
         self.caseId = case2
+        self.moveCount += 1
         return True
 
 
@@ -87,16 +96,29 @@ class Labyrinth(object):
         self.walls = []
         self.caseSize = self.getCaseSize()
 
+        self.timeElapsed = 0
+
         # Only used for the generation algorithm and the maze solving algorithm.
         # A maze can have a start and an end, but it is not necessary.
-        self.start = None
-        self.end = None
+        self.start = 0
+        self.end = width * height - 1
         # start and end are currently set by the generate function : the start is the first case visited
         # and the end is a random case among the cases that force the algorithm to backtrack
         # We will change this later as the results are suboptimal.
 
+    def addTimeElapsed(self, dt):
+        self.timeElapsed += dt
+
     def draw(self, screen):
         screen.fill(Color.darker)
+        # dessine le temps écoulé en haut à droite
+        text = font.render(
+            f"Time elapsed : {round(self.timeElapsed, 3)}", True, Color.black
+        )
+        textRect = text.get_rect()
+        textRect.topright = (screen_width - self.padding // 2, self.padding // 2)
+        screen.blit(text, textRect)
+
         for i in range(self.width):
             for j in range(self.height):
                 # On dessine la case
@@ -311,10 +333,6 @@ class Labyrinth(object):
         visitedCases = []
         stack = []
         currentCase = random.randint(0, self.width * self.height - 1)
-        self.start = currentCase
-        potentialEnds = (
-            []
-        )  # On garde une liste des cases qui nous forcent à faire demi tour
 
         stack.append(currentCase)
         visitedCases.append(currentCase)
@@ -330,8 +348,6 @@ class Labyrinth(object):
             ]
             # Si aucune case adjacente n'a jamais été visitée, on doit faire demi tour
             if len(unvisitedAdjacentCases) == 0:
-                # On ajoute la case courante à la liste des cases qui nous forcent à faire demi tour
-                potentialEnds.append(currentCase)
                 stack.pop()
                 continue
             # On choisit une case adjacente au hasard
@@ -348,9 +364,6 @@ class Labyrinth(object):
             if len(visitedCases) == self.width * self.height:
                 break  # opti : on arrête la génération si on a visité toutes les cases
 
-        # On choisit une case au hasard dans la liste des cases qui nous forcent à faire demi tour : ce sera la case de fin
-        self.end = random.choice(potentialEnds)
-
         # On détruit un nombre aléatoire de murs pour créer des boucles dans le labyrinthe
         amountToDestroy = round(len(self.walls) * self.loopingRate)
         for i in range(amountToDestroy):
@@ -358,45 +371,3 @@ class Labyrinth(object):
             self.removeWall(wall[0], wall[1])
 
         print(f"generation complete in {round(time.time() - startTime, 3)} seconds")
-
-
-L = Labyrinth(80, 80, 30)
-C = Character(labyrinth=L)
-screen = pygame.display.set_mode((screen_width, screen_height))
-L.generate()
-
-# Game loop
-running = True
-while running:
-    # Event handling
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-
-        if event.type == pygame.KEYUP:
-            key = pygame.key.name(event.key)
-            if key == "up":
-                C.move("U")
-            elif key == "down":
-                C.move("D")
-            elif key == "left":
-                C.move("L")
-            elif key == "right":
-                C.move("R")
-
-            print(
-                f"""Key Pressed : {pygame.key.name(event.key)}
-position : {C.caseId}"""
-            )
-
-    # Simulation
-
-    # Drawing
-
-    L.draw(screen)
-    C.draw(screen)
-
-    pygame.display.flip()  # Update the display
-
-# Quit the game
-pygame.quit()
