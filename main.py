@@ -9,7 +9,7 @@ font = pygame.font.Font("freesansbold.ttf", 20)
 graph2.init(sw=screen_width, sh=screen_height, fnt=font)
 pygame.display.set_caption("Labyrinth")
 screen = pygame.display.set_mode((screen_width, screen_height))
-L = graph2.Labyrinth(3, 3, 30)
+L = graph2.Labyrinth(25, 25, 30)
 C = graph2.Character(labyrinth=L)
 
 

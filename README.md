@@ -23,3 +23,10 @@ Un mode "IA" -> On choisit une ia et on tweake le laby et on le résoud
 1 fichier "logique du labyrinthe"
 1 fichier main qui gère la boucle d'execution
 
+
+
+2 Bugs découverts le 02/02/23 : 
+- On peut warp d'un côté à l'autre de la map par défaut (modifier fonction move)
+- On Relancer une partie après un retour au menu ne reset ni le labyrinthe ni le personnage
+
+A FIXER
