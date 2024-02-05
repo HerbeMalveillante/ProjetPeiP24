@@ -5,6 +5,8 @@ import random
 
 # Ce fichier labyrinth contient toutes les fonctions LOGIQUES
 # Du labyrinthe (génération, résolution, etc ?)
+# Cette classe ne dépend d'aucune fonction graphique et peut parfatement fonctionner
+# sans pygame ou avec n'importe quel autre GUI
 
 
 class Labyrinth:
@@ -104,18 +106,24 @@ class Labyrinth:
 
         # On commence par ajouter tous les murs possibles
         self.fillWithWalls()
+
+        # On initialise la pile et la liste des cases visitées
         visitedCases = []
         stack = []
         currentCase = random.randint(0, self.width * self.height - 1)
         stack.append(currentCase)
         visitedCases.append(currentCase)
 
-        while len(stack) > 0:
+        while len(stack) > 0:  # Tant que la pile n'est pas vide
+
             currentCase = stack[-1]
             adjacentCases = self.getAdjacentCases(currentCase)
             unvisitedAdjacentCases = [
                 case for case in adjacentCases if case not in visitedCases
             ]
+            # On récupère les cases adjacentes non visitées.
+            # Si aucune case ne correspond, on "backtrack".
+            # Sinon, on casse un mur, on fait de la nouvelle case la casse courante et on continue.
             if len(unvisitedAdjacentCases) == 0:
                 stack.pop()
                 continue
@@ -125,7 +133,9 @@ class Labyrinth:
                 visitedCases.append(nextCase)
                 stack.append(nextCase)
 
-        # On retire des murs pour créer des boucles
+        # On retire des murs pour créer des boucles.
+        # La probabilité qu'un mur soit retiré est détemrinée par la variable loopingFactor.
+        # Cette variable représente la probabilité qu'un mur soit retiré.
         for wall in self.walls:
             if random.random() < loopingFactor:
                 self.removeWall(wall[0], wall[1])
