@@ -1,219 +1,61 @@
+from rich import print
 import pygame
-import graph2
+import random
 import time
 
-pygame.init()
-screen_width = 1280
-screen_height = 800
-font = pygame.font.Font("freesansbold.ttf", 20)
-graph2.init(sw=screen_width, sh=screen_height, fnt=font)
-pygame.display.set_caption("Labyrinth")
-screen = pygame.display.set_mode((screen_width, screen_height))
-L = graph2.Labyrinth(25, 25, 30)
-C = graph2.Character(labyrinth=L)
+from constants import *  # Couleurs, dimensions, etc.
+from labyrinth import Labyrinth  # Classe Labyrinth
+from graphics import Graphics  # Classe Graphics
+
+# L'objectif de ce fichier main est de faire tourner la boucle principale.
+# Afin de maximiser la lisibilité, il est important de faire usage d'un
+# maximum de librairies externes.
+
+# Ceci est la seconde version du code, adaptée et transformée pour faciliter
+# l'implémentation de futures additions, ainsi que la compréhension de la logique.
+
+# Le programme dispose de plusieurs états :
+# -> Le menu qui permet de choisir le mode d'execution (jeu ou automatique)
+# ainsi que les paramètres de génération et de résolution du labyrinthe
+# -> Le labyrinthe en lui-même, simulé en temps réel ou résolu automatiquement
+# -> L'écran de chargement qui s'affiche lors de la génération ou résolution
+# (idéalement avec une barre de progression)
+# -> Tous les petits écrans intermédiaires qui peuvent être ajoutés par la suite
+# Afin de gérer tous ces états, nous allons utiliser un système de pile.
+# La pile est une structure de données qui permet de stocker des éléments
+# de manière ordonnée. On peut ajouter des éléments au sommet de la pile,
+# et on peut en retirer.
+# Dans notre cas, la pile va contenir les états du programme. L'état en haut
+# de la pile est celui qui est actuellement affiché à l'écran.
+# Lorsqu'on veut changer d'état, on ajoute le nouvel état au sommet de la pile,
+# et on retire l'ancien état. Ainsi, l'état actuel est toujours au sommet de la pile.
+# De cette façon, on peut facilement revenir à l'état précédent en retirant l'état actuel.
+# (bouton retour, etc.)
+
+# Dans cette seconde version, nous allons essayer de mettre en place la pile d'états, ainsi qu'un
+# mode unique (génération automatique -> Résolution manuelle)
 
 
-STATE = "MENU"
+def main():
 
+    L = Labyrinth(30, 30)
+    generationTime = L.generate()
+    print(f"Generated in {generationTime} seconds")
 
-class Colors(object):
-    # Colors
-    BLACK = (0, 0, 0)
-    WHITE = (255, 255, 255)
-    GREY = (128, 128, 128)
-    RED = (255, 0, 0)
-    GREEN = (0, 255, 0)
+    G = Graphics()
 
-
-class Menu(object):
-    def __init__(self):
-        self.buttons = []
-
-    def draw(self):
-        # Draw the menu
-        # fill the screen
-        screen.fill(Colors.WHITE)
-        for button in self.buttons:
-            button.draw()
-
-    def addButton(self, button):
-        self.buttons.append(button)
-
-
-class LoadingScreen(object):
-    def __init__(self):
-        pass
-
-    def draw(self):
-        # Draw the menu
-        # fill the screen
-        screen.fill(Colors.WHITE)
-        # write "loading"
-        text = font.render("Loading", True, Colors.BLACK)
-        textRect = text.get_rect()
-        textRect.center = (screen_width / 2, screen_height / 2)
-        screen.blit(text, textRect)
-
-
-class Button(object):
-    def __init__(
-        self,
-        topLeft,
-        width,
-        height,
-        color=Colors.GREY,
-        text="Hello World",
-        on_click=None,
-    ):
-        self.topLeft = topLeft
-        self.width = width
-        self.height = height
-        self.color = color
-        self.text = text
-        self.on_click = on_click
-
-    def draw(self):
-        pygame.draw.rect(
-            screen, self.color, pygame.Rect(self.topLeft, (self.width, self.height))
-        )
-        text = font.render(self.text, True, Colors.BLACK)
-        textRect = text.get_rect()
-        textRect.center = (
-            self.topLeft[0] + self.width / 2,
-            self.topLeft[1] + self.height / 2,
-        )
-        screen.blit(text, textRect)
-
-
-class Timer(object):
-    def __init__(self, duration):
-        self.duration = duration
-        self.elapsed = 0
-        self.state = "STOPPED"
-
-    def start(self):
-        self.state = "RUNNING"
-
-    def reset(self):
-        self.elapsed = 0
-        self.state = "STOPPED"
-
-    def addTimeElapsed(self, timeElapsed):
-        if self.state == "RUNNING":
-            self.elapsed += timeElapsed
-
-    def hasRang(self):
-        return self.elapsed >= self.duration
-
-
-def changeState(state):
-    global STATE
-    STATE = "LOADING"
-    L.generate()
-    STATE = state
-
-
-LS = LoadingScreen()
-M = Menu()
-M.addButton(
-    Button(
-        (100, 100),
-        300,
-        100,
-        on_click=lambda: changeState("GAME"),
-    )
-)
-TMessageEnd = Timer(5)
-
-# Game loop
-running = True
-last_frame = time.time()
-while running:
-    if STATE == "GAME":
+    # Game loop
+    running = True
+    while running:
         # Event handling
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
 
-            if event.type == pygame.KEYUP:
-                key = pygame.key.name(event.key)
-                if key == "up":
-                    C.move("U")
-                elif key == "down":
-                    C.move("D")
-                elif key == "left":
-                    C.move("L")
-                elif key == "right":
-                    C.move("R")
+        G.draw(L)
 
-                print(
-                    f"""Key Pressed : {pygame.key.name(event.key)}
-    position : {C.caseId}"""
-                )
-
-        # Simulation
-
-        # Le joueur apparaît sur la carte
-        # On lui indique qu'il doit résoudre le labyrinthe en étant chronométré
-        # Il doit ensuite se déplacer et atteindre la sortie
-        # Quand il atteint la sortie, on lui indique le temps réalisé, les mouvements effectués
-        # On on le renvoie à l'accueuil.
-
-        if C.caseId == L.end:
-            TMessageEnd.start()
-            # print(TMessageEnd.elapsed)
-            TMessageEnd.addTimeElapsed(time.time() - last_frame)
-            if TMessageEnd.hasRang():
-                TMessageEnd.reset()
-                STATE = "MENU"
-
-        # Drawing
-
-        if C.moveCount > 0:
-            L.addTimeElapsed(time.time() - last_frame)
-        last_frame = time.time()
-
-        L.draw(screen)
-        C.draw(screen)
-        if TMessageEnd.state == "RUNNING":
-            text = font.render("Bravo !", True, Colors.BLACK)
-            textRect = text.get_rect()
-            textRect.center = (screen_width / 2, screen_height / 2)
-            screen.blit(text, textRect)
-
-        pygame.display.flip()  # Update the display
-
-    elif STATE == "MENU":
-        # Event handling
-
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-            if event.type == pygame.MOUSEBUTTONUP:
-                pos = pygame.mouse.get_pos()
-                for button in M.buttons:
-                    if (
-                        pos[0] > button.topLeft[0]
-                        and pos[0] < button.topLeft[0] + button.width
-                        and pos[1] > button.topLeft[1]
-                        and pos[1] < button.topLeft[1] + button.height
-                    ):
-                        if button.on_click is not None:
-                            LS.draw()
-                            pygame.display.flip()
-                            button.on_click()
-                            break
-
-        M.draw()
-
-        pygame.display.flip()  # Update the display
-    elif STATE == "LOADING":
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-        LS.draw()
-        pygame.display.flip()
+    # Quit the game
+    pygame.quit()
 
 
-# Quit the game
-pygame.quit()
+main()

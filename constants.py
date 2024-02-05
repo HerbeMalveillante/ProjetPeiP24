@@ -1,0 +1,14 @@
+RED = (255, 0, 0)
+GREEN = (0, 255, 0)
+BLUE = (0, 0, 255)
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+
+SCREEN_WIDTH = 1080
+SCREEN_HEIGHT = 720
+
+WINDOW_TITLE = "Labyrinthe"
+
+# Defaults
+DRAW_CASE_NUMBERS = False
+SHOW_FPS = True
