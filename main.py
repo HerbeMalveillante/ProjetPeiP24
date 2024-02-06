@@ -21,33 +21,5 @@ from menu import *  # Classe Menu
 # l'implémentation de futures additions, ainsi que la compréhension de la logique.
 
 
-def main():
-
-    L = Labyrinth(30, 30)  # Création d'un labyrinthe de 30x30 cases
-    L2 = Labyrinth(20, 20)  # Création d'un second labyrinthe de 20x20 cases
-    generationTime = L.generate()  # Génération du labyrinthe
-    print(f"Generated in {generationTime} seconds")
-    generationTime2 = L2.generate()  # Génération du second labyrinthe
-    print(f"Generated in {generationTime2} seconds")
-
-    G = Graphics()  # Initialisation de la classe Graphics
-
-    # Boucle principale
-    running = True
-    while running:
-        # On vérifie les événements : par exemple la fermeture de la fenêtre
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-
-        G.clearScreen()  # Efface l'écran
-        G.drawLabyrinth(L, pos=(10, 10), size=(400, 400))  # Dessin du labyrinthe 1
-        G.drawLabyrinth(L2, pos=(420, 10), size=(400, 400))  # Dessin du labyrinthe 2
-        G.flip()  # Affiche l'écran (évite les clignotements en dessinant plusieurs objets à la suite)
-
-    # Quit the game
-    pygame.quit()
-
-
 menu = Menu()
 menu.main()

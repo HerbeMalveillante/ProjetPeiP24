@@ -22,3 +22,4 @@ DRAW_CASE_NUMBERS = False
 SHOW_FPS = True
 PIXEL_PERFECT = False  # Si True, les cases auront une taille entière. Cela affichera le labyrinthe légèrement plus petit que la taille maximale si ses dimensions ne sont pas des multiples de la taille maximale.
 FPS_RESOLUTION = 2  # En secondes : on calcule le FPS en mesurant la moyenne du nombre de frames par seconde sur cette durée. Plus cette valeur est grande, plus le FPS est stable, mais moins il est précis.
+ANTIALIASING = 1  # 0: désactivé, 1: activé

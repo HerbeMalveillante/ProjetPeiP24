@@ -1,12 +1,19 @@
 import pygame
 from constants import *
 import time
+import os
 
 # Ce fichier contient les classes et fonctions graphiques
 # Il dépend de pygame et ne peut pas fonctionner sans.
 # La plupart des fonctions de cette classe permettent de dessiner des objets spécifiques,
 # comme par exemple un labyrinthe.
 # La logique du programme peut fonctionner sans problème sans cette classe.
+
+
+# Note sur le cache : pour éviter de recalculer le labyrinthe à chaque frame, on stocke
+# La surface sur laquelle le labyrinthe est dessiné dans un dictionnaire.
+# Chaque labyrinthe a un identifiant unique et un attribut qui indique si le labyrinthe a changé depuis
+# La dernière fois qu'il a été dessiné. Si le labyrinthe a changé, on le redessine, sinon on affiche simplement la surface.
 
 
 class Graphics(object):
@@ -16,6 +23,7 @@ class Graphics(object):
         self.font18 = pygame.font.Font(None, 18)
         self.font36 = pygame.font.Font(None, 36)
         self.font54 = pygame.font.Font(None, 54)
+        self.cache = {}
         pygame.display.set_caption(WINDOW_TITLE)
 
     def clearScreen(self, color=BLACK):
@@ -23,6 +31,28 @@ class Graphics(object):
 
     def flip(self):
         pygame.display.flip()
+
+    def screenShot(self):
+        # Save a screenshot of the current screen
+        # Si il n'y a pas de dossier screenshots, il est créé.
+        # Le screenshot est enregistré sous le nom screenshot{annee-mois-jour--heure-minutes-secondes}.png
+        # Si un screenshot a déjà été pris à cette seconde, on ajoute un nombre à la fin du nom.
+        # On retourne le nom du screenshot.
+
+        if not os.path.exists("screenshots"):
+            os.makedirs("screenshots")
+        name = "screenshots/screenshot" + time.strftime("%Y-%m-%d--%H-%M-%S") + ".png"
+        i = 0
+        while os.path.exists(name):
+            i += 1
+            name = (
+                "screenshots/screenshot"
+                + time.strftime("%Y-%m-%d--%H-%M-%S")
+                + f"({i}).png"
+            )
+        pygame.image.save(self.screen, name)
+        print(f"Screenshot saved as {name}")
+        return name
 
     def getCellSize(self, labyrinth, size, pixelPerfect=PIXEL_PERFECT):
         # On calcule la taille de chaque case en fonction de la taille du labyrinthe
@@ -35,89 +65,112 @@ class Graphics(object):
             return min(size[0] // labyrinth.width, size[1] // labyrinth.height)
         return min(size[0] / labyrinth.width, size[1] / labyrinth.height)
 
-    def drawLabyrinth(
+    def labyrinthSurface(
         self,
         labyrinth,
-        pos=(0, 0),
         size=(SCREEN_WIDTH, SCREEN_HEIGHT),
         caseNumbers=DRAW_CASE_NUMBERS,
     ):
-        # Par défaut, le labyrinthe est dessiné en haut à gauche de l'écran, et prend toute la place disponible.
-        # On aimerait pouvoir le dessiner à un autre endroit, ou avec une taille différente afin de pouvoir
-        # L'intégrer au menu et afficher d'autres informations à côté.
-        # On peut donc passer en argument la position du coin supérieur gauche du labyrinthe, ainsi que la taille
-        # totale du labyrinthe.
-        # On considère que tous les labyrinthes sont des carrés : ainsi la taille totale est définie par la taille
-        # du plus petit côté.
+        # On dessine le labyrinthe sur une nouvelle surface et on retourne cette surface
 
-        start = time.time()
-        self.drawStartEnd(labyrinth, pos, size)
-        self.drawWalls(labyrinth, pos, size)
+        # On fait une nouvelle surface
+        # On veut que la taille de la surface soit de la taille donnée en entrée.
+
+        surface = pygame.Surface(size)
+
+        self.drawStartEnd(labyrinth, size, surface)
+        self.drawWalls(labyrinth, size, surface)
+        self.drawOuterEdges(labyrinth, size, surface)
         if caseNumbers:
-            self.drawCaseNumbers(labyrinth, pos, size)
+            self.drawCaseNumbers(labyrinth, size, surface)
 
-    def drawWalls(self, labyrinth, pos, size):
-        # The walls are described as a list of tuples (case1, case2).
-        # The list of tuple do not contain the outer edges of the labyrinth.
-        # The cases are identified by their unique id, which is their position
-        # in the matrix.
+        # on retourne la surface
+        return surface
+
+    def drawWalls(self, labyrinth, size, surface):
         CELL_SIZE = self.getCellSize(labyrinth, size)
+        WALL_COLOR = WHITE
+        WALL_THICKNESS = 2
 
-        # The labyrinth is drawn as a grid of cells.
-        # A wall is drawn between two cases if there is a wall between them.
-        # If the cases are horizontally adjacent, the wall is drawn vertically.
-        # If the cases are vertically adjacent, the wall is drawn horizontally.
-        # The walls are drawn in white.
-        for i in range(labyrinth.height):
-            for j in range(labyrinth.width):
-                if j != labyrinth.width - 1:
-                    if (
-                        labyrinth.matrix[i][j],
-                        labyrinth.matrix[i][j + 1],
-                    ) in labyrinth.walls:
-                        pygame.draw.line(
-                            self.screen,
-                            WHITE,
-                            ((j + 1) * CELL_SIZE + pos[0], i * CELL_SIZE + pos[1]),
-                            (
-                                (j + 1) * CELL_SIZE + pos[0],
-                                (i + 1) * CELL_SIZE + pos[1],
-                            ),
-                            2,
-                        )
-                if i != labyrinth.height - 1:
-                    if (
-                        labyrinth.matrix[i][j],
-                        labyrinth.matrix[i + 1][j],
-                    ) in labyrinth.walls:
-                        pygame.draw.line(
-                            self.screen,
-                            WHITE,
-                            (j * CELL_SIZE + pos[0], (i + 1) * CELL_SIZE + pos[1]),
-                            (
-                                (j + 1) * CELL_SIZE + pos[0],
-                                (i + 1) * CELL_SIZE + pos[1],
-                            ),
-                            2,
-                        )
-        # Draw the outer edges of the labyrinth
+        # On veut dessiner les murs du labyrinthe.
+        # Chaque mur est représenté par deux cases, qui doivent être séparées par un mur.
+        # Un mur peut être vertical ou horizontal.
+
+        # Commençons donc par regarder si le mur est horizontal ou vertical.
+        # Le mur est horizontal si les deux cases sont sur la même ligne.
+
+        for w in labyrinth.walls:
+            if (
+                abs(w[0] - w[1]) == 1
+            ):  # les deux cases sont sur la même ligne : le mur est vertical
+                orientation = "V"
+            elif (
+                abs(w[0] - w[1]) == labyrinth.width
+            ):  # les deux cases sont sur la même colonne : le mur est horizontal
+                orientation = "H"
+            else:
+                print("ERREUR : les deux cases ne sont pas adjacentes")
+
+            # On dessine le mur en fonction de son orientation.
+            # Le mur est une ligne qui sépare les deux cases.
+            # On récupère les coordonées du coin supérieur gauche des deux cases
+            topLeft1 = (
+                w[0] % labyrinth.width * CELL_SIZE,
+                w[0] // labyrinth.width * CELL_SIZE,
+            )
+            topLeft2 = (
+                w[1] % labyrinth.width * CELL_SIZE,
+                w[1] // labyrinth.width * CELL_SIZE,
+            )
+            if orientation == "H":
+                # Le point de départ de la ligne se situe sur topLeft2
+                # La ligne fait la taille d'une case donc le point d'arrivée est (topLeft2[0] + CELL_SIZE, topLeft2[1])
+                pygame.draw.line(
+                    surface,
+                    WALL_COLOR,
+                    (topLeft2[0], topLeft2[1]),
+                    (topLeft2[0] + CELL_SIZE, topLeft2[1]),
+                    WALL_THICKNESS,
+                )
+            else:
+                pygame.draw.line(
+                    surface,
+                    WALL_COLOR,
+                    (topLeft2[0], topLeft2[1]),
+                    (topLeft2[0], topLeft2[1] + CELL_SIZE),
+                    WALL_THICKNESS,
+                )
+
+    def drawOuterEdges(self, labyrinth, size, surface):
+        CELL_SIZE = self.getCellSize(labyrinth, size)
+        WALL_COLOR = WHITE
+        WALL_THICKNESS = 2
         pygame.draw.rect(
-            self.screen,
-            WHITE,
-            (pos[0], pos[1], CELL_SIZE * labyrinth.width, CELL_SIZE * labyrinth.height),
-            2,
+            surface,
+            WALL_COLOR,
+            (0, 0, CELL_SIZE * labyrinth.width, CELL_SIZE * labyrinth.height),
+            WALL_THICKNESS,
         )
 
-    def drawCaseNumbers(self, labyrinth, pos, size):
-        # Draw the number of each case in the middle of the case
-        # We want to adapt the font used to the size of the case.
-        # We have three available fonts : 18, 36 and 54.
-        # We choose the biggest font that fits in the case.
-        # If the case is too small, we do not draw the number.
-        # It is important to keep in mind that numbers are drawn in the middle and can
-        # contain up to 3 characters.
+    def drawStartEnd(self, labyrinth, size, surface):
+        CELL_SIZE = self.getCellSize(labyrinth, size)
+        x1 = labyrinth.start % labyrinth.width
+        y1 = labyrinth.start // labyrinth.width
+        x2 = labyrinth.end % labyrinth.width
+        y2 = labyrinth.end // labyrinth.width
+        pygame.draw.rect(
+            surface,
+            GREEN,
+            (x1 * CELL_SIZE, y1 * CELL_SIZE, CELL_SIZE, CELL_SIZE),
+        )
+        pygame.draw.rect(
+            surface,
+            RED,
+            (x2 * CELL_SIZE, y2 * CELL_SIZE, CELL_SIZE, CELL_SIZE),
+        )
 
-        CELL_SIZE = self.getCellSize(labyrinth, pos, size)
+    def drawCaseNumbers(self, labyrinth, size, surface):
+        CELL_SIZE = self.getCellSize(labyrinth, size)
 
         for i in range(labyrinth.height):
             for j in range(labyrinth.width):
@@ -134,40 +187,26 @@ class Graphics(object):
                 else:
                     font = self.font54
 
-                text = font.render(text, 0, (255, 255, 255))
-                self.screen.blit(
+                text = font.render(text, ANTIALIASING, (255, 255, 255))
+                surface.blit(
                     text,
                     (
-                        j * CELL_SIZE + pos[0] + CELL_SIZE // 2 - text.get_width() // 2,
-                        i * CELL_SIZE
-                        + pos[1]
-                        + CELL_SIZE // 2
-                        - text.get_height() // 2,
+                        j * CELL_SIZE + CELL_SIZE // 2 - text.get_width() // 2,
+                        i * CELL_SIZE + CELL_SIZE // 2 - text.get_height() // 2,
                     ),
                 )
-
-    def drawStartEnd(self, labyrinth, pos, size):
-        # Draw the start and end cases in a different color (green and red)
-        CELL_SIZE = self.getCellSize(labyrinth, size)
-        x1 = labyrinth.start % labyrinth.width
-        y1 = labyrinth.start // labyrinth.width
-        x2 = labyrinth.end % labyrinth.width
-        y2 = labyrinth.end // labyrinth.width
-        pygame.draw.rect(
-            self.screen,
-            GREEN,
-            (x1 * CELL_SIZE + pos[0], y1 * CELL_SIZE + pos[1], CELL_SIZE, CELL_SIZE),
-        )
-        pygame.draw.rect(
-            self.screen,
-            RED,
-            (x2 * CELL_SIZE + pos[0], y2 * CELL_SIZE + pos[1], CELL_SIZE, CELL_SIZE),
-        )
 
     def drawButton(self, button):
         # Draw the button on the screen
         pygame.draw.rect(self.screen, button.background, (button.pos, button.size))
-        text = self.font18.render(button.text, 0, button.textColor)
+        # Calculate the font to use based on the size of the button and the length of the text to display
+        if len(button.text) > 10:
+            font = self.font18
+        elif len(button.text) > 5:
+            font = self.font36
+        else:
+            font = self.font54
+        text = font.render(button.text, ANTIALIASING, button.textColor)
         self.screen.blit(
             text,
             (
@@ -183,5 +222,32 @@ class Graphics(object):
             if element.TYPE == "Button":
                 self.drawButton(element)
             elif element.TYPE == "LabyrinthWrapper":
-                self.drawLabyrinth(element.labyrinth, element.pos, element.size)
-                print(f"Drawing labyrinth at {element.pos} with size {element.size}")
+                # Le labyrinthe possède un attribut "hasChanged" qui indique si il a été modifié.
+                # Cet attribut prend la valeur "True" dès qu'une modification est apportée au labyrinthe.
+                # Si l'attribut est "False", on peut simplement dessiner la surface stockée dans le cache."
+                # Si l'attribut est "True", on redessine le labyrinthe et on stocke la nouvelle surface dans le cache.
+                # Comme la dernière version du labyrinthe est stockée dans le cache, on peut passer l'attribut "hasChanged" à "False".
+                if (
+                    element.labyrinth.id not in self.cache
+                    or element.labyrinth.hasChanged
+                ):
+                    self.cache[element.labyrinth.id] = self.labyrinthSurface(
+                        element.labyrinth, element.size
+                    )
+
+                    element.labyrinth.hasChanged = False
+                # On dessine le labyrinthe
+                self.screen.blit(self.cache[element.labyrinth.id], element.pos)
+
+                # On dessine le personnage
+                self.drawCharacter(element.character)
+
+    def drawCharacter(self, character):
+        CELL_SIZE = self.getCellSize(character.labyrinth, (SCREEN_WIDTH, SCREEN_HEIGHT))
+        x = character.pos % character.labyrinth.width
+        y = character.pos // character.labyrinth.width
+        pygame.draw.rect(
+            self.screen,
+            BLUE,
+            (x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE),
+        )

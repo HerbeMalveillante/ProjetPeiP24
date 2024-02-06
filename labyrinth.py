@@ -2,6 +2,7 @@ from rich import print
 import math
 import time
 import random
+from uuid import uuid4  # Pour donner un identifiant unique au labyrinthe
 
 # Ce fichier labyrinth contient toutes les fonctions LOGIQUES
 # Du labyrinthe (génération, résolution, etc ?)
@@ -11,10 +12,14 @@ import random
 
 class Labyrinth:
     def __init__(self, width, height):
+        self.id = (
+            uuid4()
+        )  # On donne un identifiant unique au labyrinthe (utilisé pour le cache)
         self.width = width
         self.height = height
         self.matrix = [[j + i * width for j in range(width)] for i in range(height)]
         self.walls = []
+        self.hasChanged = True  # Indique si le labyrinthe a changé depuis la dernière fois qu'il a été dessiné. (= s'il doit être redessiné)
 
         # Par défaut, les cases de départ et de fin se trouvent
         # tout en haut à gauche et tout en bas à droite
@@ -57,6 +62,7 @@ class Labyrinth:
         if (case1, case2) in self.walls:
             return False
         self.walls.append((case1, case2))
+        self.hasChanged = True
         return True
 
     def removeWall(self, case1, case2):
@@ -70,6 +76,7 @@ class Labyrinth:
         if (case1, case2) not in self.walls:
             return False
         self.walls.remove((case1, case2))
+        self.hasChanged = True
         return True
 
     def fillWithWalls(self):
@@ -90,6 +97,7 @@ class Labyrinth:
             # Vertical
             if i + self.width < self.width * self.height:
                 self.addWall(i, i + self.width)
+        self.hasChanged = True
 
     def generate(self, loopingFactor=0.05):
         # Génère le labyrinthe en utilisant un algorithme
@@ -140,4 +148,5 @@ class Labyrinth:
             if random.random() < loopingFactor:
                 self.removeWall(wall[0], wall[1])
 
+        self.hasChanged = True
         return round(time.time() - start, 3)

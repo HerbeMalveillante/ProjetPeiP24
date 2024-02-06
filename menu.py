@@ -5,6 +5,7 @@ import time
 from graphics import *
 from labyrinth import *
 from constants import *
+from character import *
 
 # La classe Menu représente l'interface du jeu.
 # Elle est responsable de l'affichage des menus, de la gestion des événements, etc.
@@ -39,10 +40,15 @@ class Button(Element):
         text="Button",
         action=None,
         pos=(0, 0),
-        size=(100, 50),
+        size=None,
         background=GRAY,
         textColor=WHITE,
     ):
+        if size is None:
+            size = (
+                len(text) * 20,
+                50,
+            )  # On calcule la taille du bouton en fonction de la longueur du texte (experimental)
         super().__init__(pos, size, background)
         self.text = text
         self.textColor = textColor
@@ -50,9 +56,10 @@ class Button(Element):
 
 
 class LabyrinthWrapper(Element):
-    def __init__(self, labyrinth, pos, size):
+    def __init__(self, labyrinth, pos=(0, 0), size=(SCREEN_WIDTH, SCREEN_HEIGHT)):
         super().__init__(pos, size, BLACK)
         self.labyrinth = labyrinth
+        self.character = Character(labyrinth)  # Devra peut-être être déplacé plus tard
 
 
 class LabyrinthFullScreen(SubMenu):
@@ -60,9 +67,7 @@ class LabyrinthFullScreen(SubMenu):
     def __init__(self, parent, labyrinth):
         super().__init__(parent, "Labyrinthe")
 
-        self.labyrinth = LabyrinthWrapper(
-            labyrinth, (0, 0), (SCREEN_WIDTH, SCREEN_HEIGHT)
-        )
+        self.labyrinth = LabyrinthWrapper(labyrinth)
         self.elements.append(self.labyrinth)
 
         # Back button on the top right
@@ -70,10 +75,27 @@ class LabyrinthFullScreen(SubMenu):
             Button(
                 "Retour",
                 action=self.parent.goBack,
-                pos=(SCREEN_WIDTH - 110, 10),
-                size=(100, 50),
+                pos=(SCREEN_WIDTH - 200, 10),
             )
         )
+        # ScreenShot button on the bottom right
+        self.elements.append(
+            Button(
+                "ScreenShot",
+                action=self.parent.G.screenShot,
+                pos=(SCREEN_WIDTH - 250, SCREEN_HEIGHT - 60),
+            )
+        )
+
+    def registerInput(self, key):
+        if key == pygame.K_UP:
+            self.labyrinth.character.move((0, -1))
+        elif key == pygame.K_DOWN:
+            self.labyrinth.character.move((0, 1))
+        elif key == pygame.K_LEFT:
+            self.labyrinth.character.move((-1, 0))
+        elif key == pygame.K_RIGHT:
+            self.labyrinth.character.move((1, 0))
 
 
 class MainMenu(SubMenu):
@@ -94,6 +116,7 @@ class Menu(object):
         self.FPS = (
             -1
         )  # Une valeur négative signifie que le FPS n'a pas pu être calculé.
+        self.G = Graphics()
 
         self.running = True
 
@@ -102,7 +125,7 @@ class Menu(object):
         self.screenStack = [MainMenu(self)]
 
     def play(self):
-        L = Labyrinth(30, 30)
+        L = Labyrinth(10, 10)
         generationTime = L.generate()
         print(f"Generated in {generationTime} seconds")
         self.screenStack.append(LabyrinthFullScreen(self, L))
@@ -137,7 +160,6 @@ class Menu(object):
             pygame.display.set_caption(" - ".join(info))
 
     def main(self):
-        G = Graphics()
         while self.running:
 
             start = time.time()  # On prend une mesure du temps au début de la frame
@@ -158,10 +180,12 @@ class Menu(object):
                             ):
                                 if button.action:
                                     button.action()
+                elif event.type == pygame.KEYUP:
+                    self.screenStack[-1].registerInput(event.key)
 
             # DESSIN
-            G.drawSubMenu(self.screenStack[-1])  # On dessine l'écran actuel
-            G.flip()  # Affiche l'écran (évite les clignotements en dessinant plusieurs objets à la suite)
+            self.G.drawSubMenu(self.screenStack[-1])  # On dessine l'écran actuel
+            self.G.flip()  # Affiche l'écran (évite les clignotements en dessinant plusieurs objets à la suite)
 
             # On met à jour le FPS : le titre de la fenêtre est mis à jour, et l'attribut self.FPS est mis à jour.
             self.updateFPS(start)
