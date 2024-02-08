@@ -13,38 +13,19 @@ class Character(object):
 
     def move(self, direction):
         # direction can either be (1, 0), (-1, 0), (0, 1) or (0, -1).
+        allowedDirections = [(1, 0), (-1, 0), (0, 1), (0, -1)]
         # direction cannot be (0, 0), (1, 1), (-1, -1), (1, -1) or (-1, 1).
-
-        # We check if the move is possible
-        if direction in [(1, 0), (-1, 0), (0, 1), (0, -1)]:
-            if direction == (1, 0):
-                targetWall = min(self.pos, self.pos + 1), max(self.pos, self.pos + 1)
-                if self.pos % self.labyrinth.width != self.labyrinth.width - 1:
-                    if targetWall not in self.labyrinth.walls:
-                        self.pos += 1
-                        self.moveCount += 1
-            elif direction == (-1, 0):
-                targetWall = min(self.pos, self.pos + 1), max(self.pos, self.pos + 1)
-                if self.pos % self.labyrinth.width != 0:
-                    if targetWall not in self.labyrinth.walls:
-                        self.pos -= 1
-                        self.moveCount += 1
-            elif direction == (0, 1):
-                targetWall = min(self.pos, self.pos + self.labyrinth.width), max(
-                    self.pos, self.pos + self.labyrinth.width
-                )
-                if self.pos < self.labyrinth.width * (self.labyrinth.height - 1):
-                    if targetWall not in self.labyrinth.walls:
-                        self.pos += self.labyrinth.width
-                        self.moveCount += 1
-            elif direction == (0, -1):
-                targetWall = min(self.pos, self.pos + self.labyrinth.width), max(
-                    self.pos, self.pos + self.labyrinth.width
-                )
-                if self.pos >= self.labyrinth.width:
-                    if targetWall not in self.labyrinth.walls:
-                        self.pos -= self.labyrinth.width
-                        self.moveCount += 1
-        else:
-            print("Invalid direction")
+        if direction not in allowedDirections:
             return False
+
+        # Mouvement horizontal
+        if direction[0] != 0:
+            newPos = self.pos + direction[0]
+        # Mouvement vertical
+        elif direction[1] != 0:
+            newPos = self.pos + direction[1] * self.labyrinth.width
+
+        if not self.labyrinth.canMove(self.pos, newPos):
+            return
+
+        self.pos = newPos

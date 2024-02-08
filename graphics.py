@@ -3,6 +3,8 @@ from constants import *
 import time
 import os
 
+from rich import print
+
 # Ce fichier contient les classes et fonctions graphiques
 # Il dépend de pygame et ne peut pas fonctionner sans.
 # La plupart des fonctions de cette classe permettent de dessiner des objets spécifiques,
@@ -83,6 +85,9 @@ class Graphics(object):
         self.drawOuterEdges(labyrinth, size, surface)
         if caseNumbers:
             self.drawCaseNumbers(labyrinth, size, surface)
+
+        if labyrinth.solvingData is not None:
+            self.drawSolvingPath(labyrinth, size, surface)
 
         # on retourne la surface
         return surface
@@ -196,6 +201,53 @@ class Graphics(object):
                     ),
                 )
 
+    def drawSolvingPath(self, labyrinth, size, surface, animate=False):
+
+        for index, move in enumerate(labyrinth.solvingData["moves"]):
+            if index != 0:  # Si on est pas sur la première case
+                # On dessine une ligne entre la case "move" et la case précédente
+                CELL_SIZE = self.getCellSize(labyrinth, size)
+                x1 = move % labyrinth.width
+                y1 = move // labyrinth.width
+                x2 = labyrinth.solvingData["moves"][index - 1] % labyrinth.width
+                y2 = labyrinth.solvingData["moves"][index - 1] // labyrinth.width
+                pygame.draw.line(
+                    surface,
+                    BLUE,
+                    (
+                        x1 * CELL_SIZE + CELL_SIZE // 2,
+                        y1 * CELL_SIZE + CELL_SIZE // 2,
+                    ),
+                    (
+                        x2 * CELL_SIZE + CELL_SIZE // 2,
+                        y2 * CELL_SIZE + CELL_SIZE // 2,
+                    ),
+                    5,
+                )
+                # On met une croix rouge sur les cases bannies
+                # On met une croie orange sur les cases visitées
+                for case in labyrinth.solvingData["visited"]:
+                    if case not in labyrinth.solvingData["banned"]:
+                        x = case % labyrinth.width
+                        y = case // labyrinth.width
+                        pygame.draw.line(
+                            surface,
+                            (255, 165, 0),
+                            (x * CELL_SIZE, y * CELL_SIZE),
+                            (x * CELL_SIZE + CELL_SIZE, y * CELL_SIZE + CELL_SIZE),
+                            2,
+                        )
+                for case in labyrinth.solvingData["banned"]:
+                    x = case % labyrinth.width
+                    y = case // labyrinth.width
+                    pygame.draw.line(
+                        surface,
+                        RED,
+                        (x * CELL_SIZE, y * CELL_SIZE),
+                        (x * CELL_SIZE + CELL_SIZE, y * CELL_SIZE + CELL_SIZE),
+                        2,
+                    )
+
     def drawButton(self, button):
         # Draw the button on the screen
         pygame.draw.rect(self.screen, button.background, (button.pos, button.size))
@@ -227,6 +279,17 @@ class Graphics(object):
                 # Si l'attribut est "False", on peut simplement dessiner la surface stockée dans le cache."
                 # Si l'attribut est "True", on redessine le labyrinthe et on stocke la nouvelle surface dans le cache.
                 # Comme la dernière version du labyrinthe est stockée dans le cache, on peut passer l'attribut "hasChanged" à "False".
+
+                start = time.time()
+
+                # Si le labyrinthe n'a pas été fini d'être résolu, on ajoute une étape au chemin de résolution
+                if not element.labyrinth.solved:
+
+                    element.labyrinth.resolve_animate()  # On ajoute une étape à la résolution
+                    # Permet d'animer la résolution du labyrinthe
+                    # Le labyrinthe a changé : on met à jour le cache
+                    element.labyrinth.hasChanged = True
+
                 if (
                     element.labyrinth.id not in self.cache
                     or element.labyrinth.hasChanged
@@ -235,12 +298,17 @@ class Graphics(object):
                         element.labyrinth, element.size
                     )
 
+                    print(
+                        f"Updated cache for labyrinth {element.labyrinth.id} in {time.time() - start} seconds"
+                    )
+
                     element.labyrinth.hasChanged = False
                 # On dessine le labyrinthe
                 self.screen.blit(self.cache[element.labyrinth.id], element.pos)
 
-                # On dessine le personnage
-                self.drawCharacter(element.character)
+                # On dessine le personnage si il existe
+                if element.character is not None:
+                    self.drawCharacter(element.character)
 
     def drawCharacter(self, character):
         CELL_SIZE = self.getCellSize(character.labyrinth, (SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -250,4 +318,14 @@ class Graphics(object):
             self.screen,
             BLUE,
             (x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE),
+        )
+
+        # draw the character's casId
+        text = self.font18.render(str(character.pos), ANTIALIASING, (255, 255, 255))
+        self.screen.blit(
+            text,
+            (
+                x * CELL_SIZE + CELL_SIZE // 2 - text.get_width() // 2,
+                y * CELL_SIZE + CELL_SIZE // 2 - text.get_height() // 2,
+            ),
         )

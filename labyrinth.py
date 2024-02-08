@@ -20,6 +20,8 @@ class Labyrinth:
         self.matrix = [[j + i * width for j in range(width)] for i in range(height)]
         self.walls = []
         self.hasChanged = True  # Indique si le labyrinthe a changé depuis la dernière fois qu'il a été dessiné. (= s'il doit être redessiné)
+        self.solvingData = None  # Contient les données de résolution du labyrinthe
+        self.solved = False
 
         # Par défaut, les cases de départ et de fin se trouvent
         # tout en haut à gauche et tout en bas à droite
@@ -30,7 +32,8 @@ class Labyrinth:
         # Retourne True si les deux cases se touchent.
         # Retourne False sinon.
         # case1 et case2 sont les identifiants uniques de chaque case.
-        return abs(case1 - case2) == 1 or abs(case1 - case2) == self.width
+        case1, case2 = min(case1, case2), max(case1, case2)
+        return case1 in self.getAdjacentCases(case2)
 
     def getAdjacentCases(self, case):
         # Retourne une liste des identifiants de toutes les cases adjacentes
@@ -44,6 +47,7 @@ class Labyrinth:
             adjacent.append(case - self.width)
         if case < self.width * (self.height - 1):
             adjacent.append(case + self.width)
+
         return adjacent
 
     def addWall(self, case1, case2):
@@ -150,3 +154,105 @@ class Labyrinth:
 
         self.hasChanged = True
         return round(time.time() - start, 3)
+
+    def canMove(self, case1, case2):
+
+        case1, case2 = min(case1, case2), max(case1, case2)
+
+        if not self.isAdjacent(case1, case2):
+            return False
+
+        if (case1, case2) in self.walls:
+            return False
+
+        return True
+
+    def resolve(self):
+
+        # Retourne une liste des cases à parcourir pour résoudre le labyrinthe.
+        # Pour un premier essai, on va implémenter l'algorithme "Dead-end filling".
+        # Cet algorithme consiste à reconnaître quand on arrive dans un cul-de-sac et à revenir en arrière jusqu'à la dernière intersection.
+
+        # On commence par la case du début
+        # Si on a une intersection, on choisit un chemin au hasard
+        # Quand on arrive à un cul de sac, on dépile jusqu'à la dernière intersection en gardant trace des cases dépilées
+        # On considère que ces cases n'existent plus à la prochaine étape et on recommence
+
+        # On chronomètre le temps de résolution qui sera retourné
+        start = time.time()
+
+        stack = [self.start]  # Notre chemin actuel
+        banned = []
+        visited = []
+
+        while (
+            stack[-1] != self.end
+        ):  # Tant qu'on est pas arrivé à la dernière case du labyrinthe
+            # On choisit une direction au hasard parmi les cases disponibles non visitées
+            available = [
+                i
+                for i in self.getAdjacentCases(stack[-1])
+                if self.canMove(stack[-1], i)
+            ]
+
+            available = [
+                i for i in available if i not in banned and i not in visited
+            ]  # On enlève les cases bannies des cases visitables
+
+            if available == []:  # Cul de sac ! On dépile
+                banned.append(stack.pop())
+            else:
+
+                # La case est ajoutée à la pile et marquée comme visitée
+                stack.append(random.choice(available))
+                visited.append(stack[-1])
+
+            self.solvingData = {  # On stocke les données de résolution du labyrinthe
+                "moves": stack,
+                "banned": banned,
+                "visited": visited,
+            }
+
+        print(stack)
+        self.solved = True
+        return round(time.time() - start, 3)
+
+    def resolve_animate(self):
+
+        stack, banned, visited = (
+            (
+                self.solvingData["moves"],
+                self.solvingData["banned"],
+                self.solvingData["visited"],
+            )
+            if self.solvingData is not None
+            else ([self.start], [], [])
+        )
+
+        if stack[-1] == self.end:
+            self.solved = True
+            return True
+
+        # Fonctionne de la même manière que resolve, mais n'effectue qu'une seule itération à la fois.
+        # On choisit une direction au hasard parmi les cases disponibles non visitées
+        available = [
+            i for i in self.getAdjacentCases(stack[-1]) if self.canMove(stack[-1], i)
+        ]
+
+        available = [
+            i for i in available if i not in banned and i not in visited
+        ]  # On enlève les cases bannies des cases visitables
+
+        if available == []:  # Cul de sac ! On dépile
+            banned.append(stack.pop())
+        else:
+
+            # La case est ajoutée à la pile et marquée comme visitée
+            stack.append(random.choice(available))
+            visited.append(stack[-1])
+
+        self.solvingData = {  # On stocke les données de résolution du labyrinthe
+            "moves": stack,
+            "banned": banned,
+            "visited": visited,
+        }

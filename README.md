@@ -11,9 +11,7 @@
 - Ajout de TOUT le système de Menu qui pète sa mère et est super vraiment trop bien.
 
 ## Modifications apportées le 06/02/2024
-- Ajout du système de cache permettant d'avoir une performance optimale même en dessinant d'énormes labyrinthes.
-- Mise à jour du code permettant de modifier la taille et la position du labyrinthe de façon à fonctionner avec le cache.
-- Personnage PARTIELLEMENT implémenté : encore des bugs dans la navigation
+
 
 ## TODOLIST
 - Personnage qui peut se déplacer dans le labyrinthe et le résoudre

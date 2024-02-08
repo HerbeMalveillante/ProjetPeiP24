@@ -98,11 +98,54 @@ class LabyrinthFullScreen(SubMenu):
             self.labyrinth.character.move((1, 0))
 
 
+class LabyrinthResolution(SubMenu):
+    def __init__(self, parent, labyrinth):
+        super().__init__(parent, "Résolution")
+
+        self.labyrinth = LabyrinthWrapper(labyrinth)
+        self.labyrinth.character = None  # On retire le personnage pour la résolution
+
+        self.elements.append(self.labyrinth)
+
+        # Back button on the top right
+        self.elements.append(
+            Button(
+                "Retour",
+                action=self.parent.goBack,
+                pos=(SCREEN_WIDTH - 200, 10),
+            )
+        )
+
+        self.elements.append(
+            Button("Retry", action=self.parent.retry, pos=(SCREEN_WIDTH - 200, 70))
+        )
+
+
 class MainMenu(SubMenu):
     def __init__(self, parent):
         super().__init__(parent, "Menu Principal", color=WHITE)
         self.elements.append(
             Button(text="Play", action=self.parent.play, pos=(10, 10), size=(100, 50))
+        )
+        self.elements.append(
+            Button(
+                "Résolution automatique",
+                action=self.parent.resolve,
+                pos=(10, 70),
+                size=(200, 50),
+            )
+        )
+
+        # Quit button
+        self.elements.append(
+            Button(
+                "Quitter",
+                action=lambda: setattr(
+                    self.parent, "running", False
+                ),  # Modify attribute with a lambda function
+                pos=(10, 130),
+                size=(100, 50),
+            )
         )
 
 
@@ -125,10 +168,23 @@ class Menu(object):
         self.screenStack = [MainMenu(self)]
 
     def play(self):
-        L = Labyrinth(10, 10)
-        generationTime = L.generate()
+        L1 = Labyrinth(20, 20)
+        generationTime = L1.generate()
+
         print(f"Generated in {generationTime} seconds")
-        self.screenStack.append(LabyrinthFullScreen(self, L))
+        self.screenStack.append(LabyrinthFullScreen(self, L1))
+
+    def resolve(self):
+        L = Labyrinth(40, 40)
+        generationTime = L.generate()
+        solvingTime = L.resolve()
+        print(f"Generated in {generationTime} seconds")
+        print(f"Solved in {solvingTime} seconds")
+        self.screenStack.append(LabyrinthResolution(self, L))
+
+    def retry(self):
+        self.screenStack.pop()
+        self.resolve()
 
     def goBack(self):
         self.screenStack.pop()
