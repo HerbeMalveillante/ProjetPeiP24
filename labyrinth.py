@@ -22,6 +22,7 @@ class Labyrinth:
         self.hasChanged = True  # Indique si le labyrinthe a changé depuis la dernière fois qu'il a été dessiné. (= s'il doit être redessiné)
         self.solvingData = None  # Contient les données de résolution du labyrinthe
         self.solved = False
+        self.generationTime = None
 
         # Par défaut, les cases de départ et de fin se trouvent
         # tout en haut à gauche et tout en bas à droite
@@ -153,7 +154,8 @@ class Labyrinth:
                 self.removeWall(wall[0], wall[1])
 
         self.hasChanged = True
-        return round(time.time() - start, 3)
+        self.generationTime = round(time.time() - start, 3)
+        return self.generationTime
 
     def canMove(self, case1, case2):
 
@@ -184,6 +186,7 @@ class Labyrinth:
         stack = [self.start]  # Notre chemin actuel
         banned = []
         visited = []
+        totalMoveCount = 0
 
         while (
             stack[-1] != self.end
@@ -207,10 +210,13 @@ class Labyrinth:
                 stack.append(random.choice(available))
                 visited.append(stack[-1])
 
+            totalMoveCount += 1
+
             self.solvingData = {  # On stocke les données de résolution du labyrinthe
                 "moves": stack,
                 "banned": banned,
                 "visited": visited,
+                "totalMoveCount": totalMoveCount,
             }
 
         print(stack)
@@ -219,14 +225,17 @@ class Labyrinth:
 
     def resolve_animate(self):
 
-        stack, banned, visited = (
+        totalMoveCount = 0
+
+        stack, banned, visited, totalMoveCount = (
             (
                 self.solvingData["moves"],
                 self.solvingData["banned"],
                 self.solvingData["visited"],
+                self.solvingData["totalMoveCount"],
             )
             if self.solvingData is not None
-            else ([self.start], [], [])
+            else ([self.start], [], [], 0)
         )
 
         if stack[-1] == self.end:
@@ -251,8 +260,24 @@ class Labyrinth:
             stack.append(random.choice(available))
             visited.append(stack[-1])
 
+        # On incrémente le nombre de moves
+        totalMoveCount += 1
+
         self.solvingData = {  # On stocke les données de résolution du labyrinthe
             "moves": stack,
             "banned": banned,
             "visited": visited,
+            "totalMoveCount": totalMoveCount,
         }
+
+    def getCurrentCase(self):
+        return self.solvingData["moves"][-1]
+
+    def getBannedCasesCount(self):
+        return len(self.solvingData["banned"])
+
+    def getVisitedCasesCount(self):
+        return len(self.solvingData["visited"])
+
+    def getMovesCount(self):
+        return self.solvingData["totalMoveCount"]

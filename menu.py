@@ -33,6 +33,9 @@ class SubMenu(object):
         self.elements = []
         self.color = color
 
+    def registerInput(self, key):
+        pass
+
 
 class Button(Element):
     def __init__(
@@ -53,6 +56,30 @@ class Button(Element):
         self.text = text
         self.textColor = textColor
         self.action = action
+
+
+class Text(Element):
+    # On veut pouvoir ajouter une ligne de texte à l'écran.
+    # On peut incorporer des variables à afficher dans le texte.
+
+    def __init__(
+        self,
+        text="Hello World !",
+        pos=(0, 0),
+        size=None,
+        textColor=WHITE,
+        variables=None,
+    ):
+
+        # Les variables sont des fonctions qui renvoient une valeur à afficher.
+
+        self.text = text
+        self.pos = pos
+        self.textColor = textColor
+        self.variables = variables
+        if size is None:
+            size = (len(text) * 20, 50)
+        super().__init__(pos, size, BLACK)
 
 
 class LabyrinthWrapper(Element):
@@ -120,6 +147,43 @@ class LabyrinthResolution(SubMenu):
             Button("Retry", action=self.parent.retry, pos=(SCREEN_WIDTH - 200, 70))
         )
 
+        self.elements.append(
+            Text(
+                text="Case actuelle : {v}",
+                pos=(SCREEN_WIDTH - 220, 130),
+                # On utilise la fonction "labyrinth.getCurrentCase()" pour afficher la case actuelle de façon dynamique
+                # Pour ce faire on utilise une fonction lambda
+                variables=[self.labyrinth.labyrinth.getCurrentCase],
+                textColor=WHITE,
+            )
+        )
+        self.elements.append(
+            Text(
+                text="Nombre de cases visitées : {v}",
+                pos=(SCREEN_WIDTH - 220, 150),
+                variables=[self.labyrinth.labyrinth.getVisitedCasesCount],
+                textColor=WHITE,
+            )
+        )
+        self.elements.append(
+            Text(
+                text="Nombre de cases bannies : {v}",
+                pos=(SCREEN_WIDTH - 220, 170),
+                variables=[self.labyrinth.labyrinth.getBannedCasesCount],
+                textColor=WHITE,
+            )
+        )
+        self.elements.append(
+            Text(
+                text="Nombre total de mouvements : {v}",
+                pos=(SCREEN_WIDTH - 220, 190),
+                variables=[self.labyrinth.labyrinth.getMovesCount],
+                textColor=WHITE,
+            )
+        )
+
+        # On veut ajouter du texte avec des stats sur la résolution
+
 
 class MainMenu(SubMenu):
     def __init__(self, parent):
@@ -175,9 +239,9 @@ class Menu(object):
         self.screenStack.append(LabyrinthFullScreen(self, L1))
 
     def resolve(self):
-        L = Labyrinth(40, 40)
+        L = Labyrinth(100, 100)
         generationTime = L.generate()
-        solvingTime = L.resolve()
+        solvingTime = L.resolve_animate()
         print(f"Generated in {generationTime} seconds")
         print(f"Solved in {solvingTime} seconds")
         self.screenStack.append(LabyrinthResolution(self, L))

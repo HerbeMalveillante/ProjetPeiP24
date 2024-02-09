@@ -26,6 +26,7 @@ class Graphics(object):
         self.font36 = pygame.font.Font(None, 36)
         self.font54 = pygame.font.Font(None, 54)
         self.cache = {}
+        self.solvingPathCache = {}
         pygame.display.set_caption(WINDOW_TITLE)
 
     def clearScreen(self, color=BLACK):
@@ -89,7 +90,11 @@ class Graphics(object):
         if labyrinth.solvingData is not None:
             self.drawSolvingPath(labyrinth, size, surface)
 
-        # on retourne la surface
+        # On aura donc cette nouvelle surface avec le chemin de résolution dessiné dessus.
+        # On sait que cette nouvelle surface change à chaque frame, donc quand on dessine le chemin,
+        # Il suffit de dessiner la surface stockée dans le cache, les nouvelles données, et de mettre à jour le cache.
+
+        # on retourne la surface et la surface du chemin de résolution
         return surface
 
     def drawWalls(self, labyrinth, size, surface):
@@ -201,17 +206,19 @@ class Graphics(object):
                     ),
                 )
 
-    def drawSolvingPath(self, labyrinth, size, surface, animate=False):
+    def drawSolvingPath(self, labyrinth, size, surface):
+        CELL_SIZE = self.getCellSize(labyrinth, size)
+
+        # On dessine le cache de la résolution du labyrinthe
 
         for index, move in enumerate(labyrinth.solvingData["moves"]):
             if index != 0:  # Si on est pas sur la première case
                 # On dessine une ligne entre la case "move" et la case précédente
-                CELL_SIZE = self.getCellSize(labyrinth, size)
                 x1 = move % labyrinth.width
                 y1 = move // labyrinth.width
                 x2 = labyrinth.solvingData["moves"][index - 1] % labyrinth.width
                 y2 = labyrinth.solvingData["moves"][index - 1] // labyrinth.width
-                pygame.draw.line(
+                pygame.draw.line(  # Dessin de la ligne du chemin actuel. L'impact sur les performances est moindre.
                     surface,
                     BLUE,
                     (
@@ -224,29 +231,33 @@ class Graphics(object):
                     ),
                     5,
                 )
-                # On met une croix rouge sur les cases bannies
-                # On met une croie orange sur les cases visitées
-                for case in labyrinth.solvingData["visited"]:
-                    if case not in labyrinth.solvingData["banned"]:
-                        x = case % labyrinth.width
-                        y = case // labyrinth.width
-                        pygame.draw.line(
-                            surface,
-                            (255, 165, 0),
-                            (x * CELL_SIZE, y * CELL_SIZE),
-                            (x * CELL_SIZE + CELL_SIZE, y * CELL_SIZE + CELL_SIZE),
-                            2,
-                        )
-                for case in labyrinth.solvingData["banned"]:
-                    x = case % labyrinth.width
-                    y = case // labyrinth.width
-                    pygame.draw.line(
-                        surface,
-                        RED,
-                        (x * CELL_SIZE, y * CELL_SIZE),
-                        (x * CELL_SIZE + CELL_SIZE, y * CELL_SIZE + CELL_SIZE),
-                        2,
-                    )
+        # On met une croix rouge sur les cases bannies
+        # On met une croie orange sur les cases visitées
+
+        for case in labyrinth.solvingData["visited"]:
+            if case not in labyrinth.solvingData["banned"]:
+                x = case % labyrinth.width
+                y = case // labyrinth.width
+                pygame.draw.line(
+                    surface,
+                    (255, 165, 0),
+                    (x * CELL_SIZE, y * CELL_SIZE),
+                    (x * CELL_SIZE + CELL_SIZE, y * CELL_SIZE + CELL_SIZE),
+                    2,
+                )
+        for case in labyrinth.solvingData["banned"]:
+            x = case % labyrinth.width
+            y = case // labyrinth.width
+            pygame.draw.line(
+                surface,
+                RED,
+                (x * CELL_SIZE, y * CELL_SIZE),
+                (x * CELL_SIZE + CELL_SIZE, y * CELL_SIZE + CELL_SIZE),
+                2,
+            )
+
+        # On stocke les cases visitées et bannies dans un cache pour éviter de les redessiner à chaque frame
+        self.solvingPathCache[labyrinth.id] = surface.copy()
 
     def drawButton(self, button):
         # Draw the button on the screen
@@ -267,12 +278,39 @@ class Graphics(object):
             ),
         )
 
+    def drawText(self, textObject):
+        # Draw the text on the screen
+        # Use the "textObject.variables" arguments to get the list of variables to display.
+        # This argument is a list of functions to call to get the value of the variables.
+        # The "textObject.text" argument contains a text with placeholders for the variables as "{v}".
+        # Variables are displayed in order.
+
+        textToDislay = textObject.text
+        for variable in textObject.variables:
+            textToDislay = textToDislay.replace("{v}", str(variable()))
+
+        text = self.font18.render(
+            textToDislay,
+            ANTIALIASING,
+            textObject.textColor,
+            textObject.background,
+        )
+        self.screen.blit(
+            text,
+            (
+                textObject.pos[0],
+                textObject.pos[1],
+            ),
+        )
+
     def drawSubMenu(self, subMenu):
         # Draw the current screen
         self.clearScreen(color=subMenu.color)
         for element in subMenu.elements:
             if element.TYPE == "Button":
                 self.drawButton(element)
+            elif element.TYPE == "Text":
+                self.drawText(element)
             elif element.TYPE == "LabyrinthWrapper":
                 # Le labyrinthe possède un attribut "hasChanged" qui indique si il a été modifié.
                 # Cet attribut prend la valeur "True" dès qu'une modification est apportée au labyrinthe.
@@ -283,7 +321,10 @@ class Graphics(object):
                 start = time.time()
 
                 # Si le labyrinthe n'a pas été fini d'être résolu, on ajoute une étape au chemin de résolution
-                if not element.labyrinth.solved:
+                if (
+                    not element.labyrinth.solved
+                    and element.labyrinth.solvingData is not None
+                ):
 
                     element.labyrinth.resolve_animate()  # On ajoute une étape à la résolution
                     # Permet d'animer la résolution du labyrinthe

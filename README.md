@@ -1,35 +1,21 @@
 # Projet Peip2 2023-2024 : Labyrinthe
 
-## Modifications apportées le 05/02/2024
-- Réorganisation du code dans des fichiers qui font plus de sens
-- Ajout d'un fichier dans lesquelles sont stockées les constantes, valeurs par défaut et paramètres du programme
-- Ajout d'un compteur de FPS
-- Correction du bug qui empêchait la génération de labyrinthes non carrés
-- Nouvelle structure des graphiques sous forme de classe qui permettra de rajouter plus facilement des fonctionnalités.
-- Les anciennes versions des fichiers ont été stockées dans un dossier "old" pour le moment mais pourront être supprimées par la suite : GitHub garde une trace dans tous les cas
-- Possibilité de dessiner un labyrinthe à n'importe quelle taille et à n'importe quel emplacement de l'écran, permettant de faciliter l'implémentation du menu ou d'afficher plusieurs labyrinthes à la fois.
-- Ajout de TOUT le système de Menu qui pète sa mère et est super vraiment trop bien.
+## Modifications 09/02/24
 
-## Modifications apportées le 06/02/2024
+- Résolution d'un bug qui affichait par défaut l'animation de résolution du labyrinthe dans le mode "play" (résolution manuelle)
+- Première optimisation de la résolution automatique : FPS stable sur des labyrinthes de taille moyenne
+- Ajout d'un fichier launch.json qui permet de lancer le programme depuis n'importe quel fichier avec VSCode
 
+### Problèmes de performance dans le mode "résolution animée"
 
-## TODOLIST
-- Personnage qui peut se déplacer dans le labyrinthe et le résoudre
-- Personnage qui peut terminer la résolution du labyrinthe en atteignant la fin, et est chronométré
-- Écran de chargement affiché pendant la génération du labyrinthe, avec une barre de progression ce serait super
-- Implémenter un algorithme de résolution basique
-- Ajouter la possibilité de faire résoudre le labyrinthe par l'algorithme dans le menu
-- Possibilité de customiser la taille du labyrinthe avant la génération
-- Possibilité de customiser le loopingfactor avant la génération
+Les FPS chutent drastiquement quand on utilise le mode "résolution animée". Dans les faits, c'est compréhensible car on ajoute les indicateurs de cases bannies et visitées de façon dynamique, et elles sont donc modifiées à chaque frame, rendant l'utilisation du cache impossible.
 
+Quelques pistes à envisager :
 
+- Séparer le cache du labyrinthe et le cache de l'interface de résolution (ligne de chemin, cases visitées, cases bannies, etc.) : Ainsi, on peut charger le cache du labyrinthe et simplement dessiner les lignes de résolution par dessus. Ça implique par contre de faire un gros refactoring sur la structure de données du cache et/ou des données de labyrinthe. En effet, les données de résolution sont actuellement stockées directement dans l'objet labyrinthe.
+- On pourrait également modifier le cache pour ne pas tenir compte des modifications apportées aux données de résolution, et les charger/afficher séparément
+- Éventuellement du multithreading ? Ça serait beaucoup plus compliqué mais c'est toujours faisable
 
-## A propos du cache du labyrinthe :
-
-Dessiner tout le labyrinthe à partir de primitifs à chaque frame est coûteux en ressources, et il est possible de gagner en performance en dessinant le labyrinthe une seule fois dans une texture, et en dessinant cette texture à chaque frame. Cela permettrait également de ne pas avoir à recalculer le labyrinthe à chaque frame, ce qui est un avantage non négligeable.
-
-La texture serait créée à la génération du labyrinthe, et serait ensuite dessinée à chaque frame. Si le labyrinthe est modifié, la texture est recalculée.
-
-
-
-
+- Optimiser l'affichage des cases bannies / visitées : On dessine pour l'instant de multiples lignes diagonales alors qu'on pourrait dans la plupart des cas en dessiner une seule. Toutefois, le problème subsistera toujours sur des labyrinthes de grande taille.
+- L'avantage de cette seconde solution est qu'elle peut être implémentée de façon concurrente à la solution précédente : je vais commencer par l'ajouter et je me concentrerai sur la mise à jour de la logique du cache par la suite.
+- Cette modification peut également être apportée à la fonction qui dessine le labyrinthe dans un premier temps, ce qui permettra d'animer la génération du labyrinthe en utilisant différents algorithmes. A garder en tête.
