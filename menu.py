@@ -239,9 +239,9 @@ class Menu(object):
         self.screenStack.append(LabyrinthFullScreen(self, L1))
 
     def resolve(self):
-        L = Labyrinth(100, 100)
+        L = Labyrinth(50, 50)
         generationTime = L.generate()
-        solvingTime = L.resolve_animate()
+        solvingTime = L.resolve_astar()
         print(f"Generated in {generationTime} seconds")
         print(f"Solved in {solvingTime} seconds")
         self.screenStack.append(LabyrinthResolution(self, L))

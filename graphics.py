@@ -234,17 +234,17 @@ class Graphics(object):
         # On met une croix rouge sur les cases bannies
         # On met une croie orange sur les cases visitées
 
-        for case in labyrinth.solvingData["visited"]:
-            if case not in labyrinth.solvingData["banned"]:
-                x = case % labyrinth.width
-                y = case // labyrinth.width
-                pygame.draw.line(
-                    surface,
-                    (255, 165, 0),
-                    (x * CELL_SIZE, y * CELL_SIZE),
-                    (x * CELL_SIZE + CELL_SIZE, y * CELL_SIZE + CELL_SIZE),
-                    2,
-                )
+        # for case in labyrinth.solvingData["visited"]:
+        #     if case not in labyrinth.solvingData["banned"]:
+        #         x = case % labyrinth.width
+        #         y = case // labyrinth.width
+        #         pygame.draw.line(
+        #             surface,
+        #             (255, 165, 0),
+        #             (x * CELL_SIZE, y * CELL_SIZE),
+        #             (x * CELL_SIZE + CELL_SIZE, y * CELL_SIZE + CELL_SIZE),
+        #             2,
+        #         )
         for case in labyrinth.solvingData["banned"]:
             x = case % labyrinth.width
             y = case // labyrinth.width

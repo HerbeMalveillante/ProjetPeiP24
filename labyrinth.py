@@ -29,6 +29,12 @@ class Labyrinth:
         self.start = 0
         self.end = width * height - 1
 
+    def idToCoord(self, id):
+        return (id % self.width, id // self.width)
+
+    def coordToId(self, x, y):
+        return x + y * self.width
+
     def isAdjacent(self, case1, case2):
         # Retourne True si les deux cases se touchent.
         # Retourne False sinon.
@@ -104,7 +110,7 @@ class Labyrinth:
                 self.addWall(i, i + self.width)
         self.hasChanged = True
 
-    def generate(self, loopingFactor=0.05):
+    def generate(self, loopingFactor=0.50):
         # Génère le labyrinthe en utilisant un algorithme
         # de type "recursive backtracking".
         # L'algorithme est implémenté en utilisant une pile
@@ -119,6 +125,7 @@ class Labyrinth:
 
         # On commence par ajouter tous les murs possibles
         self.fillWithWalls()
+        print("Walls filled")
 
         # On initialise la pile et la liste des cases visitées
         visitedCases = []
@@ -146,6 +153,8 @@ class Labyrinth:
                 visitedCases.append(nextCase)
                 stack.append(nextCase)
 
+            print(f"{len(self.walls)} walls left")
+
         # On retire des murs pour créer des boucles.
         # La probabilité qu'un mur soit retiré est détemrinée par la variable loopingFactor.
         # Cette variable représente la probabilité qu'un mur soit retiré.
@@ -168,6 +177,66 @@ class Labyrinth:
             return False
 
         return True
+
+    def resolve_astar(self):
+
+        timestart = time.time()
+
+        start = self.start
+        end = self.end
+
+        def h(case):
+            return self.MD(case, end)
+
+        def reconstruct_path(cameFrom, current):
+            totalPath = [current]
+            while current in cameFrom.keys():
+                current = cameFrom[current]
+                totalPath.append(current)
+            totalPath.reverse()
+            return totalPath
+
+        openSet = [start]
+        cameFrom = {}
+
+        gScore = {}
+        for x in range(self.width * self.height):
+            gScore[x] = math.inf
+        gScore[start] = 0
+        fScore = {}
+        for x in range(self.width * self.height):
+            fScore[x] = math.inf
+        fScore[start] = h(start)
+
+        while len(openSet) > 0:
+            current = min(openSet, key=lambda x: fScore[x])
+            if current == end:
+                self.solved = True
+                path = reconstruct_path(cameFrom, current)
+                self.solvingData = (
+                    {  # On stocke les données de résolution du labyrinthe
+                        "moves": path,
+                        "banned": [],
+                        "visited": [],
+                        "totalMoveCount": 0,
+                    }
+                )
+                print(gScore)
+                return round(time.time() - timestart, 3)
+
+            openSet.remove(current)
+            adjacent = self.getAdjacentCases(current)
+            adjacent = [a for a in adjacent if self.canMove(current, a)]
+            for neighbor in adjacent:
+                tentative_gScore = gScore[current] + 1
+                if tentative_gScore < gScore[neighbor]:
+                    cameFrom[neighbor] = current
+                    gScore[neighbor] = tentative_gScore
+                    fScore[neighbor] = tentative_gScore + h(neighbor)
+                    if neighbor not in openSet:
+                        openSet.append(neighbor)
+
+        return False
 
     def resolve(self):
 
@@ -281,3 +350,9 @@ class Labyrinth:
 
     def getMovesCount(self):
         return self.solvingData["totalMoveCount"]
+
+    def MD(self, case1, case2):
+        if isinstance(case1, int) and isinstance(case2, int):
+            case1 = self.idToCoord(case1)
+            case2 = self.idToCoord(case2)
+        return abs(case1[0] - case2[0]) + abs(case1[1] - case2[1])

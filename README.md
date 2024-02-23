@@ -19,3 +19,37 @@ Quelques pistes à envisager :
 - Optimiser l'affichage des cases bannies / visitées : On dessine pour l'instant de multiples lignes diagonales alors qu'on pourrait dans la plupart des cas en dessiner une seule. Toutefois, le problème subsistera toujours sur des labyrinthes de grande taille.
 - L'avantage de cette seconde solution est qu'elle peut être implémentée de façon concurrente à la solution précédente : je vais commencer par l'ajouter et je me concentrerai sur la mise à jour de la logique du cache par la suite.
 - Cette modification peut également être apportée à la fonction qui dessine le labyrinthe dans un premier temps, ce qui permettra d'animer la génération du labyrinthe en utilisant différents algorithmes. A garder en tête.
+
+# Partie créative
+
+Qu'est-ce qu'on a :
+
+- Un labyrinthe
+- Un personnage
+- Un moyen de faire des labyrinthes à l'infini
+- Un moyen de résoudre les labyrinthes
+- Eventuellement la caméra qui bouge pour ajouter un côté "jeu"
+
+Qu'est-ce qu'on pourrait faire :
+
+- Jeu ? Améliorer les algos / leur mettre des bâtons dans les roues ?
+- Téléporteurs
+- Murs qui bougent
+- Plusieurs étages (escaliers, trous qui permettent juste de descendre)
+
+- Jeu : chronométré / en mode "roguelite"
+
+## Premier jet
+
+- Mélange "pac man" / "roguelite"
+- Le joueur doit récupérer des points disséminés dans le labyrinthe.
+- Les points sont générés aléatoirement de différentes façons (coffres, etc)
+- Le labyrinthe a des trucs qui permettent de naviguer différamment (téléporteurs, etc)
+- Des ennemis se déplacent avec des algorithmes différents (random, main droite, a\*, etc)
+- Le joueur peut se déplacer, et éventuellement trouver des bonus comme par exemple pouvoir poser des murs que seul lui peut franchir
+- Le joueur peut se rendre à la fin du niveau quand il le souhaite pour valider ses points.
+- Le joueur avec le plus de points est sacré champion de la salle de TP.
+
+- Plusieurs niveaux de difficulté en fonction du looping factor du labyrinthe (les IA sont fortes pour trouver des chemins dedans, un humain l'est beaucoup moins)
+
+
