@@ -73,9 +73,7 @@ class Button(object):
         self.on_click = on_click
 
     def draw(self):
-        pygame.draw.rect(
-            screen, self.color, pygame.Rect(self.topLeft, (self.width, self.height))
-        )
+        pygame.draw.rect(screen, self.color, pygame.Rect(self.topLeft, (self.width, self.height)))
         text = font.render(self.text, True, Colors.BLACK)
         textRect = text.get_rect()
         textRect.center = (

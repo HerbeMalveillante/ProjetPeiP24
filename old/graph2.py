@@ -111,9 +111,7 @@ class Labyrinth(object):
     def draw(self, screen):
         screen.fill(Color.darker)
         # dessine le temps écoulé en haut à droite
-        text = font.render(
-            f"Time elapsed : {round(self.timeElapsed, 3)}", True, Color.black
-        )
+        text = font.render(f"Time elapsed : {round(self.timeElapsed, 3)}", True, Color.black)
         textRect = text.get_rect()
         textRect.topright = (screen_width - self.padding // 2, self.padding // 2)
         screen.blit(text, textRect)
@@ -342,9 +340,7 @@ class Labyrinth(object):
             # On récupère les cases adjacentes à la case courante
             adjacentCases = self.getAdjacentCases(currentCase)
             # On récupère les cases adjacentes qui n'ont jamais été visitées
-            unvisitedAdjacentCases = [
-                case for case in adjacentCases if not case in visitedCases
-            ]
+            unvisitedAdjacentCases = [case for case in adjacentCases if not case in visitedCases]
             # Si aucune case adjacente n'a jamais été visitée, on doit faire demi tour
             if len(unvisitedAdjacentCases) == 0:
                 stack.pop()

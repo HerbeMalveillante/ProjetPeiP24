@@ -1,50 +1,70 @@
-from rich import print
-import math
+import pygame
 import time
 import random
-from uuid import uuid4  # Pour donner un identifiant unique au labyrinthe
-
-# Ce fichier labyrinth contient toutes les fonctions LOGIQUES
-# Du labyrinthe (génération, résolution, etc ?)
-# Cette classe ne dépend d'aucune fonction graphique et peut parfatement fonctionner
-# sans pygame ou avec n'importe quel autre GUI
+from constants import LABYRINTH_RESOLUTION, DRAW_CASE_NUMBERS, BUTTON_COLOR
 
 
-class Labyrinth:
-    def __init__(self, width, height):
-        self.id = (
-            uuid4()
-        )  # On donne un identifiant unique au labyrinthe (utilisé pour le cache)
-        self.width = width
-        self.height = height
-        self.matrix = [[j + i * width for j in range(width)] for i in range(height)]
+class Labyrinth(pygame.sprite.Sprite):
+
+    def __init__(self, parent, size, generation_algorithm, resolution_algorithm, looping_factor):
+        super().__init__()
+
+        self.parent = parent
+        self.width = size[0]
+        self.height = size[1]
+        self.matrix = [[j + i * self.width for j in range(self.width)] for i in range(self.height)]
+
+        self.image = pygame.Surface((self.width * LABYRINTH_RESOLUTION, self.height * LABYRINTH_RESOLUTION))
+        self.rect = self.image.get_rect()
+        self.has_changed = True
+
         self.walls = []
-        self.hasChanged = True  # Indique si le labyrinthe a changé depuis la dernière fois qu'il a été dessiné. (= s'il doit être redessiné)
-        self.solvingData = None  # Contient les données de résolution du labyrinthe
-        self.solved = False
-        self.generationTime = None
 
-        # Par défaut, les cases de départ et de fin se trouvent
-        # tout en haut à gauche et tout en bas à droite
         self.start = 0
-        self.end = width * height - 1
+        self.end = self.width * self.height - 1
 
-    def idToCoord(self, id):
+        self.generation_algorithm = generation_algorithm
+        self.resolution_algorithm = resolution_algorithm
+
+        self.looping_factor = looping_factor
+
+        current = random.randint(0, self.width * self.height - 1)
+        self.generation_data = {
+            "is_generated": False,
+            "generation_time": 0,
+            "step": 0,
+            "stack": [current],
+            "visited": [current],
+            "wall_index": 0,
+            "perfect_wall_count": 0,
+        }
+
+        self.resolution_data = {
+            "is_solved": False,
+            "resolution_time": 0,
+            "step": 0,
+        }
+
+        self.vertical_wall_surface = pygame.Surface((2, LABYRINTH_RESOLUTION))
+        self.vertical_wall_surface.fill((0, 0, 0))
+        self.horizontal_wall_surface = pygame.Surface((LABYRINTH_RESOLUTION, 2))
+        self.horizontal_wall_surface.fill((0, 0, 0))
+
+    def id_to_coord(self, id):
         return (id % self.width, id // self.width)
 
-    def coordToId(self, x, y):
-        return x + y * self.width
+    def coord_to_id(self, x, y=None):
+        if y is None:
+            y = x[1]
+            x = x[0]
+        return y * self.width + x
 
-    def isAdjacent(self, case1, case2):
-        # Retourne True si les deux cases se touchent.
-        # Retourne False sinon.
-        # case1 et case2 sont les identifiants uniques de chaque case.
-        case1, case2 = min(case1, case2), max(case1, case2)
-        return case1 in self.getAdjacentCases(case2)
+    def is_adjacent(self, case_1, case_2):
+        case_1, case_2 = min(case_1, case_2), max(case_1, case_2)
+        return case_1 in self.get_adjacent_cases(case_2)
 
-    def getAdjacentCases(self, case):
-        # Retourne une liste des identifiants de toutes les cases adjacentes
-        # à celle donnée en input.
+    def get_adjacent_cases(self, case):
+
         adjacent = []
         if case % self.width != 0:
             adjacent.append(case - 1)
@@ -57,302 +77,166 @@ class Labyrinth:
 
         return adjacent
 
-    def addWall(self, case1, case2):
-        # Ajoute un mur entre les cases case1 et case2
-        # à la liste des murs. Le programme vérifie
-        # Que les cases sont adjacentes avant d'ajouter le mur.
-        # Si les cases ne sont pas adjacentes, le mur n'est
-        # pas ajouté. Si le mur existe déjà, il n'est pas ajouté.
-        # Retourne True si le mur a été ajouté, False sinon.
-        # Les cases sont triées par ordre croissant avant d'être ajoutées.
-        # Ainsi, le mur (case1, case2) est le même que le mur (case2, case1).
-        if not self.isAdjacent(case1, case2):
+    def add_wall(self, case_1, case_2):
+        if not self.is_adjacent(case_1, case_2):
+            print(f"Impossible d'ajouter un mur : les cases {case_1} et {case_2} ne sont pas adjacentes.")
             return False
-        if case1 > case2:
-            case1, case2 = case2, case1
-        if (case1, case2) in self.walls:
-            return False
-        self.walls.append((case1, case2))
-        self.hasChanged = True
-        return True
+        case_1, case_2 = min(case_1, case_2), max(case_1, case_2)
+        if (case_1, case_2) not in self.walls:
+            self.walls.append((case_1, case_2))
+            self.has_changed = True
+            return True
+        return False
 
-    def removeWall(self, case1, case2):
-        # Fonctionne de façon similaire à addWall, mais retire le mur.
-        # Retourne True si le mur a été retiré, False sinon.
+    def remove_wall(self, case_1, case_2):
+        case_1, case_2 = min(case_1, case_2), max(case_1, case_2)
+        if (case_1, case_2) in self.walls:
+            self.walls.remove((case_1, case_2))
+            self.has_changed = True
+            return True
+        print(f"Il n'y a pas de mur entre les cases {case_1} et {case_2}.")
+        return False
 
-        if not self.isAdjacent(case1, case2):
-            return False
-        if case1 > case2:
-            case1, case2 = case2, case1
-        if (case1, case2) not in self.walls:
-            return False
-        self.walls.remove((case1, case2))
-        self.hasChanged = True
-        return True
-
-    def fillWithWalls(self):
-        # Ajoute tous les murs possibles au labyrinthe.
-        # Il est important de noter que le contour extérieur
-        # Du labyrinthe n'est pas généré.
-        # Cette fonction est optimisée de façon à placer intelligemment
-        # les murs plutôt que d'utiliser le failsafe de la fonction
-        # addWall.
-
+    def fill_with_walls(self):
         for i in range(self.width * self.height):
             if i >= self.width * self.height - 1:
                 continue
             localIterator = i % self.width
             # Horizontal
             if (i + 1) % self.width > localIterator:
-                self.addWall(i, i + 1)
+                self.add_wall(i, i + 1)
             # Vertical
             if i + self.width < self.width * self.height:
-                self.addWall(i, i + self.width)
-        self.hasChanged = True
+                self.add_wall(i, i + self.width)
 
-    def generate(self, loopingFactor=0.50):
-        # Génère le labyrinthe en utilisant un algorithme
-        # de type "recursive backtracking".
-        # L'algorithme est implémenté en utilisant une pile
-        # Plutôt qu'une récursion, pour des raisons de performance.
-        # L'argument "loopingFactor" est un nombre entre 0 et 1
-        # représentant la probabilité qu'un mur soit retiré après la
-        # génération afin de créer des boucles dans un labyrinthe
-        # qui serait autrement mathématiquement parfait.
+    def generate_step(self):
 
-        # On chronomètre le temps de génération qui sera retourné
-        start = time.time()
+        start_time = time.perf_counter()
 
-        # On commence par ajouter tous les murs possibles
-        self.fillWithWalls()
-        print("Walls filled")
+        if not self.generation_data["is_generated"]:
 
-        # On initialise la pile et la liste des cases visitées
-        visitedCases = []
-        stack = []
-        currentCase = random.randint(0, self.width * self.height - 1)
-        stack.append(currentCase)
-        visitedCases.append(currentCase)
+            if self.generation_algorithm == "dead-end-filling":
+                if self.generation_data["step"] == 0:  # Wall filling
+                    self.fill_with_walls()
+                    self.generation_data["step"] = 1
+                    print("Première étape terminée : remplissage des murs.")
+                    return False
+                elif self.generation_data["step"] == 1:  # Dead-end filling
 
-        while len(stack) > 0:  # Tant que la pile n'est pas vide
+                    if len(self.generation_data["stack"]) == 0:
+                        self.generation_data["step"] = 2
+                        self.generation_data["perfect_wall_count"] = len(self.walls)
+                        print("Deuxième étape terminée : labyrinthe parfait généré.")
+                        return False
 
-            currentCase = stack[-1]
-            adjacentCases = self.getAdjacentCases(currentCase)
-            unvisitedAdjacentCases = [
-                case for case in adjacentCases if case not in visitedCases
-            ]
-            # On récupère les cases adjacentes non visitées.
-            # Si aucune case ne correspond, on "backtrack".
-            # Sinon, on casse un mur, on fait de la nouvelle case la casse courante et on continue.
-            if len(unvisitedAdjacentCases) == 0:
-                stack.pop()
-                continue
+                    else:
+                        current = self.generation_data["stack"][-1]
+                        adjacent_cases = self.get_adjacent_cases(current)
+                        unvisited_adjacent_cases = [
+                            case for case in adjacent_cases if case not in self.generation_data["visited"]
+                        ]
+
+                        if len(unvisited_adjacent_cases) == 0:
+                            self.generation_data["stack"].pop()
+                            return False
+
+                        next_case = random.choice(unvisited_adjacent_cases)
+                        self.remove_wall(current, next_case)
+                        self.generation_data["visited"].append(next_case)
+                        self.generation_data["stack"].append(next_case)
+
+                    # print(f"{len(self.walls)} murs restants.")
+
+                elif self.generation_data["step"] == 2:  # looping factor
+
+                    # On veut supprimer 10% des murs, donc on en chope 10% au hasard et on les supprime
+
+                    if self.looping_factor != 0:
+                        for _ in range(int(len(self.walls) * self.looping_factor)):
+                            wall = random.choice(self.walls)
+                            self.remove_wall(wall[0], wall[1])
+                    self.generation_data["is_generated"] = True
+                    self.generation_data["step"] = 3
+                    print("Troisième et dernière étape terminée : murs aléatoires supprimés.")
+                    self.generation_data["is_generated"] = True
+                    self.generation_data["step"] = 3
+                    return True
+
             else:
-                nextCase = random.choice(unvisitedAdjacentCases)
-                self.removeWall(currentCase, nextCase)
-                visitedCases.append(nextCase)
-                stack.append(nextCase)
+                print("L'algorithme de génération n'est pas reconnu.")
+                exit(1)
 
-            print(f"{len(self.walls)} walls left")
+        end_time = time.perf_counter()
+        self.generation_data["generation_time"] += end_time - start_time
 
-        # On retire des murs pour créer des boucles.
-        # La probabilité qu'un mur soit retiré est détemrinée par la variable loopingFactor.
-        # Cette variable représente la probabilité qu'un mur soit retiré.
-        for wall in self.walls:
-            if random.random() < loopingFactor:
-                self.removeWall(wall[0], wall[1])
+    def get_image(self):
 
-        self.hasChanged = True
-        self.generationTime = round(time.time() - start, 3)
-        return self.generationTime
+        if not self.has_changed:
+            return self.image
 
-    def canMove(self, case1, case2):
+        self.image.fill(BUTTON_COLOR)
 
-        case1, case2 = min(case1, case2), max(case1, case2)
+        # blit_sequence = []
 
-        if not self.isAdjacent(case1, case2):
-            return False
+        if DRAW_CASE_NUMBERS:
+            # On veut dessiner le numéro de case sur chaque case
+            for i in range(self.width * self.height):
+                coords = self.id_to_coord(i)
+                text = self.parent.parent.parent.font.render(str(i), 0, (0, 0, 0))
+                self.image.blit(text, (coords[0] * LABYRINTH_RESOLUTION, coords[1] * LABYRINTH_RESOLUTION))
 
-        if (case1, case2) in self.walls:
-            return False
-
-        return True
-
-    def resolve_astar(self):
-
-        timestart = time.time()
-
-        start = self.start
-        end = self.end
-
-        def h(case):
-            return self.MD(case, end)
-
-        def reconstruct_path(cameFrom, current):
-            totalPath = [current]
-            while current in cameFrom.keys():
-                current = cameFrom[current]
-                totalPath.append(current)
-            totalPath.reverse()
-            return totalPath
-
-        openSet = [start]
-        cameFrom = {}
-
-        gScore = {}
-        for x in range(self.width * self.height):
-            gScore[x] = math.inf
-        gScore[start] = 0
-        fScore = {}
-        for x in range(self.width * self.height):
-            fScore[x] = math.inf
-        fScore[start] = h(start)
-
-        while len(openSet) > 0:
-            current = min(openSet, key=lambda x: fScore[x])
-            if current == end:
-                self.solved = True
-                path = reconstruct_path(cameFrom, current)
-                self.solvingData = (
-                    {  # On stocke les données de résolution du labyrinthe
-                        "moves": path,
-                        "banned": [],
-                        "visited": [],
-                        "totalMoveCount": 0,
-                    }
-                )
-                print(gScore)
-                return round(time.time() - timestart, 3)
-
-            openSet.remove(current)
-            adjacent = self.getAdjacentCases(current)
-            adjacent = [a for a in adjacent if self.canMove(current, a)]
-            for neighbor in adjacent:
-                tentative_gScore = gScore[current] + 1
-                if tentative_gScore < gScore[neighbor]:
-                    cameFrom[neighbor] = current
-                    gScore[neighbor] = tentative_gScore
-                    fScore[neighbor] = tentative_gScore + h(neighbor)
-                    if neighbor not in openSet:
-                        openSet.append(neighbor)
-
-        return False
-
-    def resolve(self):
-
-        # Retourne une liste des cases à parcourir pour résoudre le labyrinthe.
-        # Pour un premier essai, on va implémenter l'algorithme "Dead-end filling".
-        # Cet algorithme consiste à reconnaître quand on arrive dans un cul-de-sac et à revenir en arrière jusqu'à la dernière intersection.
-
-        # On commence par la case du début
-        # Si on a une intersection, on choisit un chemin au hasard
-        # Quand on arrive à un cul de sac, on dépile jusqu'à la dernière intersection en gardant trace des cases dépilées
-        # On considère que ces cases n'existent plus à la prochaine étape et on recommence
-
-        # On chronomètre le temps de résolution qui sera retourné
-        start = time.time()
-
-        stack = [self.start]  # Notre chemin actuel
-        banned = []
-        visited = []
-        totalMoveCount = 0
-
-        while (
-            stack[-1] != self.end
-        ):  # Tant qu'on est pas arrivé à la dernière case du labyrinthe
-            # On choisit une direction au hasard parmi les cases disponibles non visitées
-            available = [
-                i
-                for i in self.getAdjacentCases(stack[-1])
-                if self.canMove(stack[-1], i)
-            ]
-
-            available = [
-                i for i in available if i not in banned and i not in visited
-            ]  # On enlève les cases bannies des cases visitables
-
-            if available == []:  # Cul de sac ! On dépile
-                banned.append(stack.pop())
-            else:
-
-                # La case est ajoutée à la pile et marquée comme visitée
-                stack.append(random.choice(available))
-                visited.append(stack[-1])
-
-            totalMoveCount += 1
-
-            self.solvingData = {  # On stocke les données de résolution du labyrinthe
-                "moves": stack,
-                "banned": banned,
-                "visited": visited,
-                "totalMoveCount": totalMoveCount,
-            }
-
-        print(stack)
-        self.solved = True
-        return round(time.time() - start, 3)
-
-    def resolve_animate(self):
-
-        totalMoveCount = 0
-
-        stack, banned, visited, totalMoveCount = (
-            (
-                self.solvingData["moves"],
-                self.solvingData["banned"],
-                self.solvingData["visited"],
-                self.solvingData["totalMoveCount"],
+        # On dessine un rond pour la case actuelle dans la génération
+        if not self.generation_data["is_generated"]:
+            current_coords = self.id_to_coord(self.generation_data["stack"][-1])
+            pygame.draw.circle(
+                self.image,
+                (255, 255, 255),
+                (
+                    current_coords[0] * LABYRINTH_RESOLUTION + LABYRINTH_RESOLUTION // 2,
+                    current_coords[1] * LABYRINTH_RESOLUTION + LABYRINTH_RESOLUTION // 2,
+                ),
+                LABYRINTH_RESOLUTION // 4,
             )
-            if self.solvingData is not None
-            else ([self.start], [], [], 0)
-        )
 
-        if stack[-1] == self.end:
-            self.solved = True
-            return True
+        for wall in self.walls:
+            # Horizontal or Vertical ?
+            orientation = "V" if abs(wall[0] - wall[1]) == 1 else "H"
 
-        # Fonctionne de la même manière que resolve, mais n'effectue qu'une seule itération à la fois.
-        # On choisit une direction au hasard parmi les cases disponibles non visitées
-        available = [
-            i for i in self.getAdjacentCases(stack[-1]) if self.canMove(stack[-1], i)
-        ]
+            case_1_coords = self.id_to_coord(wall[0])
 
-        available = [
-            i for i in available if i not in banned and i not in visited
-        ]  # On enlève les cases bannies des cases visitables
+            # Si le mur est horizontal :
+            if orientation == "H":
+                # On veut dessiner une ligne horizontale qui commence du coin inférieur gauche de la case 1 jusqu'à son coin inférieur droit.
+                # Les coordonnées du coin inférieur gauche c'est x*LABYRINTH_RESOLUTION, y*LABYRINTH_RESOLUTION + LABYRINTH_RESOLUTION
+                # Les coordonnées du coin inférieur droit c'est x*LABYRINTH_RESOLUTION + LABYRINTH_RESOLUTION, y*LABYRINTH_RESOLUTION + LABYRINTH_RESOLUTION
+                pygame.draw.line(
+                    self.image,
+                    (255, 255, 255),
+                    (
+                        case_1_coords[0] * LABYRINTH_RESOLUTION,
+                        case_1_coords[1] * LABYRINTH_RESOLUTION + LABYRINTH_RESOLUTION,
+                    ),
+                    (
+                        case_1_coords[0] * LABYRINTH_RESOLUTION + LABYRINTH_RESOLUTION,
+                        case_1_coords[1] * LABYRINTH_RESOLUTION + LABYRINTH_RESOLUTION,
+                    ),
+                    2,
+                )
+            elif orientation == "V":
+                pygame.draw.line(
+                    self.image,
+                    (255, 255, 255),
+                    (
+                        case_1_coords[0] * LABYRINTH_RESOLUTION + LABYRINTH_RESOLUTION,
+                        case_1_coords[1] * LABYRINTH_RESOLUTION,
+                    ),
+                    (
+                        case_1_coords[0] * LABYRINTH_RESOLUTION + LABYRINTH_RESOLUTION,
+                        case_1_coords[1] * LABYRINTH_RESOLUTION + LABYRINTH_RESOLUTION,
+                    ),
+                    2,
+                )
 
-        if available == []:  # Cul de sac ! On dépile
-            banned.append(stack.pop())
-        else:
-
-            # La case est ajoutée à la pile et marquée comme visitée
-            stack.append(random.choice(available))
-            visited.append(stack[-1])
-
-        # On incrémente le nombre de moves
-        totalMoveCount += 1
-
-        self.solvingData = {  # On stocke les données de résolution du labyrinthe
-            "moves": stack,
-            "banned": banned,
-            "visited": visited,
-            "totalMoveCount": totalMoveCount,
-        }
-
-    def getCurrentCase(self):
-        return self.solvingData["moves"][-1]
-
-    def getBannedCasesCount(self):
-        return len(self.solvingData["banned"])
-
-    def getVisitedCasesCount(self):
-        return len(self.solvingData["visited"])
-
-    def getMovesCount(self):
-        return self.solvingData["totalMoveCount"]
-
-    def MD(self, case1, case2):
-        if isinstance(case1, int) and isinstance(case2, int):
-            case1 = self.idToCoord(case1)
-            case2 = self.idToCoord(case2)
-        return abs(case1[0] - case2[0]) + abs(case1[1] - case2[1])
+        # self.image.fblits(blit_sequence)
+        self.has_changed = False
+        return self.image

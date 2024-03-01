@@ -1,314 +1,192 @@
-from rich import print
-
 import pygame
-import time
-from graphics import *
-from labyrinth import *
-from constants import *
-from character import *
-
-# La classe Menu représente l'interface du jeu.
-# Elle est responsable de l'affichage des menus, de la gestion des événements, etc.
-# Elle dépend de la classe Graphics pour afficher les menus.
-
-# La classe Menu est responsable de la boucle principale du jeu, de la gestion des événements, de l'affichage des menus, etc.
-# Les classes Screen et Button sont des classes internes à Menu, et sont utilisées pour représenter les différents écrans et boutons du jeu.
+from constants import WIDTH, HEIGHT, BUTTON_COLOR
+from labyrinth import Labyrinth
 
 
-class Element(object):
-    def __init__(self, pos, size, background):
-        self.pos = pos
-        self.size = size
-        self.background = background
+class Menu:
+    def __init__(self):
 
-        # Get the name of the class that inherits from Element and store it into a TYPE attribute.
-        # The graphics function will know how to draw the element based on its type.
-        self.TYPE = self.__class__.__name__
+        self.quit = False
+        # load the customFont.ttf file
+        font_file = "customFont.ttf"
+        self.font = pygame.font.Font(font_file, 16)
+        self.font_big = pygame.font.Font(font_file, 32)
+        self.screen = pygame.display.get_surface()
+
+        self.stack = [Main_Menu(self)]
+
+    def update(self):
+
+        if self.quit:
+            return False
+
+        self.stack[-1].update()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return False
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    self.stack[-1].on_click(event.pos)
+        return True
+
+    def draw(self):
+        self.stack[-1].draw()
+
+    def back(self):
+        if len(self.stack) > 1:
+            self.stack.pop()
+        else:
+            self.quit = True
 
 
-class SubMenu(object):
-    def __init__(self, parent, name, color=BLACK):
+class MenuFactory:
+    def __init__(self, parent):
         self.parent = parent
-        self.name = name
-        self.elements = []
-        self.color = color
+        self.buttons = pygame.sprite.Group()
+        self.elements = pygame.sprite.Group()
 
-    def registerInput(self, key):
+    def update(self):
+        for el in self.elements:
+            el.update()
+
+    def draw(self):
+        for el in self.elements:
+            el.draw()
+        for el in self.buttons:
+            el.draw()
+
+    def on_click(self, pos):
+        # Create a virtual sprite to check for collisions
+        mouse_sprite = pygame.sprite.Sprite()
+        mouse_sprite.rect = pygame.Rect(pos, (1, 1))
+
+        # return the first button that collides with the mouse
+        clicked = pygame.sprite.spritecollideany(mouse_sprite, self.buttons)
+
+        if clicked and clicked.function:
+            clicked.function()
+
+
+class Main_Menu(MenuFactory):
+    def __init__(self, parent):
+        super().__init__(parent)
+
+        self.elements.add(Text(self, WIDTH / 2 - 90, 10, (255, 255, 255), "Labyrinthe"))
+
+        self.buttons.add(
+            Button(
+                self,
+                WIDTH / 2 - 90,
+                53,
+                180,
+                30,
+                BUTTON_COLOR,
+                "Résolution Custom",
+                self.resolution_custom,
+            )
+        )
+
+        self.buttons.add(Button(self, WIDTH / 2 - 90, 93, 180, 30, BUTTON_COLOR, "Jouer", None))
+
+        self.buttons.add(
+            Button(
+                self,
+                WIDTH / 2 - 90,
+                133,
+                180,
+                30,
+                BUTTON_COLOR,
+                "Quitter",
+                self.parent.back,
+            )
+        )
+
+    def resolution_custom(self):
+        self.parent.stack.append(Resolution(self))
+
+
+class Resolution(MenuFactory):
+    """
+    Cette classe permet d'afficher la génération, puis la résolution du labyrinthe.
+    On aura un autre menu entre le menu principal et celui-ci, qui permettra de choisir les options de génération et de résolution qui seront passés en paramètres.
+    """
+
+    def __init__(self, parent):
+        super().__init__(parent)
+
+        self.labyrinth = Labyrinth(self, (40, 40), "dead-end-filling", None, 0.1)
+
+    def update(self):
+        if not self.labyrinth.generation_data["is_generated"]:
+            self.labyrinth.generate_step()
+
+    def draw(self):
+        labyrinth_image = self.labyrinth.get_image()
+        labyrinth_image_height = labyrinth_image.get_size()[1]
+        displayable_height = HEIGHT - 40
+        ratio = displayable_height / labyrinth_image_height
+        labyrinth_image = pygame.transform.scale(
+            labyrinth_image, (int(ratio * labyrinth_image.get_size()[0]), displayable_height)
+        )
+
+        # On la dessine à l'écran
+        self.parent.parent.screen.blit(labyrinth_image, (20, 20))
+
+
+class Game:
+    def __init__(self, parent):
+        self.parent = parent
+
+    def update(self):
+        pass
+
+    def draw(self):
         pass
 
 
-class Button(Element):
-    def __init__(
-        self,
-        text="Button",
-        action=None,
-        pos=(0, 0),
-        size=None,
-        background=GRAY,
-        textColor=WHITE,
-    ):
-        if size is None:
-            size = (
-                len(text) * 20,
-                50,
-            )  # On calcule la taille du bouton en fonction de la longueur du texte (experimental)
-        super().__init__(pos, size, background)
+class Button(pygame.sprite.Sprite):
+    def __init__(self, parent, x, y, width, height, color, text, function):
+        super().__init__()
+        self.parent = parent
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        self.color = color
         self.text = text
-        self.textColor = textColor
-        self.action = action
+        self.function = function
+        self.rect = pygame.Rect(x, y, width, height)
+        self.image = pygame.Surface((width, height))
+        self.image.fill(color)
+        self.font = self.parent.parent.font
+        self.text_render = self.font.render(text, 0, (255, 255, 255))
+        self.image.blit(
+            self.text_render,
+            (
+                width / 2 - self.text_render.get_width() / 2,
+                height / 2 - self.text_render.get_height() / 2,
+            ),
+        )
+
+    def draw(self):
+        self.parent.parent.screen.blit(self.image, (self.x, self.y))
 
 
-class Text(Element):
-    # On veut pouvoir ajouter une ligne de texte à l'écran.
-    # On peut incorporer des variables à afficher dans le texte.
+class Text(pygame.sprite.Sprite):
 
-    def __init__(
-        self,
-        text="Hello World !",
-        pos=(0, 0),
-        size=None,
-        textColor=WHITE,
-        variables=None,
-    ):
-
-        # Les variables sont des fonctions qui renvoient une valeur à afficher.
-
+    def __init__(self, parent, x, y, color, text):
+        super().__init__()
+        self.parent = parent
+        self.x = x
+        self.y = y
+        self.color = color
         self.text = text
-        self.pos = pos
-        self.textColor = textColor
-        self.variables = variables
-        if size is None:
-            size = (len(text) * 20, 50)
-        super().__init__(pos, size, BLACK)
+        self.font = self.parent.parent.font_big
+        self.text_render = self.font.render(text, 0, color)
 
+        self.image = self.text_render
+        self.rect = self.image.get_rect()
 
-class LabyrinthWrapper(Element):
-    def __init__(self, labyrinth, pos=(0, 0), size=(SCREEN_WIDTH, SCREEN_HEIGHT)):
-        super().__init__(pos, size, BLACK)
-        self.labyrinth = labyrinth
-        self.character = Character(labyrinth)  # Devra peut-être être déplacé plus tard
-
-
-class LabyrinthFullScreen(SubMenu):
-
-    def __init__(self, parent, labyrinth):
-        super().__init__(parent, "Labyrinthe")
-
-        self.labyrinth = LabyrinthWrapper(labyrinth)
-        self.elements.append(self.labyrinth)
-
-        # Back button on the top right
-        self.elements.append(
-            Button(
-                "Retour",
-                action=self.parent.goBack,
-                pos=(SCREEN_WIDTH - 200, 10),
-            )
-        )
-        # ScreenShot button on the bottom right
-        self.elements.append(
-            Button(
-                "ScreenShot",
-                action=self.parent.G.screenShot,
-                pos=(SCREEN_WIDTH - 250, SCREEN_HEIGHT - 60),
-            )
-        )
-
-    def registerInput(self, key):
-        if key == pygame.K_UP:
-            self.labyrinth.character.move((0, -1))
-        elif key == pygame.K_DOWN:
-            self.labyrinth.character.move((0, 1))
-        elif key == pygame.K_LEFT:
-            self.labyrinth.character.move((-1, 0))
-        elif key == pygame.K_RIGHT:
-            self.labyrinth.character.move((1, 0))
-
-
-class LabyrinthResolution(SubMenu):
-    def __init__(self, parent, labyrinth):
-        super().__init__(parent, "Résolution")
-
-        self.labyrinth = LabyrinthWrapper(labyrinth)
-        self.labyrinth.character = None  # On retire le personnage pour la résolution
-
-        self.elements.append(self.labyrinth)
-
-        # Back button on the top right
-        self.elements.append(
-            Button(
-                "Retour",
-                action=self.parent.goBack,
-                pos=(SCREEN_WIDTH - 200, 10),
-            )
-        )
-
-        self.elements.append(
-            Button("Retry", action=self.parent.retry, pos=(SCREEN_WIDTH - 200, 70))
-        )
-
-        self.elements.append(
-            Text(
-                text="Case actuelle : {v}",
-                pos=(SCREEN_WIDTH - 220, 130),
-                # On utilise la fonction "labyrinth.getCurrentCase()" pour afficher la case actuelle de façon dynamique
-                # Pour ce faire on utilise une fonction lambda
-                variables=[self.labyrinth.labyrinth.getCurrentCase],
-                textColor=WHITE,
-            )
-        )
-        self.elements.append(
-            Text(
-                text="Nombre de cases visitées : {v}",
-                pos=(SCREEN_WIDTH - 220, 150),
-                variables=[self.labyrinth.labyrinth.getVisitedCasesCount],
-                textColor=WHITE,
-            )
-        )
-        self.elements.append(
-            Text(
-                text="Nombre de cases bannies : {v}",
-                pos=(SCREEN_WIDTH - 220, 170),
-                variables=[self.labyrinth.labyrinth.getBannedCasesCount],
-                textColor=WHITE,
-            )
-        )
-        self.elements.append(
-            Text(
-                text="Nombre total de mouvements : {v}",
-                pos=(SCREEN_WIDTH - 220, 190),
-                variables=[self.labyrinth.labyrinth.getMovesCount],
-                textColor=WHITE,
-            )
-        )
-
-        # On veut ajouter du texte avec des stats sur la résolution
-
-
-class MainMenu(SubMenu):
-    def __init__(self, parent):
-        super().__init__(parent, "Menu Principal", color=WHITE)
-        self.elements.append(
-            Button(text="Play", action=self.parent.play, pos=(10, 10), size=(100, 50))
-        )
-        self.elements.append(
-            Button(
-                "Résolution automatique",
-                action=self.parent.resolve,
-                pos=(10, 70),
-                size=(200, 50),
-            )
-        )
-
-        # Quit button
-        self.elements.append(
-            Button(
-                "Quitter",
-                action=lambda: setattr(
-                    self.parent, "running", False
-                ),  # Modify attribute with a lambda function
-                pos=(10, 130),
-                size=(100, 50),
-            )
-        )
-
-
-class Menu(object):
-
-    def __init__(self):
-
-        # On stocke les dernières frames dans une file pour calculer le FPS
-        self.frames = []
-        self.frameCount = 0
-        self.FPS = (
-            -1
-        )  # Une valeur négative signifie que le FPS n'a pas pu être calculé.
-        self.G = Graphics()
-
-        self.running = True
-
-        # On utilise une pile pour stocker les différents menus affichés. Ainsi, on peut facilement revenir en arrière.
-
-        self.screenStack = [MainMenu(self)]
-
-    def play(self):
-        L1 = Labyrinth(20, 20)
-        generationTime = L1.generate()
-
-        print(f"Generated in {generationTime} seconds")
-        self.screenStack.append(LabyrinthFullScreen(self, L1))
-
-    def resolve(self):
-        L = Labyrinth(50, 50)
-        generationTime = L.generate()
-        solvingTime = L.resolve_astar()
-        print(f"Generated in {generationTime} seconds")
-        print(f"Solved in {solvingTime} seconds")
-        self.screenStack.append(LabyrinthResolution(self, L))
-
-    def retry(self):
-        self.screenStack.pop()
-        self.resolve()
-
-    def goBack(self):
-        self.screenStack.pop()
-
-    def updateFPS(self, start):
-
-        dt = round(time.time() - start, 5)
-        self.frames.append(dt)
-
-        if sum(self.frames) > FPS_RESOLUTION:
-
-            calculated = round(len(self.frames) / sum(self.frames))
-            self.FPS = calculated
-            # On retire les vieilles frames
-            while sum(self.frames) > FPS_RESOLUTION:
-                self.frames.pop(0)
-
-    def updateWindowTitle(self):
-        info = [WINDOW_TITLE]
-        # On affiche le FPS dans le titre de la fenêtre.
-        if SHOW_FPS:
-            info.append(f"{self.FPS} FPS")
-
-        info.append(self.screenStack[-1].name)
-
-        # On récupère le nom de la fenêtre pour vérifier si le titre a changé.
-        currentTitle = pygame.display.get_caption()[0]
-        if currentTitle != " - ".join(info):
-            pygame.display.set_caption(" - ".join(info))
-
-    def main(self):
-        while self.running:
-
-            start = time.time()  # On prend une mesure du temps au début de la frame
-
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    self.running = False
-                elif event.type == pygame.MOUSEBUTTONUP:
-                    for button in self.screenStack[-1].elements:
-                        if button.TYPE == "Button":
-                            if (
-                                button.pos[0]
-                                < event.pos[0]
-                                < button.pos[0] + button.size[0]
-                                and button.pos[1]
-                                < event.pos[1]
-                                < button.pos[1] + button.size[1]
-                            ):
-                                if button.action:
-                                    button.action()
-                elif event.type == pygame.KEYUP:
-                    self.screenStack[-1].registerInput(event.key)
-
-            # DESSIN
-            self.G.drawSubMenu(self.screenStack[-1])  # On dessine l'écran actuel
-            self.G.flip()  # Affiche l'écran (évite les clignotements en dessinant plusieurs objets à la suite)
-
-            # On met à jour le FPS : le titre de la fenêtre est mis à jour, et l'attribut self.FPS est mis à jour.
-            self.updateFPS(start)
-            self.updateWindowTitle()
-
-        pygame.quit()
+    def draw(self):
+        self.parent.parent.screen.blit(self.image, (self.x, self.y))

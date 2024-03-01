@@ -48,11 +48,7 @@ class Graphics(object):
         i = 0
         while os.path.exists(name):
             i += 1
-            name = (
-                "screenshots/screenshot"
-                + time.strftime("%Y-%m-%d--%H-%M-%S")
-                + f"({i}).png"
-            )
+            name = "screenshots/screenshot" + time.strftime("%Y-%m-%d--%H-%M-%S") + f"({i}).png"
         pygame.image.save(self.screen, name)
         print(f"Screenshot saved as {name}")
         return name
@@ -110,9 +106,7 @@ class Graphics(object):
         # Le mur est horizontal si les deux cases sont sur la même ligne.
 
         for w in labyrinth.walls:
-            if (
-                abs(w[0] - w[1]) == 1
-            ):  # les deux cases sont sur la même ligne : le mur est vertical
+            if abs(w[0] - w[1]) == 1:  # les deux cases sont sur la même ligne : le mur est vertical
                 orientation = "V"
             elif (
                 abs(w[0] - w[1]) == labyrinth.width
@@ -321,27 +315,17 @@ class Graphics(object):
                 start = time.time()
 
                 # Si le labyrinthe n'a pas été fini d'être résolu, on ajoute une étape au chemin de résolution
-                if (
-                    not element.labyrinth.solved
-                    and element.labyrinth.solvingData is not None
-                ):
+                if not element.labyrinth.solved and element.labyrinth.solvingData is not None:
 
                     element.labyrinth.resolve_animate()  # On ajoute une étape à la résolution
                     # Permet d'animer la résolution du labyrinthe
                     # Le labyrinthe a changé : on met à jour le cache
                     element.labyrinth.hasChanged = True
 
-                if (
-                    element.labyrinth.id not in self.cache
-                    or element.labyrinth.hasChanged
-                ):
-                    self.cache[element.labyrinth.id] = self.labyrinthSurface(
-                        element.labyrinth, element.size
-                    )
+                if element.labyrinth.id not in self.cache or element.labyrinth.hasChanged:
+                    self.cache[element.labyrinth.id] = self.labyrinthSurface(element.labyrinth, element.size)
 
-                    print(
-                        f"Updated cache for labyrinth {element.labyrinth.id} in {time.time() - start} seconds"
-                    )
+                    print(f"Updated cache for labyrinth {element.labyrinth.id} in {time.time() - start} seconds")
 
                     element.labyrinth.hasChanged = False
                 # On dessine le labyrinthe

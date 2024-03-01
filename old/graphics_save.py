@@ -45,11 +45,7 @@ class Graphics(object):
         i = 0
         while os.path.exists(name):
             i += 1
-            name = (
-                "screenshots/screenshot"
-                + time.strftime("%Y-%m-%d--%H-%M-%S")
-                + f"({i}).png"
-            )
+            name = "screenshots/screenshot" + time.strftime("%Y-%m-%d--%H-%M-%S") + f"({i}).png"
         pygame.image.save(self.screen, name)
         print(f"Screenshot saved as {name}")
         return name
@@ -173,10 +169,7 @@ class Graphics(object):
                     text,
                     (
                         j * CELL_SIZE + pos[0] + CELL_SIZE // 2 - text.get_width() // 2,
-                        i * CELL_SIZE
-                        + pos[1]
-                        + CELL_SIZE // 2
-                        - text.get_height() // 2,
+                        i * CELL_SIZE + pos[1] + CELL_SIZE // 2 - text.get_height() // 2,
                     ),
                 )
 
