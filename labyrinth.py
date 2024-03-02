@@ -15,6 +15,9 @@ class Labyrinth(pygame.sprite.Sprite):
         self.matrix = [[j + i * self.width for j in range(self.width)] for i in range(self.height)]
 
         self.image = pygame.Surface((self.width * LABYRINTH_RESOLUTION, self.height * LABYRINTH_RESOLUTION))
+        self.pathfinding_layer = pygame.Surface(
+            (self.width * LABYRINTH_RESOLUTION, self.height * LABYRINTH_RESOLUTION), pygame.SRCALPHA, 32
+        )
         self.rect = self.image.get_rect()
         self.has_changed = True
 
@@ -42,7 +45,10 @@ class Labyrinth(pygame.sprite.Sprite):
         self.resolution_data = {
             "is_solved": False,
             "resolution_time": 0,
-            "step": 0,
+            "stack": [self.start],
+            "banned": [],
+            "visited": [],
+            "total_move_count": 0,
         }
 
         self.vertical_wall_surface = pygame.Surface((2, LABYRINTH_RESOLUTION))
@@ -109,6 +115,14 @@ class Labyrinth(pygame.sprite.Sprite):
             if i + self.width < self.width * self.height:
                 self.add_wall(i, i + self.width)
 
+    def can_move(self, case_1, case_2):
+        case1, case2 = min(case_1, case_2), max(case_1, case_2)
+        if not self.is_adjacent(case1, case2):
+            return False
+        if (case1, case2) in self.walls:
+            return False
+        return True
+
     def generate_step(self):
 
         start_time = time.perf_counter()
@@ -169,6 +183,40 @@ class Labyrinth(pygame.sprite.Sprite):
         end_time = time.perf_counter()
         self.generation_data["generation_time"] += end_time - start_time
 
+    def resolve_step(self):
+
+        start_time = time.perf_counter()
+        if not self.resolution_data["is_solved"]:
+
+            if self.resolution_algorithm == "a-star":
+                pass
+            elif self.resolution_algorithm == "recursive-backtracking":
+                if self.resolution_data["stack"][-1] == self.end:
+                    self.resolution_data["is_solved"] = True
+                    return True
+                else:
+                    available = [
+                        i
+                        for i in self.get_adjacent_cases(self.resolution_data["stack"][-1])
+                        if self.can_move(i, self.resolution_data["stack"][-1])
+                        and i not in self.resolution_data["banned"]
+                        and i not in self.resolution_data["visited"]
+                    ]
+
+                    if available == []:
+                        self.resolution_data["banned"].append(self.resolution_data["stack"].pop())
+
+                    else:
+                        self.resolution_data["stack"].append(random.choice(available))
+                        self.resolution_data["visited"].append(self.resolution_data["stack"][-1])
+
+                    self.resolution_data["total_move_count"] += 1
+
+                    return False
+            else:
+                print("L'algorithme de résolution n'est pas reconnu.")
+                exit(1)
+
     def get_image(self):
 
         if not self.has_changed:
@@ -186,17 +234,17 @@ class Labyrinth(pygame.sprite.Sprite):
                 self.image.blit(text, (coords[0] * LABYRINTH_RESOLUTION, coords[1] * LABYRINTH_RESOLUTION))
 
         # On dessine un rond pour la case actuelle dans la génération
-        if not self.generation_data["is_generated"]:
-            current_coords = self.id_to_coord(self.generation_data["stack"][-1])
-            pygame.draw.circle(
-                self.image,
-                (255, 255, 255),
-                (
-                    current_coords[0] * LABYRINTH_RESOLUTION + LABYRINTH_RESOLUTION // 2,
-                    current_coords[1] * LABYRINTH_RESOLUTION + LABYRINTH_RESOLUTION // 2,
-                ),
-                LABYRINTH_RESOLUTION // 4,
-            )
+        # if not self.generation_data["is_generated"]:
+        #     current_coords = self.id_to_coord(self.generation_data["stack"][-1])
+        #     pygame.draw.circle(
+        #         self.image,
+        #         (255, 255, 255),
+        #         (
+        #             current_coords[0] * LABYRINTH_RESOLUTION + LABYRINTH_RESOLUTION // 2,
+        #             current_coords[1] * LABYRINTH_RESOLUTION + LABYRINTH_RESOLUTION // 2,
+        #         ),
+        #         LABYRINTH_RESOLUTION // 4,
+        #     )
 
         for wall in self.walls:
             # Horizontal or Vertical ?
@@ -240,3 +288,48 @@ class Labyrinth(pygame.sprite.Sprite):
         # self.image.fblits(blit_sequence)
         self.has_changed = False
         return self.image
+
+    def get_pathfinding_image(self):
+        # Opti : on sépare le pathfinding de l'affichage du labyrinthe : il ne change plus donc pas besoin de
+        # le recalculer à chaque frame, autant mettre ça sur un layer différent on est plus à un blit près...
+
+        if not self.resolution_data["is_solved"] and self.generation_data["is_generated"]:
+            # On veut dessiner une ligne qui part de la case de départ et qui suit le chemin jusqu'à la dernière case de la stack
+            # Et on veut barrer les cases bannies
+
+            # Clear the surface
+            self.pathfinding_layer.fill((0, 0, 0, 0))
+
+            path = self.resolution_data["stack"]
+            banned = self.resolution_data["banned"]
+
+            for index, case in enumerate(path):
+                if index == 0:
+                    continue
+                case_1_coords = self.id_to_coord(path[index - 1])
+                case_2_coords = self.id_to_coord(case)
+                pygame.draw.line(
+                    self.pathfinding_layer,
+                    (0, 255, 0),
+                    (
+                        case_1_coords[0] * LABYRINTH_RESOLUTION + LABYRINTH_RESOLUTION // 2,
+                        case_1_coords[1] * LABYRINTH_RESOLUTION + LABYRINTH_RESOLUTION // 2,
+                    ),
+                    (
+                        case_2_coords[0] * LABYRINTH_RESOLUTION + LABYRINTH_RESOLUTION // 2,
+                        case_2_coords[1] * LABYRINTH_RESOLUTION + LABYRINTH_RESOLUTION // 2,
+                    ),
+                    2,
+                )
+
+            for case in banned:
+                coords = self.id_to_coord(case)
+                top_right = (coords[0] * LABYRINTH_RESOLUTION + LABYRINTH_RESOLUTION, coords[1] * LABYRINTH_RESOLUTION)
+                bottom_left = (
+                    coords[0] * LABYRINTH_RESOLUTION,
+                    coords[1] * LABYRINTH_RESOLUTION + LABYRINTH_RESOLUTION,
+                )
+
+                pygame.draw.line(self.pathfinding_layer, (255, 0, 0), top_right, bottom_left, 2)
+
+        return self.pathfinding_layer

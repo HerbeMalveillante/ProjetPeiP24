@@ -115,11 +115,14 @@ class Resolution(MenuFactory):
     def __init__(self, parent):
         super().__init__(parent)
 
-        self.labyrinth = Labyrinth(self, (40, 40), "dead-end-filling", None, 0.1)
+        self.labyrinth = Labyrinth(self, (100, 100), "dead-end-filling", "recursive-backtracking", 0)
 
     def update(self):
         if not self.labyrinth.generation_data["is_generated"]:
             self.labyrinth.generate_step()
+        else:
+            if not self.labyrinth.resolution_data["is_solved"]:
+                self.labyrinth.resolve_step()
 
     def draw(self):
         labyrinth_image = self.labyrinth.get_image()
@@ -129,9 +132,14 @@ class Resolution(MenuFactory):
         labyrinth_image = pygame.transform.scale(
             labyrinth_image, (int(ratio * labyrinth_image.get_size()[0]), displayable_height)
         )
+        pathfinding_image = self.labyrinth.get_pathfinding_image()
+        pathfinding_image = pygame.transform.scale(
+            pathfinding_image, (int(ratio * pathfinding_image.get_size()[0]), displayable_height)
+        )
 
         # On la dessine à l'écran
         self.parent.parent.screen.blit(labyrinth_image, (20, 20))
+        self.parent.parent.screen.blit(pathfinding_image, (20, 20))
 
 
 class Game:
