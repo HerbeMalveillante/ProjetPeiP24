@@ -19,7 +19,9 @@ class Game(MenuFactory):
         self.debug_text = Text(self, screen.get_width() - 300, 20, WHITE, "LoremIpsum")
         self.elements.add(self.debug_text)
 
-        self.character = Character(0, self.labyrinth)
+        self.character = Character(0, self.labyrinth, self)
+
+        self.point_count = 0
 
         self.lab_layer = self.labyrinth.get_image()
         self.game_layer = pygame.Surface(
@@ -31,11 +33,11 @@ class Game(MenuFactory):
 
         self.points.append(Point(5, self.labyrinth))
         self.enemies.append(Enemy(10, self.labyrinth, self.character))
+        self.enemies.append(Enemy(20, self.labyrinth, self.character))
 
     def update(self, clock):
-        point = self.points[0]
-        anim, anim_count, width = point.animation, point.animation_count, point.width
-        self.debug_text.update_text(f"anim: {anim}\nanim_count: {anim_count}\nwidth: {width}")
+
+        self.debug_text.update_text(f"Points : {self.point_count}")
         for e in self.enemies:
             e.update()
         clock.tick(60)
@@ -101,3 +103,6 @@ class Game(MenuFactory):
             elif key == pygame.K_RIGHT:
                 if self.labyrinth.id_to_coord(self.character.pos)[0] < self.labyrinth.width - 1:
                     self.character.move("right")
+
+    def back(self):
+        self.parent.parent.stack.pop()

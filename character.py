@@ -5,11 +5,12 @@ import time
 
 class Character(pygame.sprite.Sprite):
 
-    def __init__(self, pos, labyrinth):
+    def __init__(self, pos, labyrinth, game):
         super().__init__()
 
         self.labyrinth = labyrinth
         self.pos = pos
+        self.game = game
         self.size = constants.LABYRINTH_RESOLUTION
 
         self.image = pygame.Surface((self.size, self.size), pygame.SRCALPHA, 32)
@@ -54,7 +55,22 @@ class Character(pygame.sprite.Sprite):
 
         if not self.labyrinth.can_move(self.pos, new_pos):
             return
+
+        enemies_pos = [e.pos for e in self.game.enemies]
+        if new_pos in enemies_pos:
+            self.lose()
+            return
+
+        points_pos = [p.pos for p in self.game.points]
+        if new_pos in points_pos:
+            self.game.points = [p for p in self.game.points if p.pos != new_pos]
+            self.game.point_count += 1
+
         self.pos = new_pos
+
+    def lose(self):
+        print("You lose")
+        self.game.back()
 
 
 class Enemy(pygame.sprite.Sprite):
@@ -72,10 +88,12 @@ class Enemy(pygame.sprite.Sprite):
         self.last_moved = time.time()
 
     def update(self):
-        if time.time() - self.last_moved > 0.2:
+        if time.time() - self.last_moved > 1:
             # path = self.labyrinth.resolve_recursive_backtracking(self.pos, self.character.pos)
             path = self.labyrinth.resolve_a_star(self.pos, self.character.pos)
-            if path:
+            if len(path) < 2:
+                self.character.lose()
+            elif path:
                 self.pos = path[1]
             self.last_moved = time.time()
 
