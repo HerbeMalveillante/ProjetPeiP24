@@ -15,13 +15,12 @@ def main():
 
     running = True
     while running:
-        running = menu.update()
+        running = menu.update(clock)
 
         screen.fill(constants.BG_COLOR)
         menu.draw()
         pygame.display.flip()
 
-        clock.tick()
         # Display the resolution and the number of frames per second in the window title.
         resolution = str(screen.get_width()) + "x" + str(screen.get_height())
         pygame.display.set_caption(f"Labyrinthe - {resolution} - {int(clock.get_fps())} FPS")

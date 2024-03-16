@@ -1,7 +1,8 @@
 import pygame
 import time
 import random
-from constants import LABYRINTH_RESOLUTION, DRAW_CASE_NUMBERS, BUTTON_COLOR
+from constants import LABYRINTH_RESOLUTION, DRAW_CASE_NUMBERS, BUTTON_COLOR, font
+import math
 
 
 class Labyrinth(pygame.sprite.Sprite):
@@ -217,6 +218,82 @@ class Labyrinth(pygame.sprite.Sprite):
                 print("L'algorithme de résolution n'est pas reconnu.")
                 exit(1)
 
+    def MD(self, case1, case2):
+        if isinstance(case1, int) and isinstance(case2, int):
+            case1 = self.id_to_coord(case1)
+            case2 = self.id_to_coord(case2)
+        return abs(case1[0] - case2[0]) + abs(case1[1] - case2[1])
+
+    def resolve_recursive_backtracking(self, start, end):
+        """
+        Retourne une liste de positions qui mène de la case de départ à la case d'arrivée, sans stocker de données pour visualisation
+        """
+        stack = [start]
+        banned = []
+        visited = []
+        while stack[-1] != end:
+            available = [
+                i
+                for i in self.get_adjacent_cases(stack[-1])
+                if self.can_move(i, stack[-1]) and i not in banned and i not in visited
+            ]
+            if available == []:
+                banned.append(stack.pop())
+            else:
+                stack.append(random.choice(available))
+                # stack.append(available[-1])
+                visited.append(stack[-1])
+        return stack
+
+    def resolve_a_star(self, start, end):
+        """
+        Retourne une liste de positions qui mène de la case de départ à la case d'arrivée, sans stocker de données pour visualisation
+        Utilise l'algorithme A* pour trouver le chemin le plus court
+        """
+
+        def h(case):
+            return self.MD(case, end)
+
+        def reconstruct_path(cameFrom, current):
+            totalPath = [current]
+            while current in cameFrom.keys():
+                current = cameFrom[current]
+                totalPath.append(current)
+            totalPath.reverse()
+            return totalPath
+
+        openSet = [start]
+        cameFrom = {}
+
+        gScore = {}
+        for x in range(self.width * self.height):
+            gScore[x] = math.inf
+        gScore[start] = 0
+        fScore = {}
+        for x in range(self.width * self.height):
+            fScore[x] = math.inf
+        fScore[start] = h(start)
+
+        while len(openSet) > 0:
+            current = min(openSet, key=lambda x: fScore[x])
+            if current == end:
+                path = reconstruct_path(cameFrom, current)
+                return path
+
+            openSet.remove(current)
+            adjacent = self.get_adjacent_cases(current)
+            adjacent = [a for a in adjacent if self.can_move(current, a)]
+            for neighbor in adjacent:
+                tentative_gScore = gScore[current] + 1
+                if tentative_gScore < gScore[neighbor]:
+                    cameFrom[neighbor] = current
+                    gScore[neighbor] = tentative_gScore
+                    fScore[neighbor] = tentative_gScore + h(neighbor)
+                    if neighbor not in openSet:
+                        openSet.append(neighbor)
+
+        return False
+
     def get_image(self):
 
         if not self.has_changed:
@@ -230,7 +307,7 @@ class Labyrinth(pygame.sprite.Sprite):
             # On veut dessiner le numéro de case sur chaque case
             for i in range(self.width * self.height):
                 coords = self.id_to_coord(i)
-                text = self.parent.parent.parent.font.render(str(i), 0, (0, 0, 0))
+                text = font.render(str(i), 0, (255, 255, 255))
                 self.image.blit(text, (coords[0] * LABYRINTH_RESOLUTION, coords[1] * LABYRINTH_RESOLUTION))
 
         # On dessine un rond pour la case actuelle dans la génération

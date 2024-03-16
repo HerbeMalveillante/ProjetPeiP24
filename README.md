@@ -1,13 +1,14 @@
-# Labyrinthe V2
+- [ ] Ajout des points / trésors
+- [ ] Ajout des ennemis
+- [ ] Boucle de jeu (départ, victoire, défaite, recommencer, etc.)
+- [ ] Leaderboards
+- [ ] Différents niveaux de difficulté
+- [ ] Éléments supplémentaires (téléporteurs, bonus, etc.)
+- [ ] Intégrer les téléporteurs dans l'IA des ennemis
+- [ ] Intégrer les autres ennemis comme obstacles dans l'IA des ennemis
+- [ ] Quand on termine un niveau, on passe au niveau suivant qui est un labyrinthe plus grand / plus dur (loopingFactor plus petit) / avec plus d'ennemis
 
-Objectif : restructurer le code pour faciliter l'implémentation de menus, etc.
-
-- Menu Principal
-- Génération du Labyrinthe (sélection des paramètres)
-  - Affichage du labyrinthe avec l'animation
-- Jeu
-- Quitter
-
-On veut une classe labyrinthe comme avant ça change pas, c'est surtout pour le draw et tout que ça risque de poser des soucis, puisqu'on veut animer le labyrinthe, etc.
-
-Je pense il faut une fonction par menu ? Avec une state machine ?
+-> On arrive sur le niveau en haut à gauche
+-> On génère un nombre fixé de points : en fonction du niveau par exemple
+-> On génère un nombre fixé d'ennemis : en fonction du niveau par exemple
+-> Quand le joueur commence à bouger, le jeu commence et les ennemis commencent à bouger
