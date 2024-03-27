@@ -1,8 +1,8 @@
 import pygame
-from constants import HEIGHT, LABYRINTH_RESOLUTION, WHITE
+from constants import HEIGHT, LABYRINTH_RESOLUTION, WHITE, WIDTH, BUTTON_COLOR
 from labyrinth import Labyrinth
 from character import Character, Point, Enemy
-from menufactory import MenuFactory, Text
+from menufactory import MenuFactory, Text, Button
 import random
 
 
@@ -20,8 +20,10 @@ class Game(MenuFactory):
 
         self.debug_text = Text(self, screen.get_width() - 300, 20, WHITE, "LoremIpsum")
         self.elements.add(self.debug_text)
+        self.debug_text_2 = Text(self, screen.get_width() - 300, 50, WHITE, "LoremIpsum")
+        self.elements.add(self.debug_text_2)
 
-        self.level = 10
+        self.level = 0
 
         self.load_level()
 
@@ -52,10 +54,10 @@ class Game(MenuFactory):
         )
 
         self.point_count = 0
+        self.points_to_get = (self.labyrinth.width * self.labyrinth.height // 100 * 3) // 2
 
         self.points = []
         self.enemies = []
-        print("does it work until here?")
         self.character = Character(0, self.labyrinth, self)
 
         enemies_count = self.labyrinth.width * self.labyrinth.height // 100
@@ -86,7 +88,8 @@ class Game(MenuFactory):
 
     def update(self, clock):
 
-        self.debug_text.update_text(f"Points : {self.point_count}")
+        self.debug_text.update_text(f"Points : {self.point_count}/{self.points_to_get}")
+        self.debug_text_2.update_text(f"Level : {self.level}")
         for e in self.enemies:
             e.update()
         self.character.update()
@@ -157,3 +160,53 @@ class Game(MenuFactory):
 
     def back(self):
         self.parent.parent.stack.pop()
+        self.parent.parent.stack.pop()
+
+    def lose(self):
+        # self.parent.parent.stack.pop()
+        self.parent.parent.stack.append(EndGameScreen(self, "testData"))
+
+
+class EndGameScreen(MenuFactory):
+
+    def __init__(self, parent, gamedata):
+        super().__init__(parent.parent.parent)
+
+        self.GAME = parent
+
+        self.buttons.add(
+            Button(
+                self,
+                WIDTH / 2 - 90,
+                53,
+                180,
+                30,
+                BUTTON_COLOR,
+                "Rejouer",
+                self.replay,
+            )
+        )
+
+        self.buttons.add(
+            Button(
+                self,
+                WIDTH / 2 - 90,
+                93,
+                180,
+                30,
+                BUTTON_COLOR,
+                "Menu principal",
+                self.back,
+            )
+        )
+
+        self.elements.add(Text(self, WIDTH / 2 - 90, 10, (255, 255, 255), gamedata))
+
+    def replay(self):
+        self.GAME.level = 0
+        self.GAME.load_level()
+        self.GAME.parent.parent.stack.pop()
+
+    def back(self):
+
+        self.GAME.back()

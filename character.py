@@ -62,21 +62,23 @@ class Character(pygame.sprite.Sprite):
         if not self.labyrinth.can_move(self.pos, new_pos):
             return
 
-        enemies_pos = [e.pos for e in self.game.enemies]
-        if new_pos in enemies_pos:
-            self.lose()
-            return
-
         points_pos = [p.pos for p in self.game.points]
         if new_pos in points_pos:
             self.game.points = [p for p in self.game.points if p.pos != new_pos]
             self.game.point_count += 1
 
+        end_pos = self.labyrinth.width * self.labyrinth.height - 1
+        if new_pos == end_pos:
+            points_to_get = self.game.points_to_get
+            if self.game.point_count >= points_to_get:
+                self.game.level += 1
+                self.game.load_level()
+
         self.pos = new_pos
 
     def lose(self):
         print("You lose")
-        self.game.back()
+        self.game.lose()
 
 
 class Enemy(pygame.sprite.Sprite):
