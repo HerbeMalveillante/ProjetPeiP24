@@ -92,7 +92,7 @@ class Resolution(MenuFactory):
     def __init__(self, parent):
         super().__init__(parent)
 
-        self.labyrinth = Labyrinth(self, (20, 20), "dead-end-filling", "recursive-backtracking", 0.1)
+        self.labyrinth = Labyrinth(self, (24, 24), "dead-end-filling", "recursive-backtracking", 0.1)
 
     def update(self, clock):
         clock.tick()

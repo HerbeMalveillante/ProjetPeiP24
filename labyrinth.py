@@ -1,7 +1,7 @@
 import pygame
 import time
 import random
-from constants import LABYRINTH_RESOLUTION, DRAW_CASE_NUMBERS, BUTTON_COLOR, font
+from constants import LABYRINTH_RESOLUTION, DRAW_CASE_NUMBERS, BUTTON_COLOR, LINE_WIDTH, font
 import math
 
 
@@ -345,7 +345,7 @@ class Labyrinth(pygame.sprite.Sprite):
                         case_1_coords[0] * LABYRINTH_RESOLUTION + LABYRINTH_RESOLUTION,
                         case_1_coords[1] * LABYRINTH_RESOLUTION + LABYRINTH_RESOLUTION,
                     ),
-                    2,
+                    LINE_WIDTH,
                 )
             elif orientation == "V":
                 pygame.draw.line(
@@ -359,7 +359,7 @@ class Labyrinth(pygame.sprite.Sprite):
                         case_1_coords[0] * LABYRINTH_RESOLUTION + LABYRINTH_RESOLUTION,
                         case_1_coords[1] * LABYRINTH_RESOLUTION + LABYRINTH_RESOLUTION,
                     ),
-                    2,
+                    LINE_WIDTH,
                 )
 
         # self.image.fblits(blit_sequence)
@@ -396,7 +396,7 @@ class Labyrinth(pygame.sprite.Sprite):
                         case_2_coords[0] * LABYRINTH_RESOLUTION + LABYRINTH_RESOLUTION // 2,
                         case_2_coords[1] * LABYRINTH_RESOLUTION + LABYRINTH_RESOLUTION // 2,
                     ),
-                    2,
+                    LINE_WIDTH,
                 )
 
             for case in banned:
@@ -407,6 +407,6 @@ class Labyrinth(pygame.sprite.Sprite):
                     coords[1] * LABYRINTH_RESOLUTION + LABYRINTH_RESOLUTION,
                 )
 
-                pygame.draw.line(self.pathfinding_layer, (255, 0, 0), top_right, bottom_left, 2)
+                pygame.draw.line(self.pathfinding_layer, (255, 0, 0), top_right, bottom_left, LINE_WIDTH)
 
         return self.pathfinding_layer

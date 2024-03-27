@@ -17,7 +17,13 @@ class Character(pygame.sprite.Sprite):
         self.has_changed = True
 
     def update(self):
-        pass
+
+        # check collisions with enemies
+
+        enemies = self.game.enemies
+        for enemy in enemies:
+            if self.pos == enemy.pos:
+                self.lose()
 
     def draw(self):
         # Draw a circle on a new surface and return it
