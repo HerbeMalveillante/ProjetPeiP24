@@ -10,13 +10,21 @@ class Resolution(MenuFactory):
     On aura un autre menu entre le menu principal et celui-ci, qui permettra de choisir les options de génération et de résolution qui seront passés en paramètres.
     """
 
-    def __init__(self, stack):
+    def __init__(
+        self,
+        stack,
+        size=24,
+        generation_method="dead-end-filling",
+        resolution_method="recursive-backtracking",
+        looping_factor=0.1,
+    ):
         super().__init__()
 
         self.stack = stack
         self.screen = pygame.display.get_surface()
 
-        self.labyrinth = Labyrinth((24, 24), "dead-end-filling", "recursive-backtracking", 0.1)
+        # self.labyrinth = Labyrinth((24, 24), "dead-end-filling", "recursive-backtracking", 0.1)
+        self.labyrinth = Labyrinth((size, size), generation_method, resolution_method, looping_factor)
 
         quit_button = Button(
             self.screen.get_width() - 100,
