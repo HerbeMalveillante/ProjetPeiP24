@@ -3,8 +3,7 @@ import constants
 
 
 class MenuFactory:
-    def __init__(self, parent):
-        self.parent = parent
+    def __init__(self):
         self.buttons = pygame.sprite.Group()
         self.elements = pygame.sprite.Group()
 
@@ -34,9 +33,9 @@ class MenuFactory:
 
 
 class Button(pygame.sprite.Sprite):
-    def __init__(self, parent, x, y, width, height, color, text, function):
+    def __init__(self, x, y, width, height, color, text, function):
         super().__init__()
-        self.parent = parent
+        self.screen = pygame.display.get_surface()
         self.x = x
         self.y = y
         self.width = width
@@ -59,14 +58,13 @@ class Button(pygame.sprite.Sprite):
 
     def draw(self):
 
-        self.parent.parent.screen.blit(self.image, (self.x, self.y))
+        self.screen.blit(self.image, (self.x, self.y))
 
 
 class Text(pygame.sprite.Sprite):
 
-    def __init__(self, parent, x, y, color, text):
+    def __init__(self, x, y, color, text):
         super().__init__()
-        self.parent = parent
         self.x = x
         self.y = y
         self.color = color

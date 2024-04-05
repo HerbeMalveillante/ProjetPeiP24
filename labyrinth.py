@@ -7,10 +7,9 @@ import math
 
 class Labyrinth(pygame.sprite.Sprite):
 
-    def __init__(self, parent, size, generation_algorithm, resolution_algorithm, looping_factor):
+    def __init__(self, size, generation_algorithm, resolution_algorithm, looping_factor):
         super().__init__()
 
-        self.parent = parent
         self.width = size[0]
         self.height = size[1]
         self.matrix = [[j + i * self.width for j in range(self.width)] for i in range(self.height)]

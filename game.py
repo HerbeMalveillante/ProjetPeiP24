@@ -7,21 +7,26 @@ import random
 
 
 class Game(MenuFactory):
-    def __init__(self, parent):
+    def __init__(self, stack):
 
-        super().__init__(parent)
+        super().__init__()
 
+        self.stack = stack
         self.STAIRS_IMAGE = pygame.image.load("stairs.png").convert()
         self.STAIRS_IMAGE = pygame.transform.scale(
             self.STAIRS_IMAGE, (int(LABYRINTH_RESOLUTION * 0.7), int(LABYRINTH_RESOLUTION * 0.7))
         )
 
-        screen = pygame.display.get_surface()
+        self.screen = pygame.display.get_surface()
 
-        self.debug_text = Text(self, screen.get_width() - 300, 20, WHITE, "LoremIpsum")
+        self.debug_text = Text(self.screen.get_width() - 300, 20, WHITE, "LoremIpsum")
         self.elements.add(self.debug_text)
-        self.debug_text_2 = Text(self, screen.get_width() - 300, 50, WHITE, "LoremIpsum")
+        self.debug_text_2 = Text(self.screen.get_width() - 300, 50, WHITE, "LoremIpsum")
         self.elements.add(self.debug_text_2)
+        self.quit_button = Button(
+            self.screen.get_width() - 100, self.screen.get_height() - 50, 80, 30, BUTTON_COLOR, "Quitter", self.back
+        )
+        self.buttons.add(self.quit_button)
 
         self.level = 0
 
@@ -34,7 +39,7 @@ class Game(MenuFactory):
         # On place la sortie
         # etc
         self.labyrinth = Labyrinth(
-            self, (16 + self.level * 2, 16 + self.level * 2), "dead-end-filling", "recursive-backtracking", 0.1
+            (16 + self.level * 2, 16 + self.level * 2), "dead-end-filling", "recursive-backtracking", 0.1
         )
         while not self.labyrinth.generation_data["is_generated"]:
             self.labyrinth.generate_step()
@@ -106,7 +111,7 @@ class Game(MenuFactory):
         )
 
         # On la dessine à l'écran
-        self.parent.parent.screen.blit(labyrinth_image, (20, 20))
+        self.screen.blit(labyrinth_image, (20, 20))
 
         # Game layer
         self.game_layer.fill((0, 0, 0, 0))
@@ -135,7 +140,7 @@ class Game(MenuFactory):
         game_layer_image = pygame.transform.scale(
             self.game_layer, (int(ratio * self.game_layer.get_size()[0]), displayable_height)
         )
-        self.parent.parent.screen.blit(game_layer_image, (20, 20))
+        self.screen.blit(game_layer_image, (20, 20))
 
         super().draw()
 
@@ -159,24 +164,21 @@ class Game(MenuFactory):
                     self.character.move("right")
 
     def back(self):
-        self.parent.parent.stack.pop()
-        self.parent.parent.stack.pop()
+        self.stack.pop()
 
     def lose(self):
-        # self.parent.parent.stack.pop()
-        self.parent.parent.stack.append(EndGameScreen(self, "testData"))
+        self.stack.append(EndGameScreen(self.stack, "testData", self))
 
 
 class EndGameScreen(MenuFactory):
 
-    def __init__(self, parent, gamedata):
-        super().__init__(parent.parent.parent)
+    def __init__(self, stack, gamedata, game):
+        super().__init__()
 
-        self.GAME = parent
+        self.GAME = game
 
         self.buttons.add(
             Button(
-                self,
                 WIDTH / 2 - 90,
                 53,
                 180,
@@ -189,23 +191,26 @@ class EndGameScreen(MenuFactory):
 
         self.buttons.add(
             Button(
-                self,
                 WIDTH / 2 - 90,
                 93,
                 180,
                 30,
                 BUTTON_COLOR,
                 "Menu principal",
-                self.back,
+                self.doubleBack,
             )
         )
 
-        self.elements.add(Text(self, WIDTH / 2 - 90, 10, (255, 255, 255), gamedata))
+        self.elements.add(Text(WIDTH / 2 - 90, 10, (255, 255, 255), gamedata))
 
     def replay(self):
         self.GAME.level = 0
         self.GAME.load_level()
-        self.GAME.parent.parent.stack.pop()
+        self.GAME.stack.pop()
+
+    def doubleBack(self):
+        self.GAME.back()
+        self.GAME.back()
 
     def back(self):
 

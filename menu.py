@@ -1,6 +1,6 @@
 import pygame
-from constants import WIDTH, HEIGHT, BUTTON_COLOR
-from labyrinth import Labyrinth
+from constants import WIDTH, BUTTON_COLOR
+from menuresolutioncustom import Resolution_Custom
 from game import Game
 from menufactory import MenuFactory, Button, Text
 
@@ -12,7 +12,8 @@ class Menu:
 
         self.screen = pygame.display.get_surface()
 
-        self.stack = [Main_Menu(self)]
+        self.stack = []
+        self.stack.append(Main_Menu(self.stack))
 
     def update(self, clock):
 
@@ -43,14 +44,15 @@ class Menu:
 
 
 class Main_Menu(MenuFactory):
-    def __init__(self, parent):
-        super().__init__(parent)
+    def __init__(self, stack):
+        super().__init__()
 
-        self.elements.add(Text(self, WIDTH / 2 - 90, 10, (255, 255, 255), "Labyrinthe"))
+        self.stack = stack
+
+        self.elements.add(Text(WIDTH / 2 - 90, 10, (255, 255, 255), "Labyrinthe"))
 
         self.buttons.add(
             Button(
-                self,
                 WIDTH / 2 - 90,
                 53,
                 180,
@@ -61,60 +63,22 @@ class Main_Menu(MenuFactory):
             )
         )
 
-        self.buttons.add(Button(self, WIDTH / 2 - 90, 93, 180, 30, BUTTON_COLOR, "Jouer", self.start_game))
+        self.buttons.add(Button(WIDTH / 2 - 90, 93, 180, 30, BUTTON_COLOR, "Jouer", self.start_game))
 
         self.buttons.add(
             Button(
-                self,
                 WIDTH / 2 - 90,
                 133,
                 180,
                 30,
                 BUTTON_COLOR,
                 "Quitter",
-                self.parent.back,
+                exit,
             )
         )
 
     def resolution_custom(self):
-        self.parent.stack.append(Resolution(self))
+        self.stack.append(Resolution_Custom(self.stack))
 
     def start_game(self):
-        self.parent.stack.append(Game(self))
-
-
-class Resolution(MenuFactory):
-    """
-    Cette classe permet d'afficher la génération, puis la résolution du labyrinthe.
-    On aura un autre menu entre le menu principal et celui-ci, qui permettra de choisir les options de génération et de résolution qui seront passés en paramètres.
-    """
-
-    def __init__(self, parent):
-        super().__init__(parent)
-
-        self.labyrinth = Labyrinth(self, (24, 24), "dead-end-filling", "recursive-backtracking", 0.1)
-
-    def update(self, clock):
-        clock.tick()
-        if not self.labyrinth.generation_data["is_generated"]:
-            self.labyrinth.generate_step()
-        else:
-            if not self.labyrinth.resolution_data["is_solved"]:
-                self.labyrinth.resolve_step()
-
-    def draw(self):
-        labyrinth_image = self.labyrinth.get_image()
-        labyrinth_image_height = labyrinth_image.get_size()[1]
-        displayable_height = HEIGHT - 40
-        ratio = displayable_height / labyrinth_image_height
-        labyrinth_image = pygame.transform.scale(
-            labyrinth_image, (int(ratio * labyrinth_image.get_size()[0]), displayable_height)
-        )
-        pathfinding_image = self.labyrinth.get_pathfinding_image()
-        pathfinding_image = pygame.transform.scale(
-            pathfinding_image, (int(ratio * pathfinding_image.get_size()[0]), displayable_height)
-        )
-
-        # On la dessine à l'écran
-        self.parent.parent.screen.blit(labyrinth_image, (20, 20))
-        self.parent.parent.screen.blit(pathfinding_image, (20, 20))
+        self.stack.append(Game(self.stack))
