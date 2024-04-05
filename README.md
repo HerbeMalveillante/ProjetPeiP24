@@ -12,3 +12,5 @@
 -> On génère un nombre fixé de points : en fonction du niveau par exemple
 -> On génère un nombre fixé d'ennemis : en fonction du niveau par exemple
 -> Quand le joueur commence à bouger, le jeu commence et les ennemis commencent à bouger
+ 
+ 
