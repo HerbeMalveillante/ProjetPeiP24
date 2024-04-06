@@ -3,6 +3,28 @@ import time
 import random
 from constants import LABYRINTH_RESOLUTION, DRAW_CASE_NUMBERS, BUTTON_COLOR, LINE_WIDTH, font
 import math
+from rich import print
+
+
+def generate_color(min, max, value):
+    """
+    Génère une couleur RGB dans un dégradé allant de rouge à vert, en fonction de la valeur donnée.
+    La valeur minimale donnera du vert, la valeur maximale donnera du rouge.
+    """
+
+    if value < min:
+        value = min
+    elif value > max:
+        value = max
+
+    # A division by zero is possible if min == max. In this case, we return a grey color.
+    if min == max:
+        return (128, 128, 128)
+
+    green = int((value - min) / (max - min) * 255)
+    red = 255 - green
+
+    return (red, green, 0)
 
 
 class Labyrinth(pygame.sprite.Sprite):
@@ -42,14 +64,27 @@ class Labyrinth(pygame.sprite.Sprite):
             "perfect_wall_count": 0,
         }
 
-        self.resolution_data = {
-            "is_solved": False,
-            "resolution_time": 0,
-            "stack": [self.start],
-            "banned": [],
-            "visited": [],
-            "total_move_count": 0,
-        }
+        if self.resolution_algorithm == "recursive-backtracking":
+            self.resolution_data = {
+                "is_solved": False,
+                "resolution_time": 0,
+                "stack": [self.start],
+                "banned": [],
+                "visited": [],
+                "total_move_count": 0,
+            }
+        elif self.resolution_algorithm == "a-star":
+            self.resolution_data = {
+                "is_solved": False,
+                "resolution_time": 0,
+                "setupDone": False,
+                "openSet": [],
+                "cameFrom": {},
+                "gScore": {},
+                "fScore": {},
+                "path": [],
+                "current": None,
+            }
 
         self.vertical_wall_surface = pygame.Surface((2, LABYRINTH_RESOLUTION))
         self.vertical_wall_surface.fill((0, 0, 0))
@@ -189,7 +224,81 @@ class Labyrinth(pygame.sprite.Sprite):
         if not self.resolution_data["is_solved"]:
 
             if self.resolution_algorithm == "a-star":
-                pass
+                # On veut résoudre le labyrinthe étape par étape en utilisant l'algorithme A*.
+                # L'intérêt de cette méthode est de pouvoir visualiser et animer la résolution étape par étape,
+                # en utilisant les données de résolution pour afficher des informations à l'écran.
+                # Le challenge réside dans le fait que les deux méthodes de résolution sont foncièrement différentes,
+                # Et donc que les données à visualiser ne sont pas du tout les mêmes.
+                # Les données "resolution data" sont actuellement les suivantes :
+                # {'is_solved': False, 'resolution_time': 0, 'stack': [0], 'banned': [], 'visited': [], 'total_move_count': 0}
+                # Elles sont adaptées pour le recursive-backtracking
+
+                def h(case):
+                    return self.MD(case, self.end)
+
+                def reconstruct_path(cameFrom, current):
+                    totalPath = [current]
+                    while current in cameFrom.keys():
+                        current = cameFrom[current]
+                        totalPath.append(current)
+                    totalPath.reverse()
+                    return totalPath
+
+                # Mise en place initiale : On utilise un flag "setupDone" pour savoir si on a déjà initialisé les données
+                if not self.resolution_data["setupDone"]:
+                    self.resolution_data["openSet"] = [self.start]
+                    self.resolution_data["cameFrom"] = {}
+
+                    self.resolution_data["gScore"] = {}
+                    for x in range(self.width * self.height):
+                        self.resolution_data["gScore"][x] = math.inf
+                    self.resolution_data["gScore"][self.start] = 0
+                    self.resolution_data["fScore"] = {}
+                    for x in range(self.width * self.height):
+                        self.resolution_data["fScore"][x] = math.inf
+                    self.resolution_data["fScore"][self.start] = h(self.start)
+
+                    self.resolution_data["setupDone"] = True
+
+                if len(self.resolution_data["openSet"]) > 0:
+                    self.resolution_data["current"] = min(
+                        self.resolution_data["openSet"], key=lambda x: self.resolution_data["fScore"][x]
+                    )
+                    if self.resolution_data["current"] == self.end:  # On a trouvé la solution
+                        print("Chemin trouvé.")
+
+                        # On calcule le chemin final
+                        self.resolution_data["path"] = reconstruct_path(
+                            self.resolution_data["cameFrom"], self.resolution_data["current"]
+                        )
+
+                        print(self.resolution_data["path"])
+
+                        self.resolution_data["is_solved"] = True
+                        return True
+
+                    self.resolution_data["openSet"].remove(self.resolution_data["current"])
+                    adjacent = self.get_adjacent_cases(self.resolution_data["current"])
+                    adjacent = [a for a in adjacent if self.can_move(self.resolution_data["current"], a)]
+                    for neighbor in adjacent:
+                        tentative_gScore = self.resolution_data["gScore"][self.resolution_data["current"]] + 1
+                        if tentative_gScore < self.resolution_data["gScore"][neighbor]:
+                            self.resolution_data["cameFrom"][neighbor] = self.resolution_data["current"]
+                            self.resolution_data["gScore"][neighbor] = tentative_gScore
+                            self.resolution_data["fScore"][neighbor] = tentative_gScore + h(neighbor)
+                            if neighbor not in self.resolution_data["openSet"]:
+                                self.resolution_data["openSet"].append(neighbor)
+
+                    # On tente de visualiser le chemin
+                    self.resolution_data["path"] = reconstruct_path(
+                        self.resolution_data["cameFrom"], self.resolution_data["current"]
+                    )
+
+                else:  # Pas de chemin trouvé
+                    print("Pas de chemin trouvé.")
+                    self.resolution_data["is_solved"] = True
+                    return False  # Implémenter message d'erreur si on a le temps, mais en principe cette situation ne devrait jamais se présenter sauf en cas de bug
+
             elif self.resolution_algorithm == "recursive-backtracking":
                 if self.resolution_data["stack"][-1] == self.end:
                     self.resolution_data["is_solved"] = True
@@ -216,6 +325,9 @@ class Labyrinth(pygame.sprite.Sprite):
             else:
                 print("L'algorithme de résolution n'est pas reconnu.")
                 exit(1)
+
+            # On met à jour le temps de résolution
+            self.resolution_data["resolution_time"] += time.perf_counter() - start_time
 
     def MD(self, case1, case2):
         if isinstance(case1, int) and isinstance(case2, int):
@@ -309,19 +421,6 @@ class Labyrinth(pygame.sprite.Sprite):
                 text = font.render(str(i), 0, (255, 255, 255))
                 self.image.blit(text, (coords[0] * LABYRINTH_RESOLUTION, coords[1] * LABYRINTH_RESOLUTION))
 
-        # On dessine un rond pour la case actuelle dans la génération
-        # if not self.generation_data["is_generated"]:
-        #     current_coords = self.id_to_coord(self.generation_data["stack"][-1])
-        #     pygame.draw.circle(
-        #         self.image,
-        #         (255, 255, 255),
-        #         (
-        #             current_coords[0] * LABYRINTH_RESOLUTION + LABYRINTH_RESOLUTION // 2,
-        #             current_coords[1] * LABYRINTH_RESOLUTION + LABYRINTH_RESOLUTION // 2,
-        #         ),
-        #         LABYRINTH_RESOLUTION // 4,
-        #     )
-
         for wall in self.walls:
             # Horizontal or Vertical ?
             orientation = "V" if abs(wall[0] - wall[1]) == 1 else "H"
@@ -369,43 +468,104 @@ class Labyrinth(pygame.sprite.Sprite):
         # Opti : on sépare le pathfinding de l'affichage du labyrinthe : il ne change plus donc pas besoin de
         # le recalculer à chaque frame, autant mettre ça sur un layer différent on est plus à un blit près...
 
-        if not self.resolution_data["is_solved"] and self.generation_data["is_generated"]:
+        if self.generation_data["is_generated"]:
             # On veut dessiner une ligne qui part de la case de départ et qui suit le chemin jusqu'à la dernière case de la stack
             # Et on veut barrer les cases bannies
 
             # Clear the surface
             self.pathfinding_layer.fill((0, 0, 0, 0))
 
-            path = self.resolution_data["stack"]
-            banned = self.resolution_data["banned"]
+            if self.resolution_algorithm == "recursive-backtracking":
 
-            for index, case in enumerate(path):
-                if index == 0:
-                    continue
-                case_1_coords = self.id_to_coord(path[index - 1])
-                case_2_coords = self.id_to_coord(case)
-                pygame.draw.line(
-                    self.pathfinding_layer,
-                    (0, 255, 0),
-                    (
-                        case_1_coords[0] * LABYRINTH_RESOLUTION + LABYRINTH_RESOLUTION // 2,
-                        case_1_coords[1] * LABYRINTH_RESOLUTION + LABYRINTH_RESOLUTION // 2,
-                    ),
-                    (
-                        case_2_coords[0] * LABYRINTH_RESOLUTION + LABYRINTH_RESOLUTION // 2,
-                        case_2_coords[1] * LABYRINTH_RESOLUTION + LABYRINTH_RESOLUTION // 2,
-                    ),
-                    LINE_WIDTH,
-                )
+                path = self.resolution_data["stack"]
+                banned = self.resolution_data["banned"]
 
-            for case in banned:
-                coords = self.id_to_coord(case)
-                top_right = (coords[0] * LABYRINTH_RESOLUTION + LABYRINTH_RESOLUTION, coords[1] * LABYRINTH_RESOLUTION)
-                bottom_left = (
-                    coords[0] * LABYRINTH_RESOLUTION,
-                    coords[1] * LABYRINTH_RESOLUTION + LABYRINTH_RESOLUTION,
-                )
+                for index, case in enumerate(path):
+                    if index == 0:
+                        continue
+                    case_1_coords = self.id_to_coord(path[index - 1])
+                    case_2_coords = self.id_to_coord(case)
+                    pygame.draw.line(
+                        self.pathfinding_layer,
+                        (0, 255, 0),
+                        (
+                            case_1_coords[0] * LABYRINTH_RESOLUTION + LABYRINTH_RESOLUTION // 2,
+                            case_1_coords[1] * LABYRINTH_RESOLUTION + LABYRINTH_RESOLUTION // 2,
+                        ),
+                        (
+                            case_2_coords[0] * LABYRINTH_RESOLUTION + LABYRINTH_RESOLUTION // 2,
+                            case_2_coords[1] * LABYRINTH_RESOLUTION + LABYRINTH_RESOLUTION // 2,
+                        ),
+                        LINE_WIDTH,
+                    )
 
-                pygame.draw.line(self.pathfinding_layer, (255, 0, 0), top_right, bottom_left, LINE_WIDTH)
+                for case in banned:
+                    coords = self.id_to_coord(case)
+                    top_right = (
+                        coords[0] * LABYRINTH_RESOLUTION + LABYRINTH_RESOLUTION,
+                        coords[1] * LABYRINTH_RESOLUTION,
+                    )
+                    bottom_left = (
+                        coords[0] * LABYRINTH_RESOLUTION,
+                        coords[1] * LABYRINTH_RESOLUTION + LABYRINTH_RESOLUTION,
+                    )
+
+                    pygame.draw.line(self.pathfinding_layer, (255, 0, 0), top_right, bottom_left, LINE_WIDTH)
+
+            elif self.resolution_algorithm == "a-star":
+
+                # On veut ajouter une couleur sur chaque case en fonction de sa valeur de fScore.
+                # On veut aussi dessiner une ligne entre chaque case du chemin.
+
+                if self.resolution_data["setupDone"]:
+                    finite_fScores = [
+                        self.resolution_data["fScore"][x]
+                        for x in self.resolution_data["fScore"]
+                        if self.resolution_data["fScore"][x] != math.inf
+                    ]
+                    min_fScore = min(finite_fScores)
+                    max_fScore = max(finite_fScores)
+
+                    for case in range(self.width * self.height):
+                        # On ne veut pas colorier les cases de départ et d'arrivée, ni les cases dont le fScore est infini
+                        if case == self.start or case == self.end or self.resolution_data["fScore"][case] == math.inf:
+                            continue
+                        coords = self.id_to_coord(case)
+                        color = generate_color(min_fScore, max_fScore, self.resolution_data["fScore"][case])
+                        # On veut dessiner un rectangle de couleur, semi transparent, sur chaque case
+                        pygame.draw.rect(
+                            self.pathfinding_layer,
+                            color + (100,),
+                            (
+                                coords[0] * LABYRINTH_RESOLUTION,
+                                coords[1] * LABYRINTH_RESOLUTION,
+                                LABYRINTH_RESOLUTION,
+                                LABYRINTH_RESOLUTION,
+                            ),
+                        )
+
+                path = self.resolution_data["path"]
+
+                if self.resolution_data["is_solved"]:
+                    print(path)
+
+                for index, case in enumerate(path):
+                    if index == 0:
+                        continue
+                    case_1_coords = self.id_to_coord(path[index - 1])
+                    case_2_coords = self.id_to_coord(case)
+                    pygame.draw.line(
+                        self.pathfinding_layer,
+                        (0, 255, 0),
+                        (
+                            case_1_coords[0] * LABYRINTH_RESOLUTION + LABYRINTH_RESOLUTION // 2,
+                            case_1_coords[1] * LABYRINTH_RESOLUTION + LABYRINTH_RESOLUTION // 2,
+                        ),
+                        (
+                            case_2_coords[0] * LABYRINTH_RESOLUTION + LABYRINTH_RESOLUTION // 2,
+                            case_2_coords[1] * LABYRINTH_RESOLUTION + LABYRINTH_RESOLUTION // 2,
+                        ),
+                        LINE_WIDTH,
+                    )
 
         return self.pathfinding_layer

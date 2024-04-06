@@ -66,6 +66,7 @@ class Character(pygame.sprite.Sprite):
         if new_pos in points_pos:
             self.game.points = [p for p in self.game.points if p.pos != new_pos]
             self.game.point_count += 1
+            self.game.total_points += 1
 
         end_pos = self.labyrinth.width * self.labyrinth.height - 1
         if new_pos == end_pos:

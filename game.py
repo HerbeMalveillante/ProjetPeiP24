@@ -29,6 +29,7 @@ class Game(MenuFactory):
         self.buttons.add(self.quit_button)
 
         self.level = 0
+        self.total_points = 0
 
         self.load_level()
 
@@ -77,12 +78,6 @@ class Game(MenuFactory):
                     position_valid = True
             self.points.append(Point(position, self.labyrinth))
 
-        # if self.level == 1:
-
-        #     self.points.append(Point(5, self.labyrinth))
-        #     self.enemies.append(Enemy(10, self.labyrinth, self.character))
-        #     self.enemies.append(Enemy(20, self.labyrinth, self.character))
-
     def update(self, clock):
 
         self.debug_text.update_text(f"Points : {self.point_count}/{self.points_to_get}")
@@ -90,7 +85,7 @@ class Game(MenuFactory):
         for e in self.enemies:
             e.update()
         self.character.update()
-        if self.points_to_get<=self.point_count:
+        if self.points_to_get <= self.point_count:
             stairs_size = self.STAIRS_IMAGE.get_size()[0]
             offset = (LABYRINTH_RESOLUTION - stairs_size) // 2
             stairs_coordinates = self.labyrinth.id_to_coord(self.labyrinth.width * self.labyrinth.height - 1)
@@ -166,7 +161,12 @@ class Game(MenuFactory):
         self.stack.pop()
 
     def lose(self):
-        self.stack.append(EndGameScreen(self.stack, "testData", self))
+        self.stack.append(
+            EndGameScreen(
+                self.stack, ["Vous avez perdu !", f"Niveau : {self.level}", f"Points : {self.total_points}"], self
+            )
+        )
+        self.total_points = 0
 
 
 class EndGameScreen(MenuFactory):
@@ -176,10 +176,15 @@ class EndGameScreen(MenuFactory):
 
         self.GAME = game
 
+        last_y = 0
+        for i in range(len(gamedata)):
+            self.elements.add(Text(WIDTH / 2 - 90, 10 + i * 40, (255, 255, 255), gamedata[i]))
+            last_y = 10 + i * 40
+
         self.buttons.add(
             Button(
                 WIDTH / 2 - 90,
-                53,
+                last_y + 60,
                 180,
                 30,
                 BUTTON_COLOR,
@@ -191,7 +196,7 @@ class EndGameScreen(MenuFactory):
         self.buttons.add(
             Button(
                 WIDTH / 2 - 90,
-                93,
+                last_y + 100,
                 180,
                 30,
                 BUTTON_COLOR,
@@ -200,7 +205,7 @@ class EndGameScreen(MenuFactory):
             )
         )
 
-        self.elements.add(Text(WIDTH / 2 - 90, 10, (255, 255, 255), gamedata))
+        # self.elements.add(Text(WIDTH / 2 - 90, 10, (255, 255, 255), gamedata))
 
     def replay(self):
         self.GAME.level = 0
