@@ -46,14 +46,6 @@ class Game(MenuFactory):
 
         self.lab_layer = self.labyrinth.get_image()
 
-        # Stairs
-        stairs_size = self.STAIRS_IMAGE.get_size()[0]
-        offset = (LABYRINTH_RESOLUTION - stairs_size) // 2
-        stairs_coordinates = self.labyrinth.id_to_coord(self.labyrinth.width * self.labyrinth.height - 1)
-        stairs_x = stairs_coordinates[0] * LABYRINTH_RESOLUTION + offset
-        stairs_y = stairs_coordinates[1] * LABYRINTH_RESOLUTION + offset
-        self.lab_layer.blit(self.STAIRS_IMAGE, (stairs_x, stairs_y))
-
         self.game_layer = pygame.Surface(
             (self.lab_layer.get_size()[0], self.lab_layer.get_size()[1]), pygame.SRCALPHA, 32
         )
@@ -98,6 +90,13 @@ class Game(MenuFactory):
         for e in self.enemies:
             e.update()
         self.character.update()
+        if self.points_to_get<=self.point_count:
+            stairs_size = self.STAIRS_IMAGE.get_size()[0]
+            offset = (LABYRINTH_RESOLUTION - stairs_size) // 2
+            stairs_coordinates = self.labyrinth.id_to_coord(self.labyrinth.width * self.labyrinth.height - 1)
+            stairs_x = stairs_coordinates[0] * LABYRINTH_RESOLUTION + offset
+            stairs_y = stairs_coordinates[1] * LABYRINTH_RESOLUTION + offset
+            self.lab_layer.blit(self.STAIRS_IMAGE, (stairs_x, stairs_y))
         clock.tick(60)
 
     def draw(self):
