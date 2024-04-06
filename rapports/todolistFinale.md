@@ -1,11 +1,11 @@
-1. Affichage stats et progression dans la résolution custom
-2. Paufinage du code (commentaires, etc.)
-3. Paufinage partie "jeu" (téléporteurs)
+1. Paufinage du code (commentaires, etc.)
+2. Paufinage partie "jeu" (téléporteurs)
 
 ---
 
 FAIT :
 
+- Affichage stats et progression dans la résolution custom
 - Animation résolution A\*
 - Bouton pour quitter une partie en cours
 - Retrait de toute la confusion avec les "parents" qui n'avaient pas de sens. On récupère l'écran dans chaque classe et on transmet la stack à chaque fois à la place.

@@ -56,8 +56,10 @@ class Labyrinth(pygame.sprite.Sprite):
         current = random.randint(0, self.width * self.height - 1)
         self.generation_data = {
             "is_generated": False,
+            "start_time": time.perf_counter(),
             "generation_time": 0,
             "step": 0,
+            "action_count": 0,
             "stack": [current],
             "visited": [current],
             "wall_index": 0,
@@ -67,7 +69,9 @@ class Labyrinth(pygame.sprite.Sprite):
         if self.resolution_algorithm == "recursive-backtracking":
             self.resolution_data = {
                 "is_solved": False,
+                "start_time": time.perf_counter(),
                 "resolution_time": 0,
+                "setupDone": False,
                 "stack": [self.start],
                 "banned": [],
                 "visited": [],
@@ -76,6 +80,7 @@ class Labyrinth(pygame.sprite.Sprite):
         elif self.resolution_algorithm == "a-star":
             self.resolution_data = {
                 "is_solved": False,
+                "start_time": time.perf_counter(),
                 "resolution_time": 0,
                 "setupDone": False,
                 "openSet": [],
@@ -84,6 +89,7 @@ class Labyrinth(pygame.sprite.Sprite):
                 "fScore": {},
                 "path": [],
                 "current": None,
+                "total_move_count": 0,
             }
 
         self.vertical_wall_surface = pygame.Surface((2, LABYRINTH_RESOLUTION))
@@ -160,8 +166,6 @@ class Labyrinth(pygame.sprite.Sprite):
 
     def generate_step(self):
 
-        start_time = time.perf_counter()
-
         if not self.generation_data["is_generated"]:
 
             if self.generation_algorithm == "dead-end-filling":
@@ -193,6 +197,7 @@ class Labyrinth(pygame.sprite.Sprite):
                         self.remove_wall(current, next_case)
                         self.generation_data["visited"].append(next_case)
                         self.generation_data["stack"].append(next_case)
+                        self.generation_data["action_count"] += 1
 
                     # print(f"{len(self.walls)} murs restants.")
 
@@ -204,6 +209,7 @@ class Labyrinth(pygame.sprite.Sprite):
                         for _ in range(int(len(self.walls) * self.looping_factor)):
                             wall = random.choice(self.walls)
                             self.remove_wall(wall[0], wall[1])
+                            self.generation_data["action_count"] += 1
                     self.generation_data["is_generated"] = True
                     self.generation_data["step"] = 3
                     print("Troisième et dernière étape terminée : murs aléatoires supprimés.")
@@ -215,13 +221,14 @@ class Labyrinth(pygame.sprite.Sprite):
                 print("L'algorithme de génération n'est pas reconnu.")
                 exit(1)
 
-        end_time = time.perf_counter()
-        self.generation_data["generation_time"] += end_time - start_time
+        self.generation_data["generation_time"] = time.perf_counter() - self.generation_data["start_time"]
 
     def resolve_step(self):
 
-        start_time = time.perf_counter()
         if not self.resolution_data["is_solved"]:
+
+            # On met à jour le temps de résolution
+            self.resolution_data["resolution_time"] = time.perf_counter() - self.resolution_data["start_time"]
 
             if self.resolution_algorithm == "a-star":
                 # On veut résoudre le labyrinthe étape par étape en utilisant l'algorithme A*.
@@ -246,6 +253,8 @@ class Labyrinth(pygame.sprite.Sprite):
 
                 # Mise en place initiale : On utilise un flag "setupDone" pour savoir si on a déjà initialisé les données
                 if not self.resolution_data["setupDone"]:
+                    self.resolution_data["start_time"] = time.perf_counter()
+                    print("Initialisation de l'algorithme A*...")
                     self.resolution_data["openSet"] = [self.start]
                     self.resolution_data["cameFrom"] = {}
 
@@ -260,6 +269,8 @@ class Labyrinth(pygame.sprite.Sprite):
 
                     self.resolution_data["setupDone"] = True
 
+                    print("Initialisation terminée.")
+
                 if len(self.resolution_data["openSet"]) > 0:
                     self.resolution_data["current"] = min(
                         self.resolution_data["openSet"], key=lambda x: self.resolution_data["fScore"][x]
@@ -271,8 +282,6 @@ class Labyrinth(pygame.sprite.Sprite):
                         self.resolution_data["path"] = reconstruct_path(
                             self.resolution_data["cameFrom"], self.resolution_data["current"]
                         )
-
-                        print(self.resolution_data["path"])
 
                         self.resolution_data["is_solved"] = True
                         return True
@@ -294,16 +303,26 @@ class Labyrinth(pygame.sprite.Sprite):
                         self.resolution_data["cameFrom"], self.resolution_data["current"]
                     )
 
+                    self.resolution_data["total_move_count"] += 1
+
                 else:  # Pas de chemin trouvé
                     print("Pas de chemin trouvé.")
                     self.resolution_data["is_solved"] = True
                     return False  # Implémenter message d'erreur si on a le temps, mais en principe cette situation ne devrait jamais se présenter sauf en cas de bug
 
             elif self.resolution_algorithm == "recursive-backtracking":
+
+                if not self.resolution_data["setupDone"]:
+                    self.resolution_data["start_time"] = time.perf_counter()
+                    print("Début de la résolution du labyrinthe par backtracking récursif...")
+                    self.resolution_data["setupDone"] = True
+
                 if self.resolution_data["stack"][-1] == self.end:
+                    print("Chemin trouvé.")
                     self.resolution_data["is_solved"] = True
                     return True
                 else:
+
                     available = [
                         i
                         for i in self.get_adjacent_cases(self.resolution_data["stack"][-1])
@@ -325,9 +344,6 @@ class Labyrinth(pygame.sprite.Sprite):
             else:
                 print("L'algorithme de résolution n'est pas reconnu.")
                 exit(1)
-
-            # On met à jour le temps de résolution
-            self.resolution_data["resolution_time"] += time.perf_counter() - start_time
 
     def MD(self, case1, case2):
         if isinstance(case1, int) and isinstance(case2, int):
@@ -545,9 +561,6 @@ class Labyrinth(pygame.sprite.Sprite):
                         )
 
                 path = self.resolution_data["path"]
-
-                if self.resolution_data["is_solved"]:
-                    print(path)
 
                 for index, case in enumerate(path):
                     if index == 0:
