@@ -1,16 +1,62 @@
-- [ ] Ajout des points / trésors
-- [ ] Ajout des ennemis
-- [ ] Boucle de jeu (départ, victoire, défaite, recommencer, etc.)
-- [ ] Leaderboards
-- [ ] Différents niveaux de difficulté
-- [ ] Éléments supplémentaires (téléporteurs, bonus, etc.)
-- [ ] Intégrer les téléporteurs dans l'IA des ennemis
-- [ ] Intégrer les autres ennemis comme obstacles dans l'IA des ennemis
-- [ ] Quand on termine un niveau, on passe au niveau suivant qui est un labyrinthe plus grand / plus dur (loopingFactor plus petit) / avec plus d'ennemis
+# Projet Labyrinthe | PeiP2 2023-2023 | LAURENT Esteban, RENIMEL Pacôme
 
--> On arrive sur le niveau en haut à gauche
--> On génère un nombre fixé de points : en fonction du niveau par exemple
--> On génère un nombre fixé d'ennemis : en fonction du niveau par exemple
--> Quand le joueur commence à bouger, le jeu commence et les ennemis commencent à bouger
- 
- 
+## Installation :
+
+1. Clone the repository
+
+```bash
+git clone https://github.com/herbemalveillante/ProjetPeiP24.git
+```
+
+2. Check that you have the required version of Python installed. The project has been developed with Python 3.10.0 but should work with any later version. Any version below 3.7 is guaranteed not to work.
+
+```bash
+python --version
+
+# or
+
+python3 --version
+
+# or
+
+python3.10 --version
+
+# depending on your OS and Python installation.
+```
+
+3. (Optional) Create a virtual environment
+
+```bash
+python3 -m venv .envi
+```
+
+4. Activate the virtual environment (this may be different depending on your OS, or handled by your code editor)
+
+```bash
+
+# MacOS/Linux:
+source .envi/bin/activate
+
+# Windows:
+.envi\Scripts\activate
+```
+
+5. Install the required packages
+
+```bash
+python3 -m pip install --upgrade pip
+python3 -m pip install -r requirements.txt
+```
+
+If you encounter any pygame-related issue, make sure you installed the community version of pygame, which is the one used in this project.
+
+```bash
+python3 -m pip uninstall pygame
+python3 -m pip install pygame-ce
+```
+
+6. Run the game
+
+```bash
+python3 main.py
+```

@@ -5,15 +5,30 @@ from constants import BUTTON_COLOR
 
 
 class Resolution_Custom(menufactory.MenuFactory):
+    """
+    A custom resolution menu class that allows the user to customize the maze generation and solving parameters.
+
+    Attributes:
+        stack (list): A list representing the stack of menus.
+        screen (pygame.Surface): The surface of the pygame display.
+        grid_size (int): The size of the maze grid.
+        looping_factor (float): The looping factor for maze generation.
+    """
 
     def __init__(self, stack):
+        """
+        Initializes a Resolution_Custom object.
+
+        Args:
+            stack (list): A list representing the stack of menus.
+        """
         super().__init__()
 
         self.stack = stack
         self.screen = pygame.display.get_surface()
 
-        self.grid_size = 24
-        self.looping_factor = 0.10
+        self.grid_size = 24  # The default grid size is 24.
+        self.looping_factor = 0.10  # The default looping factor is 0.10.
 
         text1 = menufactory.Text(10, 10, (255, 255, 255), "Génération et Résolution personnalisée")
         self.elements.add(text1)
@@ -34,11 +49,11 @@ class Resolution_Custom(menufactory.MenuFactory):
         )
         self.buttons.add(button_back)
 
-        # Choix de la taille de la grille
+        # Grid size selection
         grid_size_text = menufactory.Text(10, 100, (255, 255, 255), "Taille de la grille")
         self.elements.add(grid_size_text)
 
-        # Boutons pour augmenter ou diminuer la taille de la grille
+        # Buttons to increase and decrease the grid size
         button_1 = menufactory.Button(10, 150, 30, 30, BUTTON_COLOR, "-", self.decrease_grid_size)
         self.buttons.add(button_1)
 
@@ -58,15 +73,16 @@ class Resolution_Custom(menufactory.MenuFactory):
         )
         self.buttons.add(button_2)
 
-        # Bouton pour sélectionner la méthode de génération
+        # Buttons to select the maze generation method
         generation_text = menufactory.Text(10, 200, (255, 255, 255), "Méthode de génération")
         self.elements.add(generation_text)
         self.generation_label = menufactory.Text(10, 240, (255, 255, 255), "dead-end-filling")
         self.elements.add(self.generation_label)
         # generation_button = menufactory.Button(10, 280, 100, 40, BUTTON_COLOR, "Changer", self.toggle_generation)
         # self.buttons.add(generation_button)
+        # ^^^ This line may be uncommented to add a button to toggle between generation methods if any is implemented later on.
 
-        # Bouton pour sélectionner la méthode de résolution
+        # Button to select the maze solving method
         resolution_text = menufactory.Text(10, 340, (255, 255, 255), "Méthode de résolution")
         self.elements.add(resolution_text)
         self.resolution_label = menufactory.Text(10, 380, (255, 255, 255), "recursive-backtracking")
@@ -74,7 +90,7 @@ class Resolution_Custom(menufactory.MenuFactory):
         resolution_button = menufactory.Button(10, 420, 100, 40, BUTTON_COLOR, "Changer", self.toggle_resolution)
         self.buttons.add(resolution_button)
 
-        # Sélection du looping factor
+        # Looping factor selection
         looping_factor_text = menufactory.Text(10, 480, (255, 255, 255), "Looping factor")
         self.elements.add(looping_factor_text)
 
@@ -104,40 +120,51 @@ class Resolution_Custom(menufactory.MenuFactory):
         self.buttons.add(button_4)
 
     def increase_grid_size(self):
+        """
+        Increases the size of the maze grid by 1.
+        """
         self.grid_size += 1
         self.grid_size_label.update_text(str(self.grid_size))
 
     def decrease_grid_size(self):
+        """
+        Decreases the size of the maze grid by 1.
+        """
         self.grid_size -= 1
         self.grid_size_label.update_text(str(self.grid_size))
 
-    def toggle_generation(self):
-        if self.generation_label.text == "dead-end-filling":
-            self.generation_label.update_text("recursive-backtracking")
-        else:
-            self.generation_label.update_text("dead-end-filling")
-
     def toggle_resolution(self):
+        """
+        Toggles between the "a-star" and "recursive-backtracking" maze solving methods.
+        """
         if self.resolution_label.text == "a-star":
             self.resolution_label.update_text("recursive-backtracking")
         else:
             self.resolution_label.update_text("a-star")
 
     def increase_looping_factor(self):
+        """
+        Increases the looping factor for maze generation by 0.05.
+        """
         self.looping_factor += 0.05
-        self.looping_factor = round(self.looping_factor, 2)
-        self.looping_factor = min(self.looping_factor, 1.0)
+        self.looping_factor = round(self.looping_factor, 2)  # Round to 2 decimal places
+        self.looping_factor = min(self.looping_factor, 1.0)  # Limit to 1.0
         self.looping_factor_label.update_text(str(self.looping_factor))
 
     def decrease_looping_factor(self):
+        """
+        Decreases the looping factor for maze generation by 0.05.
+        """
         self.looping_factor -= 0.05
-        self.looping_factor = round(self.looping_factor, 2)
-        self.looping_factor = max(self.looping_factor, 0.0)
+        self.looping_factor = round(self.looping_factor, 2)  # Round to 2 decimal places
+        self.looping_factor = max(self.looping_factor, 0.0)  # Limit to 0.0
         self.looping_factor_label.update_text(str(self.looping_factor))
 
     def initiate_solve(self):
-        # Retrieve the correct data from the inputs and create the corresponding resolution
-        # add the resolution to the stack
+        """
+        Initiates the maze generation and solving process by creating a Resolution object with the selected parameters
+        and adding it to the stack.
+        """
         self.stack.append(
             Resolution(
                 self.stack, self.grid_size, self.generation_label.text, self.resolution_label.text, self.looping_factor
@@ -145,4 +172,7 @@ class Resolution_Custom(menufactory.MenuFactory):
         )
 
     def draw(self):
+        """
+        Draws the custom resolution menu on the screen.
+        """
         super().draw()

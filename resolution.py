@@ -6,8 +6,37 @@ import pygame
 
 class Resolution(MenuFactory):
     """
-    Cette classe permet d'afficher la génération, puis la résolution du labyrinthe.
-    On aura un autre menu entre le menu principal et celui-ci, qui permettra de choisir les options de génération et de résolution qui seront passés en paramètres.
+    The `Resolution` class represents the resolution menu for a labyrinth game.
+
+    Args:
+        stack (Stack): The stack used for managing the menu navigation.
+        size (int, optional): The size of the labyrinth. Defaults to 24.
+        generation_method (str, optional): The generation method for the labyrinth. Defaults to "dead-end-filling".
+        resolution_method (str, optional): The resolution method for the labyrinth. Defaults to "recursive-backtracking".
+        looping_factor (float, optional): The looping factor for the labyrinth generation. Defaults to 0.1.
+
+    Attributes:
+        stack (Stack): The stack used for managing the menu navigation.
+        screen (Surface): The pygame surface for rendering the menu.
+        labyrinth (Labyrinth): The labyrinth object for generating and resolving the maze.
+        buttons (Group): The group of buttons in the menu.
+        elements (Group): The group of elements in the menu.
+        statusLabel (Text): The label for displaying the status of the generation or resolution.
+        sizeLabel (Text): The label for displaying the size of the labyrinth.
+        loopingFactorLabel (Text): The label for displaying the looping factor of the labyrinth generation.
+        generationTimeLabel (Text): The label for displaying the generation time.
+        generationStepLabel (Text): The label for displaying the current generation step.
+        resolutionMethodLabel (Text): The label for displaying the resolution method.
+        resolutionMethodLabel2 (Text): The label for displaying the resolution method (recursive backtracking).
+        resolutionTimeLabel (Text): The label for displaying the resolution time.
+        totalMoveCountLabel (Text): The label for displaying the total move count.
+        pathLengthLabel (Text): The label for displaying the path length.
+        visitedCountLabel (Text): The label for displaying the number of visited cells (recursive backtracking).
+        bannedCountLabel (Text): The label for displaying the number of banned cells (recursive backtracking).
+
+    Methods:
+        update(clock): Updates the menu elements and labels.
+        draw(): Draws the labyrinth and pathfinding images on the screen.
     """
 
     def __init__(
@@ -23,8 +52,9 @@ class Resolution(MenuFactory):
         self.stack = stack
         self.screen = pygame.display.get_surface()
 
-        # self.labyrinth = Labyrinth((24, 24), "dead-end-filling", "recursive-backtracking", 0.1)
-        self.labyrinth = Labyrinth((size, size), generation_method, resolution_method, looping_factor)
+        self.labyrinth = Labyrinth(
+            (size, size), generation_method, resolution_method, looping_factor
+        )  # Create a labyrinth object
 
         quit_button = Button(
             self.screen.get_width() - 100,
@@ -37,10 +67,9 @@ class Resolution(MenuFactory):
         )
         self.buttons.add(quit_button)
 
-        # On ajoute des statistiques sur la génération et la résolution
+        # Statistics about the generation and resolution
         self.statusLabel = Text(self.screen.get_width() // 2 + 120, 10, (255, 255, 255), "Statut : Génération")
         self.elements.add(self.statusLabel)
-        # add the labyrinth size and looping factor. This won't need to be updated
         self.sizeLabel = Text(
             self.screen.get_width() // 2 + 120, 35, (255, 255, 255), f"Taille du labyrinthe : {size}x{size}"
         )
@@ -65,7 +94,7 @@ class Resolution(MenuFactory):
             f"Méthode de résolution : {'A*' if resolution_method == 'a-star' else ''}",
         )
         self.elements.add(self.resolutionMethodLabel)
-        if resolution_method != "a-star":  # Sur une nouvelle ligne
+        if resolution_method != "a-star":  # On a new line
             self.resolutionMethodLabel2 = Text(
                 self.screen.get_width() // 2 + 120, 175, (255, 255, 255), f"Recursive backtracking"
             )
@@ -92,6 +121,12 @@ class Resolution(MenuFactory):
             self.elements.add(self.bannedCountLabel)
 
     def update(self, clock):
+        """
+        Updates the menu elements and labels.
+
+        Args:
+            clock (Clock): The pygame clock object for managing the frame rate.
+        """
         clock.tick()
 
         # Update the labels
@@ -127,7 +162,11 @@ class Resolution(MenuFactory):
                 self.labyrinth.resolve_step()
 
     def draw(self):
+        """
+        Draws the labyrinth and pathfinding images on the screen.
 
+        This works in the same way as in the `Game` class.
+        """
         super().draw()
 
         labyrinth_image = self.labyrinth.get_image()
@@ -142,6 +181,6 @@ class Resolution(MenuFactory):
             pathfinding_image, (int(ratio * pathfinding_image.get_size()[0]), displayable_height)
         )
 
-        # On la dessine à l'écran
+        # Draw the two layers to the screen.
         self.screen.blit(labyrinth_image, (20, 20))
         self.screen.blit(pathfinding_image, (20, 20))
