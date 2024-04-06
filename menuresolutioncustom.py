@@ -126,7 +126,7 @@ class Resolution_Custom(menufactory.MenuFactory):
     def increase_looping_factor(self):
         self.looping_factor += 0.05
         self.looping_factor = round(self.looping_factor, 2)
-        self.looping_factor = min(self.looping_factor, 0.5)
+        self.looping_factor = min(self.looping_factor, 1.0)
         self.looping_factor_label.update_text(str(self.looping_factor))
 
     def decrease_looping_factor(self):
