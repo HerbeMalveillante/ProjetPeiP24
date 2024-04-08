@@ -1,34 +1,242 @@
-\documentclass{article}
+\documentclass[12pt]{scrreprt} % Set font size to 12pt
+
+\usepackage{changepage} % Add the changepage package for the addmargin environment
+\usepackage{blindtext} % Generate lorem ipsums
+\usepackage{helvet} % Arial font (Arial is proprietary, so we use Helvetica instead)
+\renewcommand{\familydefault}{\sfdefault}
+\usepackage[margin=2.5cm]{geometry} % Set margins to 2.5cm on all sides
+\usepackage{graphicx} % Add the graphicx package for including images
+\usepackage{atbegshi} % Package for placing elements at absolute positions
+\usepackage[allcolors=blue]{hyperref} % Add the hyperref package for hyperlinking
+\usepackage{xcolor} % Add the xcolor package for color support
+\usepackage{tabularx} % Add the tabularx package for advanced tables
+
+\makeatletter
+\def\@cite#1#2{$^{\mbox{\scriptsize [#1\if@tempswa , #2\fi]}}$}
+\makeatother
+
+% CONSIGNES POUR LA REDACTION DU RAPPORT DE PROJET
+
+% CRITERES D'EVALUATION :
+% Critères liés à votre travail et vos compétences :
+% - Le respect des objectifs fixés
+% - Les compétences techniques et scientifiques
+% - L'aptitude à rechercher de l'information
+% - L'implication et l'esprit d'initiative
+%
+% Critères liés à votre rapport de projet
+% - La structuration du document
+% - L'orthographe et l'expression écrite
+% - Le descriptif de la mission
+% - La valeur du contenu scientifique et technique
+% - La précision des résumés en français, en anglais et la bibliographie
+%
+% Critères liés à votre soutenance
+% - La qualité de la structuration et de l'expression
+% - La qualité du diaporama
+% - Le dynamisme et l'interactivité
+% - La qualité des réponses, l'esprit critique sur le travail réalisé, qualité de la conclusion et des éventuelles perspectives.
+
+% RAPPORT
+% Informations générales
+%
+% Le rapport doit être rédigé par vos soins, en respectant les normes
+% de rédaction indiquées ci-dessous. Il sera évalué sur la forme
+% (orthographe, grammaire, ponctuation, langage approprié, etc.) et le fond
+% (organisation, méthode, argumentation, etc.).
+% Il devra avoir une longueur comprise entre 20 et 25 pages (hors annexes)
+% et sera à rendre au format PDF.
+% L'ensemble des comptes rendus hebdomadaires d'avancement constituera une rubrique annexe de votre rapport.
+% Votre document doit comporter une bibliographie permettant d'identifier et de retrouver les documents cités.
+%
+% Le rapport est à remettre le 9 avril 2024.
+%
+% Format attendu du document
+% - Police Arial
+% - Taille des polices : Texte (12), Sections/Titres (14, gras)
+% - Numérotation des sections : numérotation scientifique (1, 1.1, 1.1.1)
+% - Numérotation des pages : centrale en bas de page
+% - Numérotation des tableaux et des figures
+% - Marges : 2,5 cm en haut, en bas, à gauche et à droite
+% - Résumé (français) et abstract (anglais) sur la dernière page de couverture
+% - La première et la quatrième de couverture doivent respecter scrupuleusement le modèle téléchargeable ci-après
+% - La mise en page du corps du rapport est libre.
+
+
+
 
 \begin{document}
 
-% Title and author
-\title{My Report}
-\author{Your Name}
+% add the 0.jpg image to the top-left of the first page
 
-\maketitle
+\begin{titlepage}
+    \newgeometry{left=1cm, right=1cm, top=1cm, bottom=1cm}
 
-% Abstract
-\begin{abstract}
-This is the abstract of my report.
-\end{abstract}
+    \noindent\includegraphics{0.jpg}
+    \includegraphics{1.jpg}
+    \hfill
+    \includegraphics{2.jpg}
+    \vspace{1cm}
 
-% Introduction
-\section{Introduction}
-This is the introduction section of my report.
 
-% Main content
-\section{Main Content}
-This is the main content of my report.
+    École Polytechnique de l'Université de Tours
 
-% Conclusion
-\section{Conclusion}
-This is the conclusion of my report.
+    64, Avenue Jean
 
-% References
-\begin{thebibliography}{9}
-\bibitem{ref1} First reference.
-\bibitem{ref2} Second reference.
-\end{thebibliography}
+    Portalis 37200
+
+    TOURS, FRANCE
+
+    (33)2-47-36-14-14
+
+    \href{http://www.polytech.univ-tours.fr}{\textcolor{red}{www.polytech.univ-tours.fr}}
+
+
+    \vfill
+    \begin{center}
+
+        \Huge
+        Parcours des écoles d'ingénieur Polytech
+        \vspace{0.3cm}
+
+        \textbf{Année 2023-2024}
+        \vspace{0.5cm}
+
+
+        \textbf{Projet Informatique : Labyrinthe}
+    \end{center}
+    \vfill
+
+    % footer
+    \begin{minipage}[t]{0.5\textwidth}
+        \begin{flushleft}
+            Étudiants
+            \vspace{0.1cm}
+            \hrule % horizontal
+            \vspace{0.5cm}
+
+            \textbf{Pacôme Renimel--Lamiré}
+            \href{mailto:pacome.renimel--lamire@etu.univ-tours.fr}{\textcolor{blue}{pacome.renimel--lamire@etu.univ-tours.fr}}
+
+            \textbf{Esteban Laurent}
+            \href{mailto:esteban.laurent@etu.univ-tours.fr}{\textcolor{blue}{esteban.laurent@etu.univ-tours.fr}}
+        \end{flushleft}
+    \end{minipage}
+    \begin{minipage}[t]{0.5\textwidth}
+        \begin{flushright}
+            Encadrant
+
+            \vspace{0.1cm}
+            \hrule % horizontal
+            \vspace{0.5cm}
+
+            \textbf{Christophe Lenté}
+
+            \href{mailto:christophe.lente@univ-tours.fr}{\textcolor{blue}{christophe.lente@univ-tours.fr}}
+
+        \end{flushright}
+    \end{minipage}
+
+\end{titlepage}
+\restoregeometry
+
+
+\chapter*{Avertissement}
+\addcontentsline{toc}{chapter}{Avertissement} % Add the chapter to the table of contents
+
+
+Ce document a été rédigé par Pacôme Renimel--Lamiré et Esteban Laurent susnommés les auteurs.
+
+L’École Polytechnique de l’Université François Rabelais de Tours est représentée par Christophe Lenté susnommé le tuteur académique.
+
+Par l’utilisation de ce modèle de document, l’ensemble des intervenants du projet acceptent
+les conditions définies ci-après.
+
+Les auteurs reconnaissent assumer l’entière responsabilité du contenu du document ainsi que
+toutes suites judiciaires qui pourraient en découler du fait du non-respect des lois ou des droits
+d’auteur.
+Les auteurs attestent que les propos du document sont sincères et assument l’entière responsabilité de la véracité des propos.
+Les auteurs attestent ne pas s’approprier le travail d’autrui et que le document ne contient
+aucun plagiat.
+Les auteurs attestent que le document ne contient aucun propos diffamatoire ou condamnable
+devant la loi.
+Les auteurs reconnaissent qu’ils ne peuvent diffuser ce document en partie ou en intégralité
+sous quelque forme que ce soit sans l’accord préalable du tuteur académique et de l’entreprise.
+Les auteurs autorisent l’école polytechnique de l’université François Rabelais de Tours à diffuser tout ou partie de ce document, sous quelque forme que ce soit, y compris après transformation en citant la source. Cette diffusion devra se faire gracieusement et être accompagnée du présent avertissement.
+
+\newpage
+\renewcommand{\contentsname}{Table des matières} % Change the title of the table of contents to "Sommaire"
+\tableofcontents
+
+
+\newpage
+\chapter*{Introduction}
+\addcontentsline{toc}{chapter}{Introduction} % Add the chapter to the table of contents
+
+
+
+\chapter{Intitulé du chapitre 1}
+
+Ici je peux rajouter des trucs et citer un texte de la bibliographie\cite{greenwade93}
+\chapter{Intitulé du chapitre 2}
+
+\chapter{Intitulé du chapitre 3}
+
+
+\chapter*{Conclusion}
+\addcontentsline{toc}{chapter}{Conclusion} % Add the chapter to the table of contents
+
+
+\newpage % Start a new page for the bibliography
+\renewcommand{\bibname}{Bibliographie} % Change the title of the bibliography section to "Références"
+
+\bibliographystyle{unsrt} % Set the bibliography style. Change "plain" to the style you want to use.
+\bibliography{references} % Include the bibliography file. Change "references" to the name of your .bib file.
+\addcontentsline{toc}{chapter}{Bibliographie} % Add the chapter to the table of contents
+
+\chapter*{Compte rendus hebdomadaires}
+\addcontentsline{toc}{chapter}{Compte rendus hebdomadaires} % Add the chapter to the table of contents
+
+
+
+\newpage
+
+\begin{center}
+    \Huge
+    Projet Informatique : Labyrinthe
+\end{center}
+
+\section*{Résumé}
+
+\blindtext
+
+\section*{Mots-clés}
+
+Labyrinthe, ajouter, d'autres, mots, clés
+
+\section*{Abstract}
+\blindtext
+
+\section*{Keywords}
+
+Labyrinth, add, other, keywords
+
+\hrulefill
+
+\vfill
+
+\newcolumntype{Y}{>{\raggedleft\arraybackslash}X} % Redefine the X column type to align the text to the right
+
+\begin{table}[h]
+    \begin{tabularx}{\textwidth}{|X|Y|}
+        \hline
+        Encadrant académique              & Étudiants                               \\
+        \textcolor{red}{Christophe Lenté} & \textcolor{red}{Pacôme Renimel--Lamiré} \\
+                                          & \textcolor{red}{Esteban Laurent}        \\
+        \hline
+    \end{tabularx}
+\end{table}
+
+
 
 \end{document}
