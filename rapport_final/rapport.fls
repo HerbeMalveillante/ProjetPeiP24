@@ -205,9 +205,6 @@ INPUT /Users/herbemalveillante/Library/TinyTeX/texmf-dist/fonts/vf/adobe/helveti
 INPUT /Users/herbemalveillante/Library/TinyTeX/texmf-dist/fonts/tfm/adobe/helvetic/phvro8r.tfm
 INPUT /Users/herbemalveillante/Library/TinyTeX/texmf-dist/fonts/vf/adobe/helvetic/phvb7t.vf
 INPUT /Users/herbemalveillante/Library/TinyTeX/texmf-dist/fonts/tfm/adobe/helvetic/phvb8r.tfm
-INPUT /Users/herbemalveillante/Library/TinyTeX/texmf-dist/fonts/tfm/adobe/helvetic/phvb7t.tfm
-INPUT /Users/herbemalveillante/Library/TinyTeX/texmf-dist/fonts/vf/adobe/helvetic/phvb7t.vf
-INPUT /Users/herbemalveillante/Library/TinyTeX/texmf-dist/fonts/tfm/adobe/helvetic/phvb8r.tfm
 INPUT ./rapport.bbl
 INPUT ./rapport.bbl
 INPUT rapport.bbl
