@@ -102,13 +102,15 @@ class Character(pygame.sprite.Sprite):
             self.game.points = [p for p in self.game.points if p.pos != new_pos]
             self.game.point_count += 1
             self.game.total_points += 1
+            
 
-        end_pos = self.labyrinth.end
+        end_pos = self.game.stairs_pos
         if new_pos == end_pos:
             points_to_get = self.game.points_to_get
             if self.game.point_count >= points_to_get:
                 self.game.level += 1
                 self.game.load_level()
+                self.game.stairs_unlocked = False
 
         self.pos = new_pos
 

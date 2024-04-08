@@ -59,6 +59,8 @@ class Game(MenuFactory):
         self.elements.add(self.debug_text)
         self.debug_text_2 = Text(self.screen.get_width() - 300, 50, WHITE, "LoremIpsum")
         self.elements.add(self.debug_text_2)
+        self.debug_text_3 = Text(self.screen.get_width() - 300, 110, WHITE, "LoremIpsum")
+        self.elements.add(self.debug_text_3)
 
         # Add a quit button to exit the game. It calls the back method when clicked.
         self.quit_button = Button(
@@ -117,6 +119,11 @@ class Game(MenuFactory):
         self.enemies = []
         self.character = Character(0, self.labyrinth, self)
 
+        # Indicate the stairs are locked or not to avoid creating other stairs after unlocking them
+
+        self.stairs_unlocked = False
+        self.stairs_pos = self.labyrinth.width*self.labyrinth.height
+
         # We want one enemy for every 100 cells in the labyrinth.
         enemies_count = self.labyrinth.width * self.labyrinth.height // 100
         for e in range(enemies_count):
@@ -159,18 +166,30 @@ class Game(MenuFactory):
         # Here, we are displaying the number of points collected and the number of points needed to unlock the stairs, as well as the current level.
         self.debug_text.update_text(f"Points : {self.point_count}/{self.points_to_get}")
         self.debug_text_2.update_text(f"Level : {self.level}")
+        self.debug_text_3.update_text(f"Total_Points : {self.total_points}")
+
         for e in self.enemies:
             # Update the state of each enemy in the game
             e.update()
         self.character.update()  # Update the state of the character in the game.
         # If the player has collected enough coins to unlock the stairs, display them at the end of the labyrinth.
-        if self.points_to_get <= self.point_count:
+        if self.points_to_get <= self.point_count and self.stairs_unlocked == False:
             stairs_size = self.STAIRS_IMAGE.get_size()[0]
             offset = (LABYRINTH_RESOLUTION - stairs_size) // 2
-            stairs_coordinates = self.labyrinth.id_to_coord(self.labyrinth.width * self.labyrinth.height - 1)
+            position_valid = False
+            while not position_valid:
+                # Make sure the position is not overlapping with the character.
+                # This is not such a big deal for the enemies since they move around, but it's important for the points.
+                position = random.randint(0, self.labyrinth.width * self.labyrinth.height - 1)
+                if position not in [p.pos for p in self.points] and position!=self.character.pos:
+                    # We don't want the points to overlap with each other either.
+                    position_valid = True
+            self.stairs_pos = position
+            stairs_coordinates = self.labyrinth.id_to_coord(position)
             stairs_x = stairs_coordinates[0] * LABYRINTH_RESOLUTION + offset
             stairs_y = stairs_coordinates[1] * LABYRINTH_RESOLUTION + offset
             self.lab_layer.blit(self.STAIRS_IMAGE, (stairs_x, stairs_y))
+            self.stairs_unlocked = True
 
         # Slow down the game loop to sixty frames per second.
         # This makes the game less framerate-dependant and ensures a consistent experience for the player.
