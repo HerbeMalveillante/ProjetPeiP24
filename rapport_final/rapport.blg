@@ -3,44 +3,46 @@ Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
 The top-level auxiliary file: rapport.aux
 The style file: unsrt.bst
 Database file #1: references.bib
-You've used 1 entry,
+Warning--I didn't find a database entry for "greenwade93"
+You've used 6 entries,
             1791 wiz_defined-function locations,
-            452 strings with 3617 characters,
-and the built_in function-call counts, 242 in all, are:
-= -- 23
-> -- 4
+            486 strings with 4333 characters,
+and the built_in function-call counts, 882 in all, are:
+= -- 76
+> -- 21
 < -- 0
-+ -- 2
-- -- 1
-* -- 19
-:= -- 43
-add.period$ -- 3
-call.type$ -- 1
-change.case$ -- 1
++ -- 11
+- -- 5
+* -- 21
+:= -- 142
+add.period$ -- 20
+call.type$ -- 6
+change.case$ -- 3
 chr.to.int$ -- 0
-cite$ -- 1
-duplicate$ -- 9
-empty$ -- 25
-format.name$ -- 1
-if$ -- 49
+cite$ -- 6
+duplicate$ -- 49
+empty$ -- 113
+format.name$ -- 5
+if$ -- 207
 int.to.chr$ -- 0
-int.to.str$ -- 1
-missing$ -- 1
-newline$ -- 8
-num.names$ -- 1
-pop$ -- 1
+int.to.str$ -- 6
+missing$ -- 7
+newline$ -- 35
+num.names$ -- 5
+pop$ -- 35
 preamble$ -- 1
 purify$ -- 0
 quote$ -- 0
-skip$ -- 3
+skip$ -- 14
 stack$ -- 0
-substring$ -- 25
-swap$ -- 1
+substring$ -- 9
+swap$ -- 6
 text.length$ -- 0
 text.prefix$ -- 0
 top$ -- 0
 type$ -- 0
 warning$ -- 0
-while$ -- 3
-width$ -- 2
-write$ -- 13
+while$ -- 6
+width$ -- 7
+write$ -- 66
+(There was 1 warning)

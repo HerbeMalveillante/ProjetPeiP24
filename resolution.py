@@ -43,7 +43,7 @@ class Resolution(MenuFactory):
         self,
         stack,
         size=24,
-        generation_method="dead-end-filling",
+        generation_method="depth-first-search",
         resolution_method="recursive-backtracking",
         looping_factor=0.1,
     ):

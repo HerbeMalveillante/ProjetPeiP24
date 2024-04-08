@@ -1,8 +1,35 @@
 \begin{thebibliography}{1}
 
-\bibitem{greenwade93}
-George~D. Greenwade.
-\newblock The comprehensive tex archive network (ctan).
-\newblock {\em TUGBoat}, 14(3):342--351, 1993.
+\bibitem{LabyrintheLarousse}
+Larousse : définition d'un labyrinthe.
+\newblock \url{https://www.larousse.fr/dictionnaires/francais/labyrinthe/45804}.
+\newblock Consulté le 08-04-2024.
+
+\bibitem{Kern2000}
+Herman Kern.
+\newblock {\em Through the Labyrinth}.
+\newblock Prestel, 2000.
+\newblock catalog item 103–104.
+
+\bibitem{McCullough2004}
+David McCullough.
+\newblock {\em The Unending Mystery : A Journey Through Labyrinths and Mazes}.
+\newblock Pantheon, 2004.
+
+\bibitem{Alexanderson2006}
+Gerald Alexanderson.
+\newblock Euler and königsberg's bridges: a historical view.
+\newblock {\em Bull. Amer. Math. Soc.}, 43:567, 2006.
+
+\bibitem{Euler1759}
+Euler.
+\newblock {\em Solution d'une question curieuse qui ne paraît soumise à aucune analyse}.
+\newblock Mémoires de l'Académie Royale des Sciences et Belles Lettres, 1759.
+
+\bibitem{Veritasium2023}
+Veritasium.
+\newblock The fastest maze-solving competition on earth (youtube).
+\newblock \url{https://youtu.be/ZMQbHMgK2rw}, 2023.
+\newblock Consulté le 08-04-2024.
 
 \end{thebibliography}

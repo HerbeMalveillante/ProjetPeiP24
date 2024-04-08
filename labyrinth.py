@@ -305,7 +305,7 @@ class Labyrinth(pygame.sprite.Sprite):
         """
         if not self.generation_data["is_generated"]:
 
-            if self.generation_algorithm == "dead-end-filling":
+            if self.generation_algorithm == "depth-first-search":
                 if (
                     self.generation_data["step"] == 0
                 ):  # We fill the labyrinth with walls to start the generation process
@@ -313,7 +313,7 @@ class Labyrinth(pygame.sprite.Sprite):
                     self.generation_data["step"] = 1
                     print("Première étape terminée : remplissage des murs.")
                     return False  # We return False to indicate that the generation is not complete, but to keep the process going
-                elif self.generation_data["step"] == 1:  # Dead-end filling
+                elif self.generation_data["step"] == 1:  # depth-first-search
 
                     if len(self.generation_data["stack"]) == 0:  # We have finished the generation process
                         self.generation_data["step"] = 2  # We move to the next step

@@ -76,7 +76,7 @@ class Resolution_Custom(menufactory.MenuFactory):
         # Buttons to select the maze generation method
         generation_text = menufactory.Text(10, 200, (255, 255, 255), "Méthode de génération")
         self.elements.add(generation_text)
-        self.generation_label = menufactory.Text(10, 240, (255, 255, 255), "dead-end-filling")
+        self.generation_label = menufactory.Text(10, 240, (255, 255, 255), "depth-first-search")
         self.elements.add(self.generation_label)
         # generation_button = menufactory.Button(10, 280, 100, 40, BUTTON_COLOR, "Changer", self.toggle_generation)
         # self.buttons.add(generation_button)

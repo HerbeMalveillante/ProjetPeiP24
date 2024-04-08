@@ -84,11 +84,11 @@ class Game(MenuFactory):
 
         # Generate a new labyrinth for the game using the level as a parameter.
         # The size of the labyrinth increases by 2 for each level, starting from 16x16.
-        # The generation algorithm is "dead-end-filling". The solving algorithm is pointless in this context.
+        # The generation algorithm is "depth-first-search". The solving algorithm is pointless in this context.
         # The looping factor is set to 0.1 to create a fair amount of loops in the labyrinth.
         # The more loops there are, the easier it is to navigate the labyrinth without getting stuck between enemies.
         self.labyrinth = Labyrinth(
-            (16 + self.level * 2, 16 + self.level * 2), "dead-end-filling", "recursive-backtracking", 0.1
+            (16 + self.level * 2, 16 + self.level * 2), "depth-first-search", "recursive-backtracking", 0.1
         )
 
         # We don't really want to see the generation process, so we do it all at once.
@@ -122,7 +122,7 @@ class Game(MenuFactory):
         # Indicate the stairs are locked or not to avoid creating other stairs after unlocking them
 
         self.stairs_unlocked = False
-        self.stairs_pos = self.labyrinth.width*self.labyrinth.height
+        self.stairs_pos = self.labyrinth.width * self.labyrinth.height
 
         # We want one enemy for every 100 cells in the labyrinth.
         enemies_count = self.labyrinth.width * self.labyrinth.height // 100
@@ -181,7 +181,7 @@ class Game(MenuFactory):
                 # Make sure the position is not overlapping with the character.
                 # This is not such a big deal for the enemies since they move around, but it's important for the points.
                 position = random.randint(0, self.labyrinth.width * self.labyrinth.height - 1)
-                if position not in [p.pos for p in self.points] and position!=self.character.pos:
+                if position not in [p.pos for p in self.points] and position != self.character.pos:
                     # We don't want the points to overlap with each other either.
                     position_valid = True
             self.stairs_pos = position
