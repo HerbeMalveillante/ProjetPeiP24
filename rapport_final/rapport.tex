@@ -200,27 +200,27 @@ Nous poursuivrons en présentant l'implémentation du programme, en décrivant l
 Nous présenterons ensuite les résultats obtenus, en détaillant les performances du programme et les statistiques obtenues.
 
 Enfin, nous prendrons du recul sur le projet en discutant de potentielles améliorations pouvant être apportées au projet à l'avenir, ainsi que de notre ressenti par rapport à ce que cette expérience a pu nous apporter.
+
+\paragraph{}
+
+Il peut être utile pour le correcteur de pouvoir tester le programme ou en consulter le code source au besoin avant, durant ou après la lecture de ce rapport. Pour ce faire, nous avons ajouté en annexe une section dédiée à l'installation du programme et à la consultation du code source.
+
 \chapter{État de l'art et enjeux}
 
-% Historique de la génération et résolution de labyrinthes à travers l'histoire, et l'histoire de l'informatique
-% Décrire de façon plus détaillée les trois algorithmes que nous avons implémenté : depth-first search, recursive backtracking, A*.
-% Décrire des utilisations possibles de ces algorithmes dans le milieu de l'informatique : jeux vidéos, applications type "google maps", etc.
-% On peut ajouter des trucs comme le contenu de ce lien :
-% https://www.youtube.com/watch?v=ZMQbHMgK2rw
 
 \section{Les labyrinthes : une fascination depuis l'Antiquité}
 
 Selon le dictionnaire Larousse, un labyrinthe peut être défini comme suit :
 
-"\textit{Dans l'Antiquité, vaste édifice comprenant d'innombrables salles agencées de telle manière que l'on ne trouvait que difficilement l'issue.} \cite{LabyrintheLarousse}"
+"\textit{Dans l'Antiquité, [ il s'agissait d'un ] vaste édifice comprenant d'innombrables salles agencées de telle manière que l'on ne trouvait que difficilement l'issue.} \cite{LabyrintheLarousse}"
 
 L'exemple le plus commun de labyrinthe associée à l'histoire humaine est probablement le labyrinthe de Crète, construit par Dédale pour emprisonner le Minotaure, un monstre mi-homme mi-taureau, au point que le mot dédale est rentré dans le langage courant pour désigner un lieu où l'on se perd facilement.
 
-Toutefois, on retrouve des traces de tracés labyrinthiques depuis la fin de l'age de bronze, la plus ancienne peuve de leur existance étant une tablette datant d'environ 1200 avant J.C. retrouvée à Pylos, en Grèce.\cite{Kern2000}
+Toutefois, on retrouve des vestiges de tracés labyrinthiques depuis la fin de l'âge de bronze, la plus ancienne peuve de leur existence étant une tablette datant d'environ 1200 avant J.C. retrouvée à Pylos, en Grèce.\cite{Kern2000}
 
-Les historiens s'accordent sur le fait que l'idée du labyrinthe était principalement symbolique, leur tracé n'étant quasiment jamais retrouvé à une échelle humaine, mais plutôt tracé de façon décorative sur des pièces de monnaie, des poteries, des bâtiments, etc.
+Les historiens s'accordent sur le fait que l'idée du labyrinthe était principalement symbolique, leur tracé n'étant quasiment jamais retrouvé à une échelle humaine, mais plutôt représenté de façon décorative sur des pièces de monnaie, des poteries, des bâtiments, etc.
 
-De plus, le tracé le plus commun d'un labyrinthe, le labyrinthe unicursal, est un tracé continu sans embranchements, ce qui le rend impossible à résoudre de façon classique. Il ne présente pas le moindre intérêt pour un jeu, et c'est celui qu'on retrouve le plus souvent dans les représentations de cette époque.
+De plus, le tracé le plus commun d'un labyrinthe, le labyrinthe unicursal, est un tracé continu sans embranchements, ce qui le rend impossible à résoudre de façon classique. Malgré le fait qu'il ne représente aucun intérêt récréatif, c'est celui qu'on retrouve le plus souvent dans les représentations de cette époque, ce qui montre bien la prévalence du symbolisme sur la fonctionnalité.
 
 \begin{figure}[h]
     \centering
@@ -234,7 +234,7 @@ Ainsi, les labyrinthes que nous connaissons n'ont réellement fait leur appariti
 
 Aujourd'hui, on retrouve de nombreuses installations permettant d'évoluer dans des labyrinthes, souvent végétaux (Haies, Maïs, etc.). Le labyrinthe est devenu un symbole de réflexion, de concentration et de patience, et est souvent utilisé dans des jeux vidéos, des films, des livres, etc.
 
-Cette notion a notamment pris une dimension toute particulière dans les domaines des mathématiques et plus tard, de l'informatique. Effet, un labyrinthe peut être vu comme un graphe, où chaque case est un noeud et chaque passage entre deux cases est une arête.
+Cette notion a notamment pris une dimension toute particulière dans les domaines des mathématiques et plus tard, de l'informatique. En effet, un labyrinthe peut être vu comme un graphe, où chaque case est un nœud et chaque passage entre deux cases est une arête.
 
 Ainsi, utiliser un labyrinthe est un excellent moyen d'en apprendre plus sur les algorithmes de recherche, qui sont indispensables à d'innombrables technologies que nous utilisons aujourd'hui : les jeux vidéos, les applications de navigation, les moteurs de recherche, les intelligences artificielles, etc.
 
@@ -250,15 +250,15 @@ De la même façon que les labyrinthes ont été utilisés afin d'étudier la m�
 
 Afin de générer un labyrinthe, il peut être très utile d'en apporter une définition mathématique plus rigoureuse.
 
-Si on choisit l'approche de la théorie des graphes, alors un labyrinthe peut être décrit comme un graphe grille : un graphe non orienté où chaque noeud est relié à ses quatre voisins (haut, bas, gauche, droite) s'ils existent.
+Si on choisit l'approche de la théorie des graphes, alors un labyrinthe peut être décrit comme un graphe grille : un graphe non orienté où chaque nœud est relié à ses quatre voisins (haut, bas, gauche, droite) s'ils existent.
 
-Chaque noeud représente un chemin du labyrinthe, et chaque arête représente le passage d'une case à une autre. Certaines propriétés intéressantes sont déjà présentes : on ne peut par example pas se déplacer d'une case à une autre si elles ne sont pas adjacentes, c'est à dire reliées par une arête.
+Chaque nœud représente un chemin du labyrinthe, et chaque arête représente le passage d'une case à une autre. Certaines propriétés intéressantes sont déjà présentes : on ne peut par exemple pas se déplacer d'une case à une autre si elles ne sont pas adjacentes, c'est à dire reliées par une arête.
 
-Pour ajouter le concept de mur au labyrinthe, il suffit de retirer la connexion entre deux noeuds pour ajouter un "obstacle virtuel" entre les cases, empêchant ainsi le passage.
+Pour ajouter le concept de mur au labyrinthe, il suffit de retirer la connexion entre deux nœuds pour ajouter un "obstacle virtuel" entre les cases, empêchant ainsi le passage.
 
 À partir de cette définition, on peut considérer que n'importe quel graphe ainsi dérivé d'un graphe grille, avec un nombre arbitraire d'arêtes manquantes, est un labyrinthe. Toutefois, afin de rendre les choses plus intéressantes, il est bon de rajouter quelques contraintes.
 
-Il peut par example être intéressant de nécéssiter l'existence d'au moins un chemin entre n'importe quelle case de départ, et n'importe quelle case d'arrivée. Cette contrainte est appelée la connexité du graphe, et est souvent utilisée pour garantir qu'un labyrinthe est "solvable".
+Il peut par exemple être intéressant de nécessiter l'existence d'au moins un chemin entre n'importe quelle case de départ, et n'importe quelle case d'arrivée. Cette contrainte est appelée la connexité du graphe, et est souvent utilisée pour garantir qu'un labyrinthe est "solvable".
 
 On peut également pousser le vice et exiger que le chemin qui relie deux cases du labyrinthe soit unique. Si on considère notre graphe grille, alors un tel labyrinthe serait représenté par un arbre, c'est à dire un graphe convexe et acyclique (il est impossible de partir d'un sommet et d'y revenir sans rebrousser chemin au moins une fois). Plus encore, il s'agit d'un arbre couvrant, puisqu'il couvre l'ensemble des sommets du graphe de départ.
 
@@ -272,7 +272,7 @@ Parallèlement, un algorithme de génération de labyrinthe peut être comparé 
 
 Dans le cadre de ce projet, nous avons choisi de générer des labyrinthes en utilisant l'algorithme de \textit{depth-first search}, également appelé \textit{recursive backtracking}, un algorithme de type "diviser pour régner" qui consiste à diviser le problème en sous-problèmes plus petits, les résoudre, puis les combiner pour obtenir la solution du problème initial.
 
-Malgré son nom, son implémentation ne nécéssite pas d'utiliser une récursion au sens strict, et est souvent plus performante de façon itérative, en utilisant une \textbf{pile} pour stocker les états précédents. L'utilisation d'une pile, en plus d'être plus sûre (en évitant d'éventuells erreurs liées à un manque de mémoire dans la pile d'appel des fonctions), permet de faciliter la visualisation de l'algorithme, en rendant accessible toutes les données qui y sont liées à tout moment.
+Malgré son nom, son implémentation ne nécéssite pas d'utiliser une récursion au sens strict, et est souvent plus performante de façon itérative, en utilisant une \textbf{pile} pour stocker les états précédents. L'utilisation d'une pile, en plus d'être plus sûre (en évitant d'éventuells erreurs liées à un manque de mémoire dans la pile d'appel des fonctions), permet de faciliter la visualisation de l'algorithme, en rendant accessibles toutes les données qui y sont liées à tout moment.
 
 L'algorithme fonctionne de la façon suivante :
 
@@ -351,11 +351,17 @@ Une heuristique est une fonction qui permet de "guider" l'algorithme dans ses ch
 
 Cette fonction peut grandement varier en fonction du contexte, par exemple en tenant compte du poids d'une connexion dans un graphe (la vitesse de circulation sur une route par exemple). Ici, on utilisera la distance de Manhattan, c'est à dire la somme des distances horizontales et verticales entre deux cases.
 
-Comme l'algorithme est basé sur des hypothèses, il n'est toujours pas garanti de trouver une solution optimale. Toutefois, il trouve généralement des solutions qui s'en approchent en un temps très court. De plus, il est garanti de trouver une solution si elle existe.
+Comme l'algorithme est basé sur des hypothèses, il n'est également pas garanti de trouver une solution optimale. Toutefois, il trouve généralement des solutions qui s'en approchent en un temps très court. De plus, il est garanti de trouver une solution si elle existe.
 
-Ces nombreux avantages et sa grande versatilité en font un algorithme très populaire : il est notamment utilisé par défaut dans de nombreux moteurs de jeux vidéos, et est souvent utilisé dans des compétitions de résolution de labyrinthes.
+Ses nombreux avantages et sa grande adaptabilité en font un algorithme très populaire : il est notamment utilisé par défaut dans de nombreux moteurs de jeux vidéos, et est souvent utilisé dans des compétitions de résolution de labyrinthes.
 
+\subsubsection{D'autres algorithmes}
 
+Il existe de très nombreux autres algorithmes de résolution de labyrinthe, ayant tous leurs avantages et inconvénients. On peut citer par exemple l'algorithme de Dijkstra, l'algorithme de Bellman-Ford, l'algorithme de Floyd-Warshall, etc.
+
+Bien que leur implémentation ne soit pas nécéssairement plus complexe que celle des algorithmes que nous avons choisi d'implémenter, nous avons préféré passer plus de temps à créer des visualisations et des fonctionnalités supplémentaires pour le programme plutôt que d'implémenter de nouveaux algorithmes.
+
+L'ajout de ces algorithmes pourrait être une piste d'améliorations pour le futur, comme il le sera précisé dans le cinquième et dernier chapitre de ce rapport.
 
 \chapter{Méthodologie}
 
@@ -416,6 +422,63 @@ Donner son impression générale par rapport à ce que nous a apporté le projet
 
 \chapter*{Compte rendus hebdomadaires}
 \addcontentsline{toc}{chapter}{Compte rendus hebdomadaires} % Add the chapter to the table of contents
+
+\chapter*{Annexes}
+\addcontentsline{toc}{chapter}{Annexes} % Add the chapter to the table of contents
+
+\section*{Annexe 1 : Code source et installation}
+\addcontentsline{toc}{section}{Annexe 1 : Code source et installation} % Add the section to the table of contents
+
+\subsection*{Prérequis}
+
+Afin de pouvoir installer et exécuter le programme, il est nécessaire de disposer des éléments suivants :
+\begin{enumerate}
+    \item Python 3.10 ou supérieur. Les versions antérieures n'ont pas été testées et ne sont pas garantie de fonctionner.
+    \item Des notions de base avec l'interface en ligne de commande de votre système d'exploitation.
+\end{enumerate}
+
+\subsection*{Installation}
+
+Afin d'obtenir le code source du programme et l'installer sur votre machine, veuillez suivre les instructions suivantes (également décrites dans le fichier \texttt{README.md} du dépôt Git) :
+
+\begin{enumerate}
+    \item Télécharger le code source du programme en suivant l'une des trois méthodes suivantes :
+          \begin{itemize}
+              \item Cloner le dépôt Git à l'aide de la commande suivante :
+                    \begin{verbatim}
+git clone https://github.com/HerbeMalveillante/ProjetPeiP24.git      
+              \end{verbatim}
+              \item Télécharger le code source sous forme d'archive ZIP en cliquant sur le bouton "Code" du dépôt Git, puis sur "Download ZIP".
+              \item Obtenir le code source à partir du fichier ZIP fourni avec ce rapport.
+          \end{itemize}
+    \item Ouvrir un terminal et se placer dans le dossier contenant le code source du programme.
+    \item Vérifier la version de Python utilisée dans le PATH à l'aide de la commande suivante :
+          \begin{verbatim}
+python --version
+    \end{verbatim}
+    \item (optionnel) Créer un environnement virtuel Python à l'aide de la commande suivante :
+          \begin{verbatim}
+python3 -m venv .envi
+
+# activer l'environnement virtuel sur Unix
+source .envi/bin/activate
+
+# activer l'environnement virtuel sur Windows
+.envi\Scripts\activate
+    \end{verbatim}
+    \item Installer les dépendances du programme à l'aide de la commande suivante :
+          \begin{verbatim}
+python3 -m pip install --upgrade pip
+python3 -m pip install -r requirements.txt
+    \end{verbatim}
+          Veuillez noter que si une erreur liée à Pygame survient, il convient de vérifier que la version installée est bien la version "communauté" de Pygame (\texttt{pygame-ce}), et non la version officielle (\texttt{pygame}).
+
+    \item Lancer le programme à l'aide de la commande suivante :
+          \begin{verbatim}
+python3 main.py
+    \end{verbatim}
+
+\end{enumerate}
 
 
 
