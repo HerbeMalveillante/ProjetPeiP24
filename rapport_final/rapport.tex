@@ -641,7 +641,7 @@ Lorsqu'on veut ajouter un élément à un menu, on peut simplement l'instancier 
 
 Tous les écrans du programme sont des instances de classes qui héritent de la classe \texttt{MenuFactory}, et sont stockés dans une pile au sein de la classe \texttt{Menu}. Lorsqu'un clic de souris est détecté, la méthode \texttt{on\_click} de l'écran du dessus de la pile est appelée, ce qui permet de gérer les clics de souris de façon cohérente.
 
-De la même façon, seul le menu en haut de la pile est mis à jour et dessiné à chaque frame, ce qui permet de garder en mémoire les écrans précédents sans les traiter inutilement.
+De la même façon, seul le menu en haut de la pile est mis à jour et dessiné à chaque frame, ce qui permet de garder en mémoire les écrans précédents sans les traiter inutilement. Quand on veut afficher un nouvel écran, on peut simplement l'ajouter à la pile, et quand on veut revenir en arrière, on peut simplement retirer l'écran du dessus de la pile.
 
 \subsection{Les classes \texttt{Game}, \texttt{Character}, \texttt{Enemy} et \texttt{Point}}
 
@@ -651,27 +651,48 @@ La classe \texttt{Game} est la classe principale du jeu, qui représente non seu
 
 Cette classe contient également de nombreux attributs qui représentent les différentes statistiques de la partie : le niveau actuel, le score du joueur, le nombre de points restants à collecter, etc.
 
-Lorsque le jeu commence ou passe au niveau suivant, la méthode \texttt{load\_level} est appelée, qui génère un labyrinthe de taille correspondante au niveau actuel, et qui place les points et les ennemis à des positions aléatoires en les ajoutant à des listes. Les points, les ennemis et la sortie du labyrinthe sont placés selon les contraintes suivantes :
+Lorsque le jeu commence ou passe au niveau suivant, la méthode \texttt{load\_level} est appelée, qui génère un labyrinthe de taille correspondante au niveau actuel, et qui place les points et les ennemis à des positions aléatoires en les ajoutant à des listes. Les points et les ennemis sont placés selon les contraintes suivantes :
 
 \begin{itemize}
     \item On génère un ennemi par 100 cases du labyrinthe
     \item Un ennemi ne peut pas apparaître au même endroit qu'un autre ennemi
     \item Un ennemi ne peut pas apparaître à moins de 10 cases du joueur en distance de Manhattan
     \item On génère trois points par 100 cases du labyrinthe
-    \item Un point ne peut pas apparaître sur les cases de début et de fin du labyrinthe
+    \item Un point ne peut pas apparaître sur la case de début ou de fin du labyrinthe
     \item Un point ne peut pas apparaître au même endroit qu'un autre point
-    \item La sortie du labyrinthe est placée aléatoirement en son sein
 \end{itemize}
+
+Enfin, la méthode extrait l'image du labyrinthe et la stocke dans un attribut de la classe afin de la réutiliser à chaque frame.
+
+A chaque frame, la méthode \texttt{update} est appelée, qui met à jour les éléments graphiques du jeu. Cette méthode met à jour le personnage, les ennemis, les points, et les statistiques de la partie. Elle vérifie également si le joueur a collecté assez de points pour débloquer les escalier et limite le nombre d'images par seconde à 60 pour éviter que le jeu ne dépende de la puissance de l'ordinateur (notamment pour l'animation des points).
+
+\subsubsection{Les classes \texttt{Character}, \texttt{Enemy} et \texttt{Point}}
+
+Ces trois classes sont des sous-classes de la classe \texttt{pygame.sprite.Sprite}, qui représentent respectivement le personnage, les ennemis et les points du jeu. Elles sont assez similaire dans leurs fonctionnalités, car elles impliquent toutes les trois de détecter des collisions et/ou de se déplacer à chaque frame. Toutefois, quelques points intéressants sont à noter.
+
+Dans un premier temps, la classe \texttt{Enemy} est la seule à implémenter un algorithme de déplacement autonome. En effet, les ennemis se déplacent en direction du joueur en utilisant l'algorithme \texttt{A*}, ce qui leur permet de trouver un chemin presque optimal pour l'atteindre. L'algorithme est appelé à chaque seconde, ce qui permet aux ennemis de suivre le joueur en temps réel. L'intérêt de l'utilisation de cet algorithme par rapport au \texttt{recursive backtracking} est qu'il est beaucoup moins aléatoire : le chemin diffère peu d'une frame à l'autre, ce qui permet aux ennemis de suivre des déplacements cohérents. A l'inverse, l'algorithme \texttt{recursive backtracking} intègre de l'aléatoire dans ses déplacements : il est très rare que deux chemins soient identiques d'une seconde à l'autre, et les ennemis se retrouvent très souvent à "hésiter" entre deux chemins à l'infini.
+
+Ensuite, la classe \texttt{Point} est la seule à implémenter une animation afin de ressembler à une pièce de monnaie qui tourne sur elle-même. Cette animation est réalisée en modifiant la largeur d'une ellipse à chaque frame, la faisant se rétrécir et s'élargir en alternance. Afin d'appuyer cet effet, la couleur de l'ellipse est également modifiée à chaque boucle de l'animation afin de donner l'illusion que la pièce comporte deux faces de couleurs différentes.
 
 
 \chapter*{Conclusion}
 \addcontentsline{toc}{chapter}{Conclusion} % Add the chapter to the table of contents
 
-Résumer les points clés du projet
+Ce projet a été une expérience très enrichissante pour nous deux, et nous a mis face à un certain nombre de défis que nous avons dû relever, que ce soit en termes de programmation, de gestion de projet, ou de communication. Il fut également l'occasion d'apprendre à manipuler des librairies et des outils qui ne sont pas nécessairement enseignés en classe, et de découvrir des méthodes de travail plus proches de la réalité du monde professionnel.
 
-Réiterer sur le but de ce projet et ce que la recherche dans ce domaine permet d'apporter à la science
+Nous sommes très fiers du résultat final du projet, qui répond très largement à toutes nos attentes initiales. Le programme est fonctionnel, agréable à utiliser, et offre une expérience de jeu intéressante et amusante malgré sa simplicité.
 
-Donner son impression générale par rapport à ce que nous a apporté le projet
+Nous aurions aimé pouvoir ajouter quelques fonctionnalités supplémentaires, comme de nouveaux algorithmes de génération et de résolution, des options de personnalisation plus poussées, plus d'éléments de gameplay dans le jeu, un menu permettant de comparer les performances des différents algorithmes, etc. Toutefois, le temps qui nous était alloué était limité, et nous avons dû faire des choix pour respecter les délais.
+
+Les labyrinthes sont à notre avis un excellent moyen de faire le lien entre les mathématiques et l'informatique, et nous ont permis d'en apprendre plus ou de revoir des notions de théorie des graphes et d'algorithmique. Les visualisations que nous avons créées sont assez fascinantes à regarder (surtout sur des labyrinthes de grande taille) et permettent de mieux comprendre le fonctionnement d'algorithmes qui sont le plus souvent très abstraits et invisibles à l'échelle de l'utilisateur d'un programme.
+
+Pour conclure, il nous paraît judicieux de citer une phrase de Chateaubriand qui résume assez bien notre expérience de ce projet :
+
+\begin{quotation}
+    \textbf{\textit{"Les sciences sont un labyrinthe où l'on s'enfonce plus avant au moment même où l'on croyait en sortir."}}
+
+    \textit{François-René de Chateaubriand - Le Génie du christianisme (1802)}
+\end{quotation}
 
 \newpage % Start a new page for the bibliography
 \renewcommand{\bibname}{Bibliographie} % Change the title of the bibliography section to "Références"
@@ -682,6 +703,292 @@ Donner son impression générale par rapport à ce que nous a apporté le projet
 
 \chapter*{Compte rendus hebdomadaires}
 \addcontentsline{toc}{chapter}{Compte rendus hebdomadaires} % Add the chapter to the table of contents
+
+\begin{verbatim}
+# Compte-rendu du 19 Janvier 2024 : Séance 1
+
+LAURENT Esteban / RENIMEL--LAMIRE Pacôme
+
+Projet : Labyrinthe
+
+## Tâches effectuées aujourd'hui
+
+- [x] Création du dépôt Git
+- [x] Mise en place du cahier des charges, des technologies utilisées et des tâches à effectuer
+- [x] Premières documentations sur la génération des labyrinthes, des façons de les résoudre, ainsi que sur les structures de données permettant de les représenter (arbre couvrant, labyrinthe parfait, etc.)
+- [x] Création d'un objet rudimentaire permettant de représenter un graphe grille ainsi que ses connexions
+- [x] Mise en place d'une liste de tâches à effectuer par ordre chronologique (voir ci-dessous)
+
+## Tâches à effectuer
+
+- [ ] Structure de donnée du labyrinthe (pouvoir les faire à la main)
+- [ ] Afficher le labyrinthe avec Pygame
+- [ ] Générer un labyrinthe et l’afficher avec les deux méthodes
+- [ ] UI/UX
+- [ ] Résoudre un labyrinthe avec une ou plus de solutions
+- [ ] UI/UX pour choisir la méthode de résolution / génération
+- [ ] Pouvoir chronometrer / comparer / faire des courses / etc
+- [ ] Partie “créative” où on rajoute notre touche personnelle
+
+(liste provisoire susceptible d'être adaptée)
+\end{verbatim}
+
+\begin{verbatim}
+# Compte-rendu du 29 Janvier 2024 : Séance 2
+
+LAURENT Esteban / RENIMEL--LAMIRE Pacôme
+
+Projet : Labyrinthe
+
+## Tâches effectuées aujourd'hui
+
+- [x] Mise en place du dépôt Git sur l'ordinateur d'Esteban pour pouvoir synchroniser notre travail.
+- [x] Retour sur le fonctionnement de l'algorithme utilisé pour générer un labyrinthe parfait.
+- [x] Diverses optimisations de l'algorithme de génération.
+- [x] Ajout de boucles dans le labyrinthe pour le rendre plus complexe. Des murs sont retirés en fonction d'un taux fixé lors de la création du labyrinthe, qui peut être modifié dans le code (et à terme par l'utilisateur).
+- [x] Nous sommes tombés sur un bon compromis en retirant 5% des murs du labyrinthe.
+- [x] Résolution d'un bug majeur qui dessinait les murs du labyrinthe aux mauvais emplacements.
+- [x] Mise en place d'une classe "Character" qui représente le personnage du joueur. Création des méthodes permettant de le déplacer dans le labyrinthe et de l'afficher à l'écran.
+
+## Tâches à effectuer
+
+- [ ] Cases de début et de fin du labyrinthe
+- [ ] Boucle de jeu (générer un labyrinthe, le résoudre, recommencer, etc.)
+- [ ] Amélioration de l'affichage (taille de la fenêtre, couleurs, icônes, etc.)
+- [ ] Implémentation du premier algorithme de résolution
+- [ ] UI/UX pour choisir la méthode de résolution / génération
+- [ ] Pouvoir chronometrer / comparer / faire des courses / etc
+- [ ] Partie “créative” où on rajoute notre touche personnelle
+
+\end{verbatim}
+
+\begin{verbatim}
+# Compte-rendu du 01 Février 2024 : Séance 3
+
+LAURENT Esteban / RENIMEL--LAMIRE Pacôme
+
+Projet : Labyrinthe
+
+## Tâches effectuées aujourd'hui
+
+- [x] Cases de début et de fin du labyrinthe
+- [x] Début et fondations de la boucle de jeu (structure de données pour les éléments de l'interface (menu, boutons, etc.))
+- [x] Création d'un menu principal avec un bouton permettant de s'essayer à la résolution d'un labyrinthe aléatoire
+- [x] Enregistrement du temps passé à résoudre le niveau, implémentation d'un timer permettant de créer des évènements à retardement ou dans la durée.
+- [x] Boucle de jeu plus avancée (le joueur a terminé la résolution, retour au menu)
+- [x] Brainstorming sur les ajouts personnels par la suite
+
+## Tâches à effectuer
+
+- [ ] Boucle de jeu (générer un labyrinthe, le résoudre, recommencer, etc.)
+- [ ] Amélioration de l'affichage (taille de la fenêtre, couleurs, icônes, etc.)
+- [ ] Implémentation du premier algorithme de résolution
+- [ ] UI/UX pour choisir la méthode de résolution / génération
+- [ ] Pouvoir chronometrer / comparer / faire des courses / etc
+- [ ] Partie “créative” où on rajoute notre touche personnelle
+
+\end{verbatim}
+
+\begin{verbatim}
+# Compte-rendu du 05 Février 2024 : Séance 4
+
+LAURENT Esteban / RENIMEL--LAMIRE Pacôme
+
+Projet : Labyrinthe
+
+## Tâches effectuées aujourd'hui
+
+- [x] Nouvelle structure sous forme de classe qui permettra de rajouter plus facilement des fonctionnalités : Menus, élements, etc.
+- [x] Ajout d'un fichier dans lesquelles sont stockées les constantes, valeurs par défaut et paramètres du programme
+- [x] Ajout d'un compteur de FPS (Permet de personnaliser la résolution pour avoir un compteur plus ou moins stable)
+- [x] Correction du bug qui empêchait la génération de labyrinthes non carrés.
+- [x] Les anciennes versions des fichiers ont été stockées dans un dossier "old" pour le moment mais pourront être supprimées par la suite : GitHub garde une trace dans tous les cas
+- [x] Possibilité de dessiner un labyrinthe à n'importe quelle taille et à n'importe quel emplacement de l'écran, permettant de faciliter l'implémentation du menu ou d'afficher plusieurs labyrinthes à la fois.
+- [x] Structure de données pour rajouter des éléments (boutons, textes, labyrinthes, sous-menus, etc) facilement et de façon modulaire à l'écran. Permet aussi d'ajouter un bouton retour grâce à une pile qui stocke les différents états du programme.
+- [x] Ajout du système de cache permettant d'avoir une performance optimale même en dessinant d'énormes labyrinthes : une fois dessiné, le labyrinthe est stocké dans une surface Pygame et redessiné si il n'a pas été modifié. Fonctionne avec plusieurs labyrinthes et permet de passer d'environ 8fps avec un labyrinthe de 80x80 à plus de 250 (M1 MBP 16gb)
+- [x] Personnage PARTIELLEMENT implémenté avec la nouvelle structure de données : encore des bugs dans la navigation sont présents
+
+## Tâches à effectuer
+
+- [ ] Boucle de jeu (générer un labyrinthe, le résoudre, recommencer, etc.)
+- [ ] Amélioration de l'affichage (taille de la fenêtre, couleurs, icônes, etc.)
+- [ ] Implémentation du premier algorithme de résolution
+- [ ] UI/UX pour choisir la méthode de résolution / génération
+- [ ] Pouvoir chronométrer / comparer / faire des courses / etc
+- [ ] Partie “créative” où on rajoute notre touche personnelle
+
+\end{verbatim}
+
+\begin{verbatim}
+# Compte-rendu du 08 Février 2024 : Séance 5
+
+LAURENT Esteban / RENIMEL--LAMIRE Pacôme
+
+Projet : Labyrinthe
+
+## Tâches effectuées aujourd'hui
+
+- [x] Correction des bugs dans le mouvement du personnage : le personnage peut désormais se déplacer dans le labyrinthe sans traverser les murs ou être bloqué par un mur invisible.
+- [x] Ajout d'un premier algorithme de résolution : "Dead end filling" (remplissage des impasses)
+- [x] Ajout d'un mode permettant de visualiser le chemin généré par le dit algorithme : le chemin trouvé est affiché en bleu sur le labyrinthe.
+- [x] Ajout d'un mode "animation" permettant de visualiser "en temps réel" le déroulement de l'algorithme de résolution. (Attention, les performances peuvent être affectées, notamment sur des labyrinthes de grande taille)
+
+
+## Tâches à effectuer
+
+- [ ] UI/UX pour choisir la méthode de résolution / génération
+- [ ] Mise à jour du cache pour améliorer les performances en animant la résolution
+- [ ] Ajout des paramètres de résolution / génération sur le menu principal
+- [ ] Pouvoir chronométrer / comparer / faire des courses / etc
+- [ ] Partie “créative” où on rajoute notre touche personnelle
+
+\end{verbatim}
+
+\begin{verbatim}
+# Compte-rendu du 19 Février 2024 : Séance 6
+
+LAURENT Esteban / RENIMEL--LAMIRE Pacôme
+
+Projet : Labyrinthe
+
+## Tâches effectuées aujourd'hui
+
+- [x] Amélioration des performances de l'animation de résolution : FPS stable sur des labyrinthes de taille moyenne
+- [x] Ajout de textes qui affichent des stats de façon dynamique
+- [x] Ajout de l'algorithme A star pour la résolution du labyrinthe
+- [x] Brainstorming sur les ajouts créatifs à apporter au projet : transformer le labyrinthe en terrain de jeu où on affronte des IA (chaque IA correspond à un algorithme de pathfinding) pour collecter des trésors et gagner des points, avant de les ramener à la sortie.
+
+## Tâches à effectuer
+
+- [ ] Refactor du code pour faciliter l'affichage de l'animation de résolution
+- [ ] Ajout de l'UI pour le menu principal / méthode de résolution et génération
+
+### Partie créative
+
+- [ ] Ajout des points / trésors
+- [ ] Ajout des ennemis
+- [ ] Boucle de jeu (départ, victoire, défaite, recommencer, etc.)
+- [ ] Leaderboards
+- [ ] Différents niveaux de difficulté
+- [ ] Éléments supplémentaires (téléporteurs, bonus, etc.)
+- [ ] Intégrer les téléporteurs dans l'IA des ennemis
+- [ ] Intégrer les autres ennemis comme obstacles dans l'IA des ennemis
+- [ ] Quand on termine un niveau, on passe au niveau suivant qui est un labyrinthe plus grand / plus dur (loopingFactor plus petit) / avec plus d'ennemis
+
+\end{verbatim}
+
+\begin{verbatim}
+# Compte-rendu du 2 Mars 2024 : Séance 7
+
+LAURENT Esteban / RENIMEL--LAMIRE Pacôme
+
+Projet : Labyrinthe
+
+## Tâches effectuées aujourd'hui
+
+- [x] Gros refactoring pour un code plus propre, plus performant et plus facile à maintenir : unification des fonctions logiques et graphiques par objet (au lieu d'utiliser une classe dédiée aux graphismes). Les performances sont bien meilleures.
+- [x] Implémentation de l'animation de génération du labyrinthe qui permet de visualiser comment l'algorithme fonctionne
+- [x] Implémentation du mode "jeu" dans les menus et la structure du code, des éléments de personnages et de points à ramasser
+- [x] Animation du point à ramasser avec un effet "3D"
+
+## Tâches à effectuer
+
+- [ ] Ajout de l'UI pour les paramètres de résolution et génération
+- [ ] Ajout des points / trésors
+- [ ] Ajout des ennemis
+- [ ] Boucle de jeu (départ, victoire, défaite, recommencer, etc.)
+- [ ] Leaderboards
+- [ ] Différents niveaux de difficulté
+- [ ] Éléments supplémentaires (téléporteurs, bonus, etc.)
+- [ ] Intégrer les téléporteurs dans l'IA des ennemis
+- [ ] Intégrer les autres ennemis comme obstacles dans l'IA des ennemis
+- [ ] Quand on termine un niveau, on passe au niveau suivant qui est un labyrinthe plus grand / plus dur (loopingFactor plus petit) / avec plus d'ennemis
+
+\end{verbatim}
+
+\begin{verbatim}
+# Compte-rendu du 16 Mars 2024 : Séance 8
+
+LAURENT Esteban / RENIMEL--LAMIRE Pacôme
+
+Projet : Labyrinthe
+
+## Tâches effectuées aujourd'hui
+
+- [x] Ajout de la possibilité de rajouter des textes de debug sur l'écran plutôt que dans la console
+- [x] Ajout des ennemis, pouvant se déplacer dans le labyrinthe en direction du joueur en utilisant l'un des deux algorithmes : recursive backtracking qui résulte en un comportement erratique, presque aléatoire, ou A\* qui résulte en un comportement plus intelligent.
+- [x] Ajout de la possibilité de récupérer les points et d'incrémenter le compteur de points du jeu
+- [x] Correction d'un bug qui interférait avec l'affichage du point animé
+- [x] Ajout des collisions entre le joueur et les ennemis
+- [x] Ajout de deux méthodes du labyrinthe qui retournent un chemin entre deux points, sans utiliser les données internes de résolutions (et donc, de façon plus rapide : le chemin est calculé en un seul appel de fonction. En contrepartie, on ne peut pas animer sa résolution.)
+- [x] Ajout d'une boucle de jeu très basique : le joueur retourne à l'écran titre quand il touche un ennemi
+
+## Tâches à effectuer
+
+- [ ] Ajout de l'UI pour les paramètres de résolution et génération
+- [ ] Ajout de l'animation de la résolution A\*
+- [ ] Amélioration de la boucle de jeu (recommencer, etc.)
+- [ ] Leaderboards
+- [ ] Différents niveaux de difficulté
+- [ ] Éléments supplémentaires (téléporteurs, bonus, etc.)
+- [ ] Intégrer les téléporteurs dans l'IA des ennemis
+- [ ] Intégrer les autres ennemis comme obstacles dans l'IA des ennemis
+- [ ] Quand on termine un niveau, on passe au niveau suivant qui est un labyrinthe plus grand / plus dur (loopingFactor plus petit) / avec plus d'ennemis
+- [ ] Commencer rapport de projet
+
+\end{verbatim}
+
+\begin{verbatim}
+# Compte-rendu du 27 Mars 2024 : Séance 9
+
+LAURENT Esteban / RENIMEL--LAMIRE Pacôme
+
+Projet : Labyrinthe
+
+## Tâches effectuées aujourd'hui
+
+- [x] Boucle de jeu fonctionnelle : Quand le joueur perd, un menu s'affiche avec des boutons permettant de revenir au menu principal ou de relancer une partie.
+- [x] Ajout d'une difficulté dynamique en fonction du niveau : augmentation du nombre des ennemis et des points
+- [x] Ajout d'une case de fin de niveau, qui permet de passer au suivant quand un nombre suffisant de points est atteint. Utilisation d'un sprite externe avec une taille dynamique.
+- [x] Résolution d'un bug qui empêchait l'affichage des murs et des lignes de visualisation de la résolution sur des grands labyrinthes
+
+## Tâches à effectuer
+
+- [ ] Ajout de l'UI pour les paramètres de résolution et génération
+- [ ] Ajout de l'animation de la résolution A\*
+- [ ] Commencer rapport de projet
+- [ ] Intégrer les téléporteurs dans l'IA des ennemis
+- [ ] Intégrer les autres ennemis comme obstacles dans l'IA des ennemis
+- [ ] Éléments supplémentaires (téléporteurs, bonus, etc.)
+
+\end{verbatim}
+
+\begin{verbatim}
+# Compte-rendu du 6 avril 2024 : Séance 10
+
+LAURENT Esteban / RENIMEL--LAMIRE Pacôme
+
+Projet : Labyrinthe
+
+## Tâches effectuées aujourd'hui
+
+- [x] Paufinage du code (commentaires, etc.)
+- [x] Paufinage partie "jeu"
+- [x] Affichage stats et progression dans la résolution custom
+- [x] Animation résolution A\*
+- [x] Bouton pour quitter une partie en cours
+- [x] Retrait de toute la confusion avec les "parents" qui n'avaient pas de sens. On récupère l'écran dans chaque classe et on transmet la stack à chaque fois à la place.
+- [x] Bouton pour quitter la résolution custom + premier menu résolution custom
+- [x] UI résolution génération custom
+  - Choix de la taille de la grille
+  - Choix de l'algorithme de génération
+  - Choix de l'algorithme de résolution
+  - Choix du looping factor
+- [x] Affichage des stats en fin de partie
+- [x] Redaction du rapport de projet avec LaTeX
+- [x] Corrections de bugs mineurs et améliorations diverses
+
+\end{verbatim}
 
 \chapter*{Annexes}
 \addcontentsline{toc}{chapter}{Annexes} % Add the chapter to the table of contents
@@ -752,18 +1059,52 @@ python3 main.py
 
 \section*{Résumé}
 
-\blindtext
+Ce rapport présente le développement d'un programme en Python utilisant la librairie Pygame pour la génération automatique et la résolution de labyrinthes, ainsi que la création d'une interface graphique complète pour une expérience utilisateur immersive. Le projet inclut également un mode de jeu interactif permettant aux utilisateurs de naviguer à travers les labyrinthes générés, collectant des points et évitant des ennemis.
+
+Le programme intègre plusieurs algorithmes de génération et de résolution de labyrinthes tels que le "recursive backtracking" et l'algorithme A*, ainsi que des visualisations associées permettant de mieux comprendre leur fonctionnement. Il permet également à l'utilisateur de créer des labyrinthes personnalisés et de les résoudre en temps réel en personnalisant divers paramètres.
 
 \section*{Mots-clés}
 
-Labyrinthe, ajouter, d'autres, mots, clés
+Labyrinthes,
+Génération de labyrinthes,
+Résolution de labyrinthes,
+Python,
+Pygame,
+Visualisations,
+Interface graphique,
+Jeu vidéo,
+Programmation orientée objet,
+Algorithme A*,
+Recursive backtracking,
+Exploration de labyrinthes,
+Graphes,
+Jeu de stratégie,
+Projet de programmation
 
 \section*{Abstract}
-\blindtext
+
+This report presents the process of creating a Python Program using the Pygame library to generate and solve mazes, as well as creating a complete graphical user interface for an immersive user experience. The project also includes an interactive game mode allowing users to navigate through the generated mazes, collecting points and avoiding enemies.
+
+The program integrates several maze generation and solving algorithms such as "recursive backtracking" and the A* algorithm, as well as associated visualizations to better understand how they work. It also allows the user to create custom mazes and solve them in real time by customizing various parameters.
 
 \section*{Keywords}
 
-Labyrinth, add, other, keywords
+Mazes,
+Maze generation,
+Maze solving,
+Python,
+Pygame,
+Visualizations,
+Graphical User Interface,
+Video Game,
+Object-Oriented Programming,
+A* Algorithm,
+Recursive Backtracking,
+Maze Exploration,
+Graphs,
+Strategy Game,
+Programming Project
+
 
 \hrulefill
 

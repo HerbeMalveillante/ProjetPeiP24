@@ -35,9 +35,10 @@
 \contentsline {subsection}{\numberline {4.2.2}Les classes \texttt {MenuFactory}, \texttt {Menu}, \texttt {Button} et \texttt {Text}}{22}{subsection.4.2.2}%
 \contentsline {subsection}{\numberline {4.2.3}Les classes \texttt {Game}, \texttt {Character}, \texttt {Enemy} et \texttt {Point}}{23}{subsection.4.2.3}%
 \contentsline {subsubsection}{\nonumberline La classe \texttt {Game}}{23}{subsubsection*.27}%
-\contentsline {chapter}{Conclusion}{25}{chapter*.28}%
-\contentsline {chapter}{Bibliographie}{26}{chapter*.29}%
-\contentsline {chapter}{Compte rendus hebdomadaires}{27}{chapter*.30}%
-\contentsline {chapter}{Annexes}{28}{chapter*.31}%
-\contentsline {section}{Annexe 1 : Code source et installation}{28}{section*.32}%
+\contentsline {subsubsection}{\nonumberline Les classes \texttt {Character}, \texttt {Enemy} et \texttt {Point}}{24}{subsubsection*.29}%
+\contentsline {chapter}{Conclusion}{25}{chapter*.30}%
+\contentsline {chapter}{Bibliographie}{26}{chapter*.31}%
+\contentsline {chapter}{Compte rendus hebdomadaires}{27}{chapter*.32}%
+\contentsline {chapter}{Annexes}{33}{chapter*.33}%
+\contentsline {section}{Annexe 1 : Code source et installation}{33}{section*.34}%
 \providecommand \tocbasic@end@toc@file {}\tocbasic@end@toc@file 
