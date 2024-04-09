@@ -198,7 +198,7 @@ Nous expliquerons ensuite la méthodologie que nous avons appliquée pour mener 
 
 Nous présenterons ensuite le programme en lui-même, en décrivant les différentes fonctionnalités implémentées et en commentant les résultats obtenus.
 
-Nous poursuivrons en présentant l'implémentation du programme, en décrivant la structure du code, les classes et méthodes les plus importante et les différents obstacles rencontrés.
+Nous poursuivrons en présentant l'implémentation du programme, en décrivant la structure du code, les classes et méthodes les plus importantes et les différents obstacles rencontrés.
 
 Enfin, nous concluerons ce rapport en faisant le point sur les objectifs atteints, les résultats obtenus, les perspectives d'avenir et les enseignements tirés de ce projet.
 
@@ -217,7 +217,7 @@ Selon le dictionnaire Larousse, un labyrinthe peut être défini comme suit :
 
 L'exemple le plus commun de labyrinthe associée à l'histoire humaine est probablement le labyrinthe de Crète, construit par Dédale pour emprisonner le Minotaure, un monstre mi-homme mi-taureau, au point que le mot dédale est rentré dans le langage courant pour désigner un lieu où l'on se perd facilement.
 
-Toutefois, on retrouve des vestiges de tracés labyrinthiques depuis la fin de l'âge de bronze, la plus ancienne peuve de leur existence étant une tablette datant d'environ 1200 avant J.C. retrouvée à Pylos, en Grèce.\cite{Kern2000}
+Toutefois, on retrouve des vestiges de tracés labyrinthiques depuis la fin de l'âge de bronze, la plus ancienne preuve de leur existence étant une tablette datant d'environ 1200 avant J.C. retrouvée à Pylos, en Grèce.\cite{Kern2000}
 
 Les historiens s'accordent sur le fait que l'idée du labyrinthe était principalement symbolique, leur tracé n'étant quasiment jamais retrouvé à une échelle humaine, mais plutôt représenté de façon décorative sur des pièces de monnaie, des poteries, des bâtiments, etc.
 
@@ -253,27 +253,27 @@ Afin de générer un labyrinthe, il peut être très utile d'en apporter une dé
 
 Si on choisit l'approche de la théorie des graphes, alors un labyrinthe peut être décrit comme un graphe grille : un graphe non orienté où chaque nœud est relié à ses quatre voisins (haut, bas, gauche, droite) s'ils existent.
 
-Chaque nœud représente un chemin du labyrinthe, et chaque arête représente le passage d'une case à une autre. Certaines propriétés intéressantes sont déjà présentes : on ne peut par exemple pas se déplacer d'une case à une autre si elles ne sont pas adjacentes, c'est à dire reliées par une arête.
+Chaque nœud représente un chemin du labyrinthe, et chaque arête représente le passage d'une case à une autre. Certaines propriétés intéressantes sont déjà présentes : on ne peut par exemple pas se déplacer d'une case à une autre si elles ne sont pas adjacentes, c'est-à-dire reliées par une arête.
 
 Pour ajouter le concept de mur au labyrinthe, il suffit de retirer la connexion entre deux nœuds pour ajouter un "obstacle virtuel" entre les cases, empêchant ainsi le passage.
 
 À partir de cette définition, on peut considérer que n'importe quel graphe ainsi dérivé d'un graphe grille, avec un nombre arbitraire d'arêtes manquantes, est un labyrinthe. Toutefois, afin de rendre les choses plus intéressantes, il est bon de rajouter quelques contraintes.
 
-Il peut par exemple être intéressant de nécessiter l'existence d'au moins un chemin entre n'importe quelle case de départ, et n'importe quelle case d'arrivée. Cette contrainte est appelée la connexité du graphe, et est souvent utilisée pour garantir qu'un labyrinthe est "solvable".
+Il peut par exemple être intéressant de rendre obligatoire l'existence d'au moins un chemin entre n'importe quelle case de départ, et n'importe quelle case d'arrivée. Cette contrainte est appelée la connexité du graphe, et est souvent utilisée pour garantir la solvabilité d'un labyrinthe.
 
-On peut également pousser le vice et exiger que le chemin qui relie deux cases du labyrinthe soit unique. Si on considère notre graphe grille, alors un tel labyrinthe serait représenté par un arbre, c'est à dire un graphe convexe et acyclique (il est impossible de partir d'un sommet et d'y revenir sans rebrousser chemin au moins une fois). Plus encore, il s'agit d'un arbre couvrant, puisqu'il couvre l'ensemble des sommets du graphe de départ.
+On peut également exiger que le chemin qui relie deux cases du labyrinthe soit unique. Si on considère notre graphe grille, alors un tel labyrinthe serait représenté par un arbre, c'est à dire un graphe convexe et acyclique (il est impossible de partir d'un sommet et d'y revenir sans rebrousser chemin au moins une fois). Il s'agit même d'un arbre couvrant, puisqu'il couvre l'ensemble des sommets du graphe de départ.
 
-Dans ce contexte, un labyrinthe qui vérifie ces deux conditions est appelé un labyrinthe parfait. Ainsi, la plupart des algorithmes de génération ont été conçus pour produire des labyrinthes parfaits.
+Dans ce contexte, un labyrinthe qui vérifie ces deux conditions est appelé un labyrinthe parfait. La plupart des algorithmes de génération ont été conçus pour produire des labyrinthes parfaits.
 
-Toutefois, il est très souvent plus intéressant de travailler avec des labyrinthes non-parfaits, et où plusieurs chemins sont possibles. On peut ainsi tester les algorithmes de résolution sur un critère supplémentaire : la longueur du chemin trouvé, que l'on précisera dans la suite de cette partie.
+Toutefois, il est très souvent plus intéressant de travailler avec des labyrinthes non-parfaits, et où plusieurs chemins sont possibles. On peut ainsi tester les algorithmes de résolution selon un critère supplémentaire : la longueur du chemin trouvé, que l'on précisera dans la suite de cette partie.
 
-Parallèlement, un algorithme de génération de labyrinthe peut être comparé sur la base de deux critères : le temps de génération, ainsi que la "difficulté" du labyrinthe généré, ce qui est assez peu objectif.
+Parallèlement, un algorithme de génération de labyrinthe peut être évalué sur la base de deux critères : le temps de génération, et la "difficulté" du labyrinthe généré, ce qui est assez peu objectif.
 
 \subsubsection{L'algorithme "Depth-first search"}
 
 Dans le cadre de ce projet, nous avons choisi de générer des labyrinthes en utilisant l'algorithme de \textit{depth-first search}, également appelé \textit{recursive backtracking}, un algorithme de type "diviser pour régner" qui consiste à diviser le problème en sous-problèmes plus petits, les résoudre, puis les combiner pour obtenir la solution du problème initial.
 
-Malgré son nom, son implémentation ne nécéssite pas d'utiliser une récursion au sens strict, et est souvent plus performante de façon itérative, en utilisant une \textbf{pile} pour stocker les états précédents. L'utilisation d'une pile, en plus d'être plus sûre (en évitant d'éventuells erreurs liées à un manque de mémoire dans la pile d'appel des fonctions), permet de faciliter la visualisation de l'algorithme, en rendant accessibles toutes les données qui y sont liées à tout moment.
+Malgré son nom, son implémentation ne nécessite pas d'utiliser une récursion au sens strict, et est souvent plus performante de façon itérative, en utilisant une \textbf{pile} pour stocker les états précédents. L'utilisation d'une pile, en plus d'être plus sûre (évitant d'éventuelles erreurs liées à un manque de mémoire dans la pile d'appel des fonctions), permet de faciliter la visualisation de l'algorithme, en rendant accessibles toutes les données qui y sont liées à tout moment.
 
 L'algorithme fonctionne de la façon suivante :
 
@@ -296,9 +296,9 @@ L'algorithme fonctionne de la façon suivante :
 
 Cet algorithme garantit la génération d'un labyrinthe parfait. De plus, il est relativement simple à implémenter et produit des labyrinthes avec une structure intéressante.
 
-Après considération des alternatives existantes, nous avons jugé que l'intérêt d'implémenter d'autres algorithmes de génération de labyrinthes n'était pas suffisant pour justifier le temps et les ressources nécessaires à leur implémentation. En effet, les alternatives existantes telles que les algorithmes de Kruskal ou de Prim ne présentent pas d'avantages significatifs ou de résultats significativement différents par rapport à l'algorithme de \textit{depth-first search}.
+Après considération des alternatives existantes, nous avons jugé que l'intérêt d'implémenter d'autres algorithmes de génération de labyrinthes n'était pas suffisant pour justifier le temps nécessaire à leur implémentation. En effet, les alternatives existantes telles que les algorithmes de Kruskal ou de Prim ne présentent pas d'avantages ou de différences de résultats significatifs par rapport à l'algorithme de \textit{depth-first search}.
 
-La principale différence entre les labyrinthes générés par ces algorithmes réside dans sa structure : le \textit{depth-first search} génère des labyrinthes avec de longs couloirs, tandis que les algorithmes de Kruskal et de Prim génèrent des labyrinthes avec des couloirs plus courts, rendant une grande partie du labyrinthe fondamentalement inutile du point de vue de la résolution.
+La principale différence entre les labyrinthes générés par ces algorithmes réside dans leur structure : le \textit{depth-first search} génère des labyrinthes avec de longs couloirs, tandis que les algorithmes de Kruskal et de Prim génèrent des labyrinthes avec des couloirs plus courts, rendant une grande partie du labyrinthe fondamentalement inutile du point de vue de la résolution.
 
 Afin d'ajouter de la diversité à nos labyrinthes, et de rendre le processus de résolution beaucoup plus intéressant, nous avons décider d'implémenter ce que nous avons appelé un "facteur de bouclage" : il s'agit d'un réel compris entre $0$ et $1$, et qui permet de transformer un labyrinthe parfait en labyrinthe comportant de nombreux chemins différents entre deux cases.
 
@@ -308,15 +308,15 @@ Une fois un labyrinthe généré, on sélectionne aléatoirement un certain nomb
 
 \subsubsection{Un peu de théorie}
 
-L'élucidation d'un labyrinthe consiste principalement en la recherche d'un chemin dans un graphe, tout en tenant compte des propriétés spécifiques de ce dernier, comme abordé précédemment.
+L'élucidation d'un labyrinthe consiste principalement en la recherche d'un chemin dans un graphe, tout en tenant compte des propriétés spécifiques de ce dernier, comme évoqué précédemment.
 
 Ainsi, il est tout à fait possible d'utiliser n'importe quel algorithme de recherche de chemin dans un graphe pour résoudre n'importe quel labyrinthe, comme par exemple l'algorithme de Dijkstra.
 
-Toutefois, le contexte du labyrinthe permet également de rajouter certaines contraintes optionnelles à la résolution, comme par exemple le fait de se mettre à la place d'un joueur ne pouvant pas voir l'ensemble du labyrinthe à la fois. De plus, certains algorithmes ne fonctionnent que sur des arbres couvrants, c'est à dire des labyrinthes parfaits.
+Toutefois, le contexte du labyrinthe permet également de rajouter certaines contraintes optionnelles à la résolution, comme par exemple le fait de se mettre à la place d'un joueur ne pouvant pas voir l'ensemble du labyrinthe. De plus, certains algorithmes ne fonctionnent que sur des arbres couvrants, c'est à dire des labyrinthes parfaits.
 
 On peut citer par exemple deux algorithmes triviaux de résolution de labyrinthes : le mur suiveur, qui consiste à suivre un mur à sa droite ou à sa gauche jusqu'à trouver la sortie, et celui de la "souris aléatoire", qui consiste à se déplacer aléatoirement dans le labyrinthe jusqu'à trouver la sortie.
 
-Ce dernier algorithme est d'ailleurs plus intéressant qu'il en a l'air : il est évidemment très peu performant, mais c'est un exemple d'\textit{algorithme de Las Vegas}, c'est à dire un algorithme aléatoire qui est garanti de trouver une solution correcte au problème qui lui est présenté.
+Ce dernier algorithme est d'ailleurs plus intéressant qu'il en a l'air : il est évidemment très peu performant, mais c'est un exemple d'\textit{algorithme de Las Vegas}, c'est à dire un algorithme aléatoire qui garantit de trouver une solution correcte au problème qui lui est présenté.
 
 De son côté l'algorithme de mur suiveur fonctionne uniquement sur des labyrinthes parfaits, et peut rentrer dans des boucles infinies si ce n'est pas le cas.
 
@@ -358,11 +358,9 @@ Ses nombreux avantages et sa grande adaptabilité en font un algorithme très po
 
 \subsubsection{D'autres algorithmes}
 
-Il existe de très nombreux autres algorithmes de résolution de labyrinthe, ayant tous leurs avantages et inconvénients. On peut citer par exemple l'algorithme de Dijkstra, l'algorithme de Bellman-Ford, l'algorithme de Floyd-Warshall, etc.
+Il existe de très nombreux autres algorithmes de résolution de labyrinthe, ayant tous leurs avantages et inconvénients. On peut citer par exemple les algorithmes de Dijkstra, de Bellman-Ford, de Floyd-Warshall, etc.
 
 Bien que leur implémentation ne soit pas nécéssairement plus complexe que celle des algorithmes que nous avons choisi d'implémenter, nous avons préféré passer plus de temps à créer des visualisations et des fonctionnalités supplémentaires pour le programme plutôt que d'implémenter de nouveaux algorithmes.
-
-L'ajout de ces algorithmes pourrait être une piste d'améliorations pour le futur, comme il le sera précisé dans le cinquième et dernier chapitre de ce rapport.
 
 \chapter{Méthodologie}
 
@@ -373,7 +371,7 @@ Il est bon de rappeler que des instructions détaillées sur l'installation du p
 
 \section{Versionnage}
 
-Garder une trace de l'évolution du code source est une étape cruciale dans tout projet informatique, surtoût lorsqu'il est réalisé en équipe.
+Garder une trace de l'évolution du code source est une étape cruciale dans tout projet informatique, surtout lorsqu'il est réalisé en équipe.
 
 Conserver le projet stocké en "local" sur une machine est la meilleure façon de s'exposer à des pertes de données, des erreurs de manipulation, etc. De plus, il est souvent nécessaire de travailler en même temps sur un même fichier, ce qui peut être une source de conflits évidente.
 
@@ -387,15 +385,15 @@ L'outil que nous avons choisi d'utiliser est Git\cite{Git2024}, associé à la p
 
 \subsection{Git}
 
-Git est un logiciel libre de gestion de version créé par Linus Torvalds (le créateur du noyau Linux) en 2005. Il est aujourd'hui le logiciel de ce type le plus utilisé au monde, et est considéré comme un standard de facto dans le monde du développement logiciel de part sa nature libre et gratuite, et sa grande robustesse.
+Git est un logiciel libre de gestion de version créé par Linus Torvalds (le créateur du noyau Linux) en 2005. Il est aujourd'hui le logiciel de ce type le plus utilisé au monde, et est considéré comme un standard de facto dans le monde du développement logiciel de par sa nature libre et gratuite, et sa grande robustesse.
 
 Git peut fonctionner de façon décentralisée, c'est à dire que chaque développeur peut avoir une copie du code source sur sa machine, et travailler dessus de façon indépendante. Il est également possible de travailler en équipe, en partageant le code source sur un serveur distant, et en synchronisant les modifications apportées par chaque développeur.
 
-Lorsqu'on a terminé une fonctionnalité, on peut "commit" nos modifications, c'est à dire les enregistrer dans l'historique du projet. On peut ensuite "push" ces modifications sur le serveur distant, où elles seront visibles par les autres membres de l'équipe qui pourront les "pull" pour les télécharger sur leur machine.
+Lorsqu'un développeur a terminé une fonctionnalité, il peut "commit" ses modifications, c'est-à-dire les enregistrer dans l'historique du projet. Il peut ensuite "push" ces modifications sur le serveur distant, où elles seront visibles par les autres membres de l'équipe qui pourront les "pull" pour les télécharger sur leur machine.
 
 Si des conflits surviennent, Git est capable de les gérer de façon très efficace, en permettant de les résoudre manuellement, ou en utilisant des outils de résolution de conflits.
 
-Cet outil est également très utile pour travailler collaborativement grâce à son système de branches, qui permet de travailler sur des fonctionnalités différentes en parallèle, et de fusionner ces branches une fois les fonctionnalités terminées afin d'éviter de mettre en ligne des fonctionnalités non abouties sur la branche principale.
+Cet outil est également très utile pour travailler collaborativement grâce à son système de branches, qui permet de travailler sur des fonctionnalités différentes en parallèle, et de fusionner ces branches une fois les modifications terminées afin d'éviter de mettre en ligne des fonctionnalités non abouties sur la branche principale.
 
 Git est disponible sous forme de ligne de commande, mais il existe également de nombreuses interfaces graphiques qui permettent de l'utiliser de façon plus intuitive.
 
@@ -419,7 +417,7 @@ Le choix de cette librairie au lieu d'autres librairies graphiques a été basé
 
 La version communautaire a été préférée pour ses nombreuses améliorations par rapport à la version officielle, notamment en termes de performances et de compatibilité avec les dernières versions de Python. En effet, la version originale de Pygame est de moins en moins maintenue. Les programmes écrits avec la version officielle fonctionnent correctement avec la version communautaire, mais l'inverse n'est pas garanti.
 
-Des outils de formattage externe tels que \texttt{black}\cite{Black2024} ont également été utilisés pour garantir une cohérence dans le code source, et une conformité avec les standards \texttt{PEP 8}\cite{PEP82024} qui définissent les conventions en matière de style de code Python.
+Des outils de formatage externe tels que \texttt{black}\cite{Black2024} ont également été utilisés pour garantir une cohérence dans le code source, et une conformité avec les standards \texttt{PEP 8}\cite{PEP82024} qui définissent les conventions en matière de style de code Python.
 
 Les librairies \texttt{rich} et \texttt{graphviz} ont également été utilisées pendant le développement, la première pour améliorer la lisibilité des messages affichés dans la console (notamment lors de l'affichage de longs tableaux et listes), et la seconde lors de nos recherches sur les structures de données à utiliser pour stocker les labyrinthes. Ces librairies n'ont pas été utilisées dans la version finale du programme.
 
@@ -429,7 +427,7 @@ La première étape de la conception du programme a été de définir les diffé
 
 Nous avons ensuite défini une "liste de tâches" à réaliser, en les classant par ordre de priorité, avant de commencer à travailler sur des versions primitives du programme. Ces versions primitives nous ont permis de tester les algorithmes de génération et de résolution de labyrinthes, ainsi que de nous familiariser avec la librairie Pygame-CE et les diverses optimisations qu'il convient d'apporter pour obtenir les meilleures performances. Cette liste de tâches nous a également permis d'éclaircir les objectifs de la partie "libre" du projet, sur laquelle nous n'étions pas guidés par le sujet.
 
-Un point majeur de cette étape fut de définir la structure de donnée à utiliser pour stocker les labyrinthes. En effet, il est tout à fait possible d'utiliser la programmation orientée objet pour définir un labyrinthe sous la forme d'un graphe, d'une matrice, d'une liste de cases, etc. L'enjeu était de trouver une structure adaptée aux algorithmes, mais également facile à utiliser pour l'adapter à l'interface graphique.
+Un point majeur de cette étape fut de définir la structure de données à utiliser pour stocker les labyrinthes. En effet, il est tout-à-fait possible d'utiliser la programmation orientée objet pour définir un labyrinthe sous la forme d'un graphe, d'une matrice, d'une liste de cases, etc. L'enjeu était de trouver une structure adaptée aux algorithmes, mais également facile à utiliser pour l'adapter à l'interface graphique.
 
 Une fois que nous avons obtenu des résultats satisfaisants et que nous avons défini une direction à suivre, nous avons pu commencer à travailler sur la version finale du programme, en ajoutant des fonctionnalités au fur et à mesure et en les testant régulièrement.
 
@@ -443,7 +441,7 @@ Ainsi, nous avons pu nous concentrer sur le fond du rapport, LaTeX se chargeant 
 
 \chapter{Fonctionnalités}
 
-Avant de d'expliquer l'implémentation et le fonctionnement du programme, il est utile de connaître les différentes fonctionnalités implémentées en son sein. Bien qu'il soit recommandé de tester le programme pour en avoir une idée plus précise, nous allons décrire les fonctionnalités du programme dans ce chapitre.
+Avant d'expliquer l'implémentation et le fonctionnement du programme, il est utile de connaître les différentes fonctionnalités implémentées en son sein. Bien qu'il soit recommandé de tester le programme pour en avoir une idée plus précise, nous allons décrire les fonctionnalités du programme dans ce chapitre.
 
 \section{Interface et éléments graphiques}
 
@@ -467,7 +465,7 @@ Un système de navigation entre différents menus a été implémenté, permetta
 
 Un système de cache des images a été mis en place afin de garantir une fréquence de rafraîchissement maximale en toutes circonstances, et un compteur d'images par seconde est visible dans la barre de titre de la fenêtre.
 
-\section{Génération et résolution personnalisée}
+\section{Génération et résolution personnalisées}
 
 Le premier menu disponible dans l'écran titre permet de générer un labyrinthe de taille personnalisée, et de le résoudre avec l'algorithme et le facteur de bouclage de son choix.
 
@@ -477,7 +475,7 @@ Le premier menu disponible dans l'écran titre permet de générer un labyrinthe
     \caption{Capture d'écran du menu principal du programme}
 \end{figure}
 
-L'utilisateur peut choisir n'importe quelle taille supérieure à $2 \times 2$ (bien que des valeurs supérieures à 75 peuvent ne pas s'afficher correctement à l'écran en raison de la résolution limitée de ce dernier), et un facteur de bouclage compris entre $0.0$ et $1.0$ par pas de $0.05$. Un facteur de bouclage de $0.0$ résulte en un labyrinthe parfait, tandis qu'un facteur de bouclage de $1.0$ résulte en un labyrinthe où tous les murs ont été retirés.
+L'utilisateur peut choisir n'importe quelle taille supérieure à $2 \times 2$ (bien que des valeurs supérieures à $75$ peuvent ne pas s'afficher correctement à l'écran en raison de la résolution limitée de ce dernier), et un facteur de bouclage compris entre $0.0$ et $1.0$ par pas de $0.05$. Un facteur de bouclage de $0.0$ résulte en un labyrinthe parfait, tandis qu'un facteur de bouclage de $1.0$ résulte en un labyrinthe où tous les murs ont été retirés.
 
 Lorsque l'utilisateur clique sur "Générer et résoudre", le programme affiche une animation de la génération du labyrinthe, puis de sa résolution accompagnée de la visualisation appropriée. L'utilisateur peut à tout moment interrompre l'algorithme en cours en cliquant sur le bouton "Retour". L'ensemble des statistiques intéressantes sur la résolution sont visibles et mises à jour en direct sur la partie droite de l'écran.
 
@@ -496,7 +494,7 @@ L'algorithme de résolution commence en haut à gauche du labyrinthe, et cherche
 \end{figure}
 
 
-On observe sur ces images la génération et la résolution d'un labyrinthe de taille $24 \times 24$ avec un facteur de bouclage de $0.1$. On peut voir sur la droite de l'écran l'affichage de ces informations, ainsi que le temps et le nombre d'étapes de génération, ainsi que la méthode, le temps et le nombre d'étapes de résolution. Dans le cas de la résolution avec l'algorithme \texttt{recursive backtracking}, on peut également voir la longueur du chemin actuel, le nombre de cases visitées ainsi que le nombre de cases bannies.
+On observe sur ces images la génération et la résolution d'un labyrinthe de taille $24 \times 24$ avec un facteur de bouclage de $0.1$. On peut voir sur la droite de l'écran l'affichage de ces informations, ainsi que le temps, le nombre d'étapes de génération, la méthode, le temps et le nombre d'étapes de résolution. Dans le cas de la résolution avec l'algorithme \texttt{recursive backtracking}, on peut également voir la longueur du chemin actuel, le nombre de cases visitées ainsi que le nombre de cases bannies.
 
 On constate que la visualisation de cet algorithme consiste en l'affichage du chemin actuel en vert et des cases bannies barrées en rouge. On peut noter qu'il est inutile de signaler les cases visitées, qui sont soit également bannies soit sur le chemin actuel.
 
@@ -514,7 +512,7 @@ Ces paramètres permettent à la fois de montrer un labyrinthe de grande taille,
 
 Les résultats obtenus par le programme sont très satisfaisants, et correspondent à nos attentes initiales. Les algorithmes de génération et de résolution fonctionnent correctement, et les labyrinthes générés sont variés et intéressants.
 
-Il est également possible de comparer la performance des différents algorithmes : on constate sans vraiment de surprise que l'algorithme \texttt{A*} est beaucoup plus rapide que l'algorithme \texttt{recursive backtracking} quel que soit le facteur de bouclage.
+Il est également possible de comparer la performance des différents algorithmes : on constate sans vraiment de surprise que l'algorithme \texttt{A*} est beaucoup plus rapide que l'algorithme \texttt{recursive backtracking}, quel que soit le facteur de bouclage.
 
 Le temps de résolution n'étant pas un critère de performance utile étant donné qu'il dépend fortement de la fréquence de rafraîchissement et donc de la visualisation, il est plus intéressant de comparer le nombre d'étapes nécéssaires à la résolution, ainsi que la longueur du chemin trouvé. Dans les deux cas, l'algorithme \texttt{A*} est donc plus performant.
 
@@ -525,7 +523,7 @@ Le temps de résolution n'étant pas un critère de performance utile étant don
     \caption{Capture d'écran d'un labyrinthe parfait (facteur de bouclage de $0$) de taille $75 \times 75$ résolu avec l'algorithme \texttt{recursive-backtracking}}
 \end{figure}
 
-Nous sommes également très satisfaits des performances du programme, qui descends rarement en dessous de 60 images par seconde, et uniquement lors de l'affichage de labyrinthes de très grande taille.
+Nous sommes également très satisfaits des performances du programme, qui descend rarement en-dessous de 60 images par seconde, et uniquement lors de l'affichage de labyrinthes de très grande taille.
 
 \section{Partie libre : création d'un jeu}
 
@@ -536,7 +534,7 @@ Nous avons décidé de créer un jeu similaire au classique de l'arcade "PAC-MAN
 
 
 
-Le joueur doit collecter des points dispersés dans le labyrinthe afin de débloquer l'accès à un escalier menant au niveau suivant. A chaque nouveau niveau, le labyrinthe est plus grand, et le nombre d'ennemis et de points à ramasser augmente.
+Le joueur doit collecter des points dispersés dans le labyrinthe afin de débloquer l'accès à un escalier menant au niveau suivant. À chaque nouveau niveau, le labyrinthe est plus grand, et le nombre d'ennemis et de points à ramasser augmente.
 
 Lorsque le joueur finit inévitablement par se faire attraper par un ennemi, un écran de fin de partie lui est présenté lui permettant de consulter son score, de recommencer ou de retourner au menu principal.
 
@@ -547,7 +545,7 @@ Bien que très simple, le jeu est étonnamment amusant et équilibré : les enne
     \includegraphics[width=0.49\textwidth]{images/gamelevel0.png}
     \includegraphics[width=0.49\textwidth]{images/gamelevel4.png}
 
-    \caption{Capture d'écran des premiers et cinquième niveaux du jeu : le joueur doit ramasser trois (resp. sept) points parmi les six (resp. 14) disponibles tout en évitant deux (resp. 5) ennemis}
+    \caption{Capture d'écran des premier et cinquième niveaux du jeu : le joueur doit ramasser trois (resp. 7) points parmi les six (resp. 14) disponibles tout en évitant deux (resp. 5) ennemis.}
 \end{figure}
 
 \begin{figure}[h]
@@ -572,7 +570,7 @@ Cette façon de procéder encourage la réutilisation du code source, ce qui a b
 
 De nombreuses classes héritent de classes fournies par \texttt{pygame-ce}, ce qui permet de faciliter l'implémentation de certaines fonctionnalités, comme la gestion des événements, l'affichage des éléments graphiques, etc.
 
-Ainsi, de façon générale, chaque classe qui représente un élément visible à l'écran est responsable de son propre affichage, de sa mise à jour, et de sa gestion des événements, le tout étant piloté par une classe principale \texttt{Menu} qui gère l'affichage des différents menus du programme.
+De façon générale, chaque classe qui représente un élément visible à l'écran est responsable de son propre affichage, de sa mise à jour, et de sa gestion des événements, le tout étant piloté par une classe principale \texttt{Menu} qui gère l'affichage des différents menus du programme.
 
 Nous avons également fait le choix de stocker les constantes régulièrement utilisées dans un fichier à part, afin d'y avoir accès facilement et de pouvoir les modifier rapidement si besoin. Ce fichier peut également faire office de "configuration" du programme, en regroupant toutes les options modifiables par l'utilisateur.
 
@@ -582,58 +580,58 @@ Nous avons également fait le choix de stocker les constantes régulièrement ut
 
 \subsubsection{Structure de donnée et méthodes utilitaires}
 
-La classe \texttt{Labyrinthe} est la classe principale du programme, qui représente un labyrinthe. Elle contient toute la logique nécéssaire à la génération la résolution et l'affichage d'un labyrinthe à l'écran.
+La classe \texttt{Labyrinthe} est la classe principale du programme, qui représente un labyrinthe. Elle contient toute la logique nécéssaire à la génération, la résolution et l'affichage d'un labyrinthe à l'écran.
 
 Elle hérite de la classe \texttt{pygame.sprite.Sprite}, ce qui lui fournit par défaut des attributs de taille, de position, une image, une forme, ainsi que des méthodes pour l'affichage et la mise à jour de l'objet.
 
-Lors de l'initialisation, cette classe prend en paramètre la taille du labyrinthe, le facteur de bouclage, et les algorithmes de génération et de résolution à utiliser. Elle crée ensuite un labyrinthe vide et initialise les algorithmes.
+Lors de l'initialisation, cette classe prend pour paramètres la taille du labyrinthe, le facteur de bouclage, et les algorithmes de génération et de résolution à utiliser. Elle crée ensuite un labyrinthe vide et initialise les algorithmes.
 
 Plutôt que de stocker les informations du labyrinthe sous forme de matrice ou de graphe, nous avons choisi de simplement stocker tous les murs qui le composent dans une liste, sous la forme d'un \texttt{tuple} des deux cases qu'il sépare.
 
-Les cases sont quand à elles identifiées par un identifiant entier unique. Si on imagine le labyrinthe comme une grille, alors on peut numéroter chaque case de $0$ à $n^2 - 1$, où $n$ est la taille d'un côté du labyrinthe.
+Les cases sont quant à elles numérotées par un identifiant entier unique. Si on imagine le labyrinthe comme une grille, alors on peut numéroter chaque case de $0$ à $n^2 - 1$, où $n$ est la taille d'un côté du labyrinthe.
 
 Ainsi, nous avons facilement pu implémenter de nombreuses méthodes utilitaires permettant d'ajouter ou de retirer des murs, d'obtenir une liste des cases adjacentes à une case donnée, de vérifier si un mur existe entre deux cases, etc. Ces méthodes sont utilisées par les algorithmes qui manipulent le labyrinthe.
 
 \subsubsection{Génération et Résolution instantanées ou par étapes}
 
-Lorsque nous avons commencé à travailler sur les algorithmes de génération et de résolution, nous avons instinctivement simplement créé des méthodes qui remplissaient leur rôle en une seule fois, c'est à dire des fonctions bloquantes qui ne permettaient pas d'observer le fonctionnement du programme au fur et à mesure.
+Lorsque nous avons commencé à travailler sur les algorithmes de génération et de résolution, nous avons instinctivement simplement créé des méthodes qui remplissaient leur rôle en une seule fois, c'est-à-dire des fonctions bloquantes qui ne permettaient pas d'observer le fonctionnement du programme au fur et à mesure.
 
 Cette approche est efficace pour une première implémentation, mais notre objectif était de créer des visualisations interactives qui affichent toutes les données intéressantes afin de mieux comprendre le fonctionnement des algorithmes.
 
-Ainsi, nous avons créé des méthodes alternatives en plus de celles qui existaient déjà, qui n'avancent l'algorithme sélectionné que d'une étape à la fois en tirant parti du fait que ces algorithmes sont basés sur des boucles. Ainsi, on peut afficher la nouvelle visualisation à chaque étape, en échange d'un temps d'exécution beaucoup plus long.
+Ainsi, nous avons créé des méthodes alternatives en plus de celles qui existaient déjà, qui n'avancent l'algorithme sélectionné que d'une étape à la fois en tirant parti du fait que ces algorithmes sont basés sur des boucles. On peut donc afficher la nouvelle visualisation à chaque étape, en échange d'un temps d'exécution beaucoup plus long.
 
 Cette façon de procéder a toutefois un inconvénient majeur : comme on génère ou résoud un labyrinthe avec plusieurs appels de fonctions, on ne peut plus utiliser de variables locales pour stocker des données essentielles comme la pile ou la liste de cases visitées présentes dans l'algorithme de \texttt{recursive backtracking}. Plus encore, les structures de données utilisées changent d'un algorithme à l'autre, tout comme les visualisations. Il était donc nécessaire de stocker ces données directement dans l'instance du Labyrinthe.
 
-Nous aurions pu définir de nouvelles classes pour stocker ces données, mais comme leur utilisation est très spécifique, nous avons opté pour le choix de la simplicité et utilisé des dictionnaires. Lors de l'appel de la méthode de génération ou résolution, on choisit la bonne structure de donnée, le bon algorithme et la bonne visualisation à l'aide d'une simple structure \texttt{if-elif-else}. L'inconvénient principal de cette méthode est le fait qu'il est difficile d'ajouter de nouveaux algorithmes sans modifier d'autres morceaux de code sans réel lien fonctionnel, ce qui est considéré comme une mauvaise pratique.
+Nous aurions pu définir de nouvelles classes pour stocker ces données, mais comme leur utilisation est très spécifique, nous avons opté pour le choix de la simplicité et utilisé des dictionnaires. Lors de l'appel de la méthode de génération ou résolution, on choisit la bonne structure de données, le bon algorithme et la bonne visualisation à l'aide d'une simple structure \texttt{if-elif-else}. L'inconvénient principal de cette méthode est le fait qu'il est difficile d'ajouter de nouveaux algorithmes sans modifier d'autres morceaux de code sans réel lien fonctionnel, ce qui est considéré comme une mauvaise pratique.
 
 \subsubsection{Interface et visualisation}
 
 Les dernières méthodes intéressantes de la classe \texttt{Labyrinthe} sont celles qui permettent d'afficher le labyrinthe à l'écran.
 
-En effet, le programme opère à une résolution fixée de 1200 par 700 pixels, et le labyrinthe à l'écran est censé occuper le même espace, quel que soit sa taille. Ainsi, l'approche logique aurait été de dessiner les éléments du labyrinthe en changeant la taille de chaque élément, mais nous avons décidé d'utiliser une astuce pour ne pas avoir à le faire.
+En effet, le programme opère à une résolution fixée de $1200$ par $700$ pixels, et le labyrinthe à l'écran est censé occuper le même espace, quelle que soit sa taille. Ainsi, l'approche logique aurait été de dessiner les éléments du labyrinthe en changeant la taille de chaque élément, mais nous avons décidé d'utiliser une astuce pour ne pas avoir à le faire.
 
-Dans le fichier \texttt{constants.py}, nous avons défini une variable entière "Résolution du Labyrinthe" qui correspond à la taille d'une case du labyrinthe, en pixel. On peut constater que cette variable est fixe et est plutôt grande (120 pixels), ce qui peut sembler contre intuitif.
+Dans le fichier \texttt{constants.py}, nous avons défini une variable entière "Résolution du Labyrinthe" qui correspond à la taille d'une case du labyrinthe, en pixels. On peut constater que cette variable est fixe et plutôt grande ($120$ pixels), ce qui peut sembler contre-intuitif.
 
-Au moment de générer l'image du labyrinthe, on le dessine sur une surface virtuelle en utilisant cette résolution, que l'on redimensionne ensuite pour l'afficher à l'écran. Ainsi, on obtient un labyrinthe de taille fixe, quelle que soit sa dimension, et on peut facilement le redimensionner pour l'afficher à l'écran où l'on veut, à la taille que l'on veut, sans nécessairement avoir à redimensionner chaque élément et surtout, sans avoir à le redessiner si il n'a pas changé.
+Au moment de générer l'image du labyrinthe, on le dessine sur une surface virtuelle en utilisant cette résolution, que l'on redimensionne ensuite pour l'afficher à l'écran. Ainsi, on obtient un labyrinthe de taille fixe, quelle que soit sa dimension, et on peut facilement le redimensionner pour l'afficher à l'écran où l'on veut, à la taille que l'on veut, sans nécessairement avoir à redimensionner chaque élément et surtout, sans avoir à le redessiner s'il n'a pas changé.
 
-En effet, afin d'optimiser les performances du programme, nous avons implémenter un système de "cache" qui permet de stocker l'image du labyrinthe au sein de l'instance, et de ne la redessiner que si le labyrinthe a changé depuis la dernière fois qu'il a été affiché (par exemple lorsque les algorithmes qui le modifient sont appelés).
+En effet, afin d'optimiser les performances du programme, nous avons implémenté un système de "cache" qui permet de stocker l'image du labyrinthe au sein de l'instance, et de ne la redessiner que si le labyrinthe a changé depuis la dernière fois qu'il a été affiché (par exemple lorsque les algorithmes qui le modifient sont appelés).
 
 On constate un gain de performances significatif en utilisant cette méthode, particulièrement dans des contextes où le labyrinthe ne change plus, comme lors de la résolution d'un labyrinthe déjà généré.
 
 Afin de tirer parti au maximum de cette optimisation, la visualisation est donc dessinée sur une nouvelle surface virtuelle de la taille du labyrinthe. Cette surface est ensuite superposée à celle du labyrinthe, ce qui permet d'obtenir l'image finale.
 
-Cette technique de "cache" est utilisé à plusieurs reprises dans le code, bien qu'elle ne soit réellement nécéssaire que dans ce contexte.
+Cette technique de "cache" est utilisée à plusieurs reprises dans le code, bien qu'elle ne soit réellement nécessaire que dans ce contexte.
 
 \subsection{Les classes \texttt{MenuFactory}, \texttt{Menu}, \texttt{Button} et \texttt{Text}}
 
-Un grand nombre de classes du programme sont des menus, qui représentent chacun un écran spécifique (écran titre, écran de génération personnalisée, affichage du jeu, etc.). Afin de faciliter la création de ces menus, nous avons créé une classe \texttt{MenuFactory} qui permet de créer des menus sans répétition de code. Elle permet d'ajouter très facilement des éléments graphiques à un menu, de les positionner, de les afficher, de les mettre à jour, etc.
+Beaucoup de classes du programme sont des menus, qui représentent chacune un écran spécifique (écran titre, écran de génération personnalisée, affichage du jeu, etc.). Afin de faciliter la création de ces menus, nous avons créé une classe \texttt{MenuFactory} qui permet de créer des menus sans répétition de code. Elle permet d'ajouter très facilement des éléments graphiques à un menu, de les positionner, de les afficher, de les mettre à jour, etc.
 
 
 La classe \texttt{MenuFactory} est une classe abstraite qui définit les méthodes et les attributs communs à tous les menus du programme. Elle contient une méthode \texttt{update} qui met à jour les éléments graphiques du menu, une méthode \texttt{draw} qui affiche les éléments graphiques du menu à l'écran, et des méthodes \texttt{on\_click} et \texttt{on\_key} qui gèrent respectivement les clics de souris et les appuis de touches clavier.
 
 Cette classe possède deux attributs, \texttt{elements} et \texttt{buttons}, qui sont des groupes de sprites contenant respectivement tous les éléments graphiques du menu, et tous les boutons du menu. Ces groupes de sprites sont utilisés pour afficher et mettre à jour les éléments graphiques du menu. Les groupes de sprites sont des classes fournies par \texttt{pygame-ce}, qui fonctionnent de façon assez similaire aux listes, mais qui permettent uniquement de stocker des objets de type \texttt{pygame.sprite.Sprite}. En contrepartie, il est possible d'appeler des méthodes sur l'ensemble des sprites stockés dans un groupe beaucoup plus rapidement qu'avec une liste.
 
-Lorsque le menu est mis à jour, la méthode \texttt{update} est appelée, ce qui met à jour les éléments graphiques du menu. Cette méthode appelle ensuite la méthode \texttt{update} de chaque élément graphique du menu, ce qui permet de mettre à jour les éléments graphiques du menu. Enfin, la méthode \texttt{draw} est appelée, ce qui affiche les éléments graphiques du menu à l'écran.
+Lorsque le menu est mis à jour, la méthode \texttt{update} est appelée, ce qui met à jour ses éléments graphiques. Cette méthode appelle ensuite la méthode \texttt{update} de chaque élément graphique du menu, ce qui permet de les mettre à jour. Enfin, la méthode \texttt{draw} est appelée, ce qui les affiche à l'écran.
 
 Lorsqu'un clic de souris est détecté, la méthode \texttt{on\_click} est appelée, qui détermine si un bouton a été cliqué et si oui, lequel. Cette méthode tire profit du fait que les boutons sont stockés dans un groupe de sprites, ce qui permet de détecter très facilement des collisions avec un rectangle invisible placé à la position de la souris. Si un bouton est cliqué, la méthode \texttt{on\_click} du bouton est appelée, ce qui permet de définir le comportement du bouton.
 
@@ -647,24 +645,24 @@ De la même façon, seul le menu en haut de la pile est mis à jour et dessiné 
 
 \subsubsection{La classe \texttt{Game}}
 
-La classe \texttt{Game} est la classe principale du jeu, qui représente non seulement le jeu en lui-même, mais également le menu qui lui est associé. Elle hérite donc de la classe \texttt{MenuFactory} afin d'implémenter des boutons et des champs de texte dynamiques, et pour gérer les appuis de touches sur le clavier pour déplacer le personnage.
+La classe \texttt{Game} est la classe principale du jeu, qui représente non seulement le jeu en lui-même, mais également le menu qui lui est associé. Elle hérite donc de la classe \texttt{MenuFactory} afin d'implémenter des boutons et des champs de texte dynamiques, et de gérer les appuis de touches sur le clavier pour déplacer le personnage.
 
 Cette classe contient également de nombreux attributs qui représentent les différentes statistiques de la partie : le niveau actuel, le score du joueur, le nombre de points restants à collecter, etc.
 
 Lorsque le jeu commence ou passe au niveau suivant, la méthode \texttt{load\_level} est appelée, qui génère un labyrinthe de taille correspondante au niveau actuel, et qui place les points et les ennemis à des positions aléatoires en les ajoutant à des listes. Les points et les ennemis sont placés selon les contraintes suivantes :
 
 \begin{itemize}
-    \item On génère un ennemi par 100 cases du labyrinthe
+    \item On génère un ennemi par $100$ cases du labyrinthe
     \item Un ennemi ne peut pas apparaître au même endroit qu'un autre ennemi
-    \item Un ennemi ne peut pas apparaître à moins de 10 cases du joueur en distance de Manhattan
-    \item On génère trois points par 100 cases du labyrinthe
+    \item Un ennemi ne peut pas apparaître à moins de $10$ cases du joueur en distance de Manhattan
+    \item On génère trois points par $100$ cases du labyrinthe
     \item Un point ne peut pas apparaître sur la case de début ou de fin du labyrinthe
     \item Un point ne peut pas apparaître au même endroit qu'un autre point
 \end{itemize}
 
 Enfin, la méthode extrait l'image du labyrinthe et la stocke dans un attribut de la classe afin de la réutiliser à chaque frame.
 
-A chaque frame, la méthode \texttt{update} est appelée, qui met à jour les éléments graphiques du jeu. Cette méthode met à jour le personnage, les ennemis, les points, et les statistiques de la partie. Elle vérifie également si le joueur a collecté assez de points pour débloquer les escalier et limite le nombre d'images par seconde à 60 pour éviter que le jeu ne dépende de la puissance de l'ordinateur (notamment pour l'animation des points).
+A chaque frame, la méthode \texttt{update} est appelée, qui met à jour les éléments graphiques du jeu. Cette méthode met à jour le personnage, les ennemis, les points, et les statistiques de la partie. Elle vérifie également si le joueur a collecté assez de points pour débloquer les escalier et limite le nombre d'images par seconde à $60$ pour éviter que le jeu ne dépende de la puissance de l'ordinateur (notamment pour l'animation des points).
 
 \subsubsection{Les classes \texttt{Character}, \texttt{Enemy} et \texttt{Point}}
 
@@ -672,17 +670,17 @@ Ces trois classes sont des sous-classes de la classe \texttt{pygame.sprite.Sprit
 
 Dans un premier temps, la classe \texttt{Enemy} est la seule à implémenter un algorithme de déplacement autonome. En effet, les ennemis se déplacent en direction du joueur en utilisant l'algorithme \texttt{A*}, ce qui leur permet de trouver un chemin presque optimal pour l'atteindre. L'algorithme est appelé à chaque seconde, ce qui permet aux ennemis de suivre le joueur en temps réel. L'intérêt de l'utilisation de cet algorithme par rapport au \texttt{recursive backtracking} est qu'il est beaucoup moins aléatoire : le chemin diffère peu d'une frame à l'autre, ce qui permet aux ennemis de suivre des déplacements cohérents. A l'inverse, l'algorithme \texttt{recursive backtracking} intègre de l'aléatoire dans ses déplacements : il est très rare que deux chemins soient identiques d'une seconde à l'autre, et les ennemis se retrouvent très souvent à "hésiter" entre deux chemins à l'infini.
 
-Ensuite, la classe \texttt{Point} est la seule à implémenter une animation afin de ressembler à une pièce de monnaie qui tourne sur elle-même. Cette animation est réalisée en modifiant la largeur d'une ellipse à chaque frame, la faisant se rétrécir et s'élargir en alternance. Afin d'appuyer cet effet, la couleur de l'ellipse est également modifiée à chaque boucle de l'animation afin de donner l'illusion que la pièce comporte deux faces de couleurs différentes.
+Enfin, la classe \texttt{Point} est la seule à implémenter une animation afin de ressembler à une pièce de monnaie qui tourne sur elle-même. Cette animation est réalisée en modifiant la largeur d'une ellipse à chaque frame, la faisant se rétrécir et s'élargir en alternance. Afin d'appuyer cet effet, la couleur de l'ellipse est également modifiée à chaque boucle de l'animation afin de donner l'illusion que la pièce comporte deux faces de couleurs différentes.
 
 
 \chapter*{Conclusion}
 \addcontentsline{toc}{chapter}{Conclusion} % Add the chapter to the table of contents
 
-Ce projet a été une expérience très enrichissante pour nous deux, et nous a mis face à un certain nombre de défis que nous avons dû relever, que ce soit en termes de programmation, de gestion de projet, ou de communication. Il fut également l'occasion d'apprendre à manipuler des librairies et des outils qui ne sont pas nécessairement enseignés en classe, et de découvrir des méthodes de travail plus proches de la réalité du monde professionnel.
+Ce projet a été une expérience très enrichissante pour nous deux, et nous a mis face à un certain nombre de défis que nous avons du relever, que ce soit en termes de programmation, de gestion de projet, ou de communication. Il fut également l'occasion d'apprendre à manipuler des librairies et des outils qui ne sont pas nécessairement enseignés en classe, et de découvrir des méthodes de travail plus proches de la réalité du monde professionnel.
 
 Nous sommes très fiers du résultat final du projet, qui répond très largement à toutes nos attentes initiales. Le programme est fonctionnel, agréable à utiliser, et offre une expérience de jeu intéressante et amusante malgré sa simplicité.
 
-Nous aurions aimé pouvoir ajouter quelques fonctionnalités supplémentaires, comme de nouveaux algorithmes de génération et de résolution, des options de personnalisation plus poussées, plus d'éléments de gameplay dans le jeu, un menu permettant de comparer les performances des différents algorithmes, etc. Toutefois, le temps qui nous était alloué était limité, et nous avons dû faire des choix pour respecter les délais.
+Nous aurions aimé pouvoir ajouter quelques fonctionnalités supplémentaires, comme de nouveaux algorithmes de génération et de résolution, des options de personnalisation plus poussées, plus d'éléments de gameplay dans le jeu, un menu permettant de comparer les performances des différents algorithmes, etc. Toutefois, le temps qui nous était alloué était limité, et nous avons du faire des choix pour respecter les délais.
 
 Les labyrinthes sont à notre avis un excellent moyen de faire le lien entre les mathématiques et l'informatique, et nous ont permis d'en apprendre plus ou de revoir des notions de théorie des graphes et d'algorithmique. Les visualisations que nous avons créées sont assez fascinantes à regarder (surtout sur des labyrinthes de grande taille) et permettent de mieux comprendre le fonctionnement d'algorithmes qui sont le plus souvent très abstraits et invisibles à l'échelle de l'utilisateur d'un programme.
 
@@ -1000,7 +998,7 @@ Projet : Labyrinthe
 
 Afin de pouvoir installer et exécuter le programme, il est nécessaire de disposer des éléments suivants :
 \begin{enumerate}
-    \item Python 3.10 ou supérieur. Les versions antérieures n'ont pas été testées et ne sont pas garantie de fonctionner.
+    \item Python 3.10 ou supérieur. Les versions antérieures n'ont pas été testées et ne sont pas garanties de fonctionner.
     \item Des notions de base avec l'interface en ligne de commande de votre système d'exploitation.
 \end{enumerate}
 
