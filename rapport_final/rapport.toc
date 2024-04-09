@@ -25,18 +25,19 @@
 \contentsline {section}{\numberline {3.2}Génération et résolution personnalisée}{15}{section.3.2}%
 \contentsline {section}{\numberline {3.3}Résultats obtenus}{17}{section.3.3}%
 \contentsline {section}{\numberline {3.4}Partie libre : création d'un jeu}{18}{section.3.4}%
-\contentsline {chapter}{\numberline {4}Implémentation}{21}{chapter.4}%
-\contentsline {section}{\numberline {4.1}Structure du programme}{21}{section.4.1}%
-\contentsline {section}{\numberline {4.2}Classes, fonctions et méthodes principales}{21}{section.4.2}%
-\contentsline {subsection}{\numberline {4.2.1}La classe \texttt {Labyrinthe}}{21}{subsection.4.2.1}%
-\contentsline {subsubsection}{\nonumberline Structure de donnée et méthodes utilitaires}{21}{subsubsection*.21}%
-\contentsline {subsubsection}{\nonumberline Génération et Résolution instantanées ou par étapes}{22}{subsubsection*.23}%
-\contentsline {subsubsection}{\nonumberline Interface et visualisation}{23}{subsubsection*.25}%
-\contentsline {subsection}{\numberline {4.2.2}Les classes \texttt {MenuFactory}, \texttt {Menu}, \texttt {Button} et \texttt {Text}}{23}{subsection.4.2.2}%
-\contentsline {subsection}{\numberline {4.2.3}Les classes \texttt {Game}, \texttt {Character}, \texttt {Enemy} et \texttt {Point}}{24}{subsection.4.2.3}%
-\contentsline {chapter}{Conclusion}{25}{chapter*.26}%
-\contentsline {chapter}{Bibliographie}{26}{chapter*.27}%
-\contentsline {chapter}{Compte rendus hebdomadaires}{27}{chapter*.28}%
-\contentsline {chapter}{Annexes}{28}{chapter*.29}%
-\contentsline {section}{Annexe 1 : Code source et installation}{28}{section*.30}%
+\contentsline {chapter}{\numberline {4}Implémentation}{20}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Structure du programme}{20}{section.4.1}%
+\contentsline {section}{\numberline {4.2}Classes, fonctions et méthodes principales}{20}{section.4.2}%
+\contentsline {subsection}{\numberline {4.2.1}La classe \texttt {Labyrinthe}}{20}{subsection.4.2.1}%
+\contentsline {subsubsection}{\nonumberline Structure de donnée et méthodes utilitaires}{20}{subsubsection*.21}%
+\contentsline {subsubsection}{\nonumberline Génération et Résolution instantanées ou par étapes}{21}{subsubsection*.23}%
+\contentsline {subsubsection}{\nonumberline Interface et visualisation}{22}{subsubsection*.25}%
+\contentsline {subsection}{\numberline {4.2.2}Les classes \texttt {MenuFactory}, \texttt {Menu}, \texttt {Button} et \texttt {Text}}{22}{subsection.4.2.2}%
+\contentsline {subsection}{\numberline {4.2.3}Les classes \texttt {Game}, \texttt {Character}, \texttt {Enemy} et \texttt {Point}}{23}{subsection.4.2.3}%
+\contentsline {subsubsection}{\nonumberline La classe \texttt {Game}}{23}{subsubsection*.27}%
+\contentsline {chapter}{Conclusion}{25}{chapter*.28}%
+\contentsline {chapter}{Bibliographie}{26}{chapter*.29}%
+\contentsline {chapter}{Compte rendus hebdomadaires}{27}{chapter*.30}%
+\contentsline {chapter}{Annexes}{28}{chapter*.31}%
+\contentsline {section}{Annexe 1 : Code source et installation}{28}{section*.32}%
 \providecommand \tocbasic@end@toc@file {}\tocbasic@end@toc@file 
