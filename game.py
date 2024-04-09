@@ -188,10 +188,9 @@ class Game(MenuFactory):
             position_valid = False
             while not position_valid:
                 # Make sure the position is not overlapping with the character.
-                # This is not such a big deal for the enemies since they move around, but it's important for the points.
                 position = random.randint(0, self.labyrinth.width * self.labyrinth.height - 1)
                 if position not in [p.pos for p in self.points] and position != self.character.pos:
-                    # We don't want the points to overlap with each other either.
+                    # We don't want the stairs to overlap with the points either
                     position_valid = True
             self.stairs_pos = position
             stairs_coordinates = self.labyrinth.id_to_coord(position)
