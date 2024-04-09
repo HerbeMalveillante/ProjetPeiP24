@@ -11,6 +11,7 @@
 \usepackage{xcolor} % Add the xcolor package for color support
 \usepackage{tabularx} % Add the tabularx package for advanced tables
 
+
 \makeatletter
 \def\@cite#1#2{$^{\mbox{\scriptsize [#1\if@tempswa , #2\fi]}}$}
 \makeatother
@@ -195,11 +196,11 @@ Dans un premier temps, nous étudierons brièvement un état de l'art des labyri
 
 Nous expliquerons ensuite la méthodologie que nous avons appliquée pour mener à bien ce projet, en décrivant les différentes étapes de développement du programme.
 
-Nous poursuivrons en présentant l'implémentation du programme, en décrivant la structure du code et les différents obstacles rencontrés.
+Nous présenterons ensuite le programme en lui-même, en décrivant les différentes fonctionnalités implémentées et en commentant les résultats obtenus.
 
-Nous présenterons ensuite les résultats obtenus, en détaillant les performances du programme et les statistiques obtenues.
+Nous poursuivrons en présentant l'implémentation du programme, en décrivant la structure du code, les classes et méthodes les plus importante et les différents obstacles rencontrés.
 
-Enfin, nous prendrons du recul sur le projet en discutant de potentielles améliorations pouvant être apportées au projet à l'avenir, ainsi que de notre ressenti par rapport à ce que cette expérience a pu nous apporter.
+Enfin, nous concluerons ce rapport en faisant le point sur les objectifs atteints, les résultats obtenus, les perspectives d'avenir et les enseignements tirés de ce projet.
 
 \paragraph{}
 
@@ -365,9 +366,6 @@ L'ajout de ces algorithmes pourrait être une piste d'améliorations pour le fut
 
 \chapter{Méthodologie}
 
-% Décrire les langages de programmation, librairies et outils utilisés (Python, Pygame-ce, Git, LaTeX, etc.)
-% Décrire les différentes étapes de développement du projet : conception, implémentation, tests, etc.
-% Peut être ne pas en faire un chapitre à part entière ?
 
 Au sein de ce chapitre, nous allons décrire les différentes étapes de développement du programme, en décrivant les outils utilisés ainsi que les différentes étapes de conception.
 
@@ -445,12 +443,122 @@ Ainsi, nous avons pu nous concentrer sur le fond du rapport, LaTeX se chargeant 
 
 \chapter{Fonctionnalités}
 
-\chapter{Implémentation}
+Avant de d'expliquer l'implémentation et le fonctionnement du programme, il est utile de connaître les différentes fonctionnalités implémentées en son sein. Bien qu'il soit recommandé de tester le programme pour en avoir une idée plus précise, nous allons décrire les fonctionnalités du programme dans ce chapitre.
 
-% Décrire la structure du programme
-% Expliquer comment le code est organisé, et comment les algorithmes sont implémentés
-% Décrire les différentes complications qui se sont présentées et la façon dont nous les avons résolu.
-% Ce sera probablement le chapitre le plus long
+\section{Interface et éléments graphiques}
+
+Afin de fournir à l'utilisateur une expérience agréable et intuitive, nous avons fait le choix de fournir une interface graphique permettant de contrôler la quasi-intégralité des paramètres du programme de façon visuelle, ainsi que d'accéder à toutes ses fonctionnalités.
+
+Nous nous sommes inspirés du thème libre "Dracula"\cite{Dracula2024} pour les couleurs de l'interface, qui nous semble agréable à l'oeil et facile à lire. Nous avons opté pour des éléments interactifs minimalistes, que ce soit pour les boutons, les menus, les labyrinthes en eux-mêmes, les entités évoluant au sein du jeu, et même la police d'écriture.
+
+
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{images/mainmenu.png}
+    \caption{Capture d'écran du menu principal du programme}
+\end{figure}
+
+Tous les éléments graphiques sont générés à partir de classes réutilisables, garantissant une cohérence visuelle dans l'ensemble du programme. De plus, ces classes sont facilement modifiables, ce qui permet de changer l'apparence du programme en quelques lignes de code.
+
+Des éléments permettant d'afficher du Texte dynamique (modifiable grâce à l'appel d'une méthode sur l'objet) et des Boutons interactifs permettant d'appeler une fonction ont été implémentés. Ces éléments sont personnalisables dans leur apparence et leur comportement.
+
+Un système de navigation entre différents menus a été implémenté, permettant à l'utilisateur de naviguer facilement entre les différentes fonctionnalités du programme, tout en conservant les éventuelles informations déjà entrées lors d'un retour sur un écran précédent. De plus, aucune opération n'est bloquante, et l'utilisateur peut retourner en arrière à tout moment, même au beau milieu d'un algorithme.
+
+Un système de cache des images a été mis en place afin de garantir une fréquence de rafraîchissement maximale en toutes circonstances, et un compteur d'images par seconde est visible dans la barre de titre de la fenêtre.
+
+\section{Génération et résolution personnalisée}
+
+Le premier menu disponible dans l'écran titre permet de générer un labyrinthe de taille personnalisée, et de le résoudre avec l'algorithme et le facteur de bouclage de son choix.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{images/generationcustom.png}
+    \caption{Capture d'écran du menu principal du programme}
+\end{figure}
+
+L'utilisateur peut choisir n'importe quelle taille supérieure à $2 \times 2$ (bien que des valeurs supérieures à 75 peuvent ne pas s'afficher correctement à l'écran en raison de la résolution limitée de ce dernier), et un facteur de bouclage compris entre $0.0$ et $1.0$ par pas de $0.05$. Un facteur de bouclage de $0.0$ résulte en un labyrinthe parfait, tandis qu'un facteur de bouclage de $1.0$ résulte en un labyrinthe où tous les murs ont été retirés.
+
+Lorsque l'utilisateur clique sur "Générer et résoudre", le programme affiche une animation de la génération du labyrinthe, puis de sa résolution accompagnée de la visualisation appropriée. L'utilisateur peut à tout moment interrompre l'algorithme en cours en cliquant sur le bouton "Retour". L'ensemble des statistiques intéressantes sur la résolution sont visibles et mises à jour en direct sur la partie droite de l'écran.
+
+L'algorithme de résolution commence en haut à gauche du labyrinthe, et cherche un chemin menant à la case en bas à droite.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.70\textwidth]{images/labyrinthgeneratingsmall.png}
+    \caption{Capture d'écran de la génération d'un labyrinthe de taille 24}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.70\textwidth]{images/recbacsolving24.png}
+    \caption{Capture d'écran de la résolution d'un labyrinthe de taille 24}
+\end{figure}
+
+
+On observe sur ces images la génération et la résolution d'un labyrinthe de taille $24 \times 24$ avec un facteur de bouclage de $0.1$. On peut voir sur la droite de l'écran l'affichage de ces informations, ainsi que le temps et le nombre d'étapes de génération, ainsi que la méthode, le temps et le nombre d'étapes de résolution. Dans le cas de la résolution avec l'algorithme \texttt{recursive backtracking}, on peut également voir la longueur du chemin actuel, le nombre de cases visitées ainsi que le nombre de cases bannies.
+
+On constate que la visualisation de cet algorithme consiste en l'affichage du chemin actuel en vert et des cases bannies barrées en rouge. On peut noter qu'il est inutile de signaler les cases visitées, qui sont soit également bannies soit sur le chemin actuel.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{images/astarsolved75-2.png}
+    \caption{Capture d'écran d'un labyrinthe parfait (facteur de bouclage de $0$) de taille $75 \times 75$ résolu avec l'algorithme \texttt{A*}}
+\end{figure}
+
+Sur cette capture d'écran, on peut voir un labyrinthe beaucoup plus grand ayant la particularité d'être parfait, c'est à dire que son facteur de bouclage vaut $0$ : il n'existe qu'un seul et unique chemin menant à l'arrivée.
+
+Ces paramètres permettent à la fois de montrer un labyrinthe de grande taille, mais également la visualisation associée à l'algorithme \texttt{A*}, qui affiche non seulement le chemin actuel en vert, mais également le score individuel de chaque case sur un dégradé allant du vert au rouge : plus la case est verte, plus l'algorithme suppose qu'elle fait partie de la solution optimale.
+
+\section{Résultats obtenus}
+
+Les résultats obtenus par le programme sont très satisfaisants, et correspondent à nos attentes initiales. Les algorithmes de génération et de résolution fonctionnent correctement, et les labyrinthes générés sont variés et intéressants.
+
+Il est également possible de comparer la performance des différents algorithmes : on constate sans vraiment de surprise que l'algorithme \texttt{A*} est beaucoup plus rapide que l'algorithme \texttt{recursive backtracking} quel que soit le facteur de bouclage.
+
+Le temps de résolution n'étant pas un critère de performance utile étant donné qu'il dépend fortement de la fréquence de rafraîchissement et donc de la visualisation, il est plus intéressant de comparer le nombre d'étapes nécéssaires à la résolution, ainsi que la longueur du chemin trouvé. Dans les deux cas, l'algorithme \texttt{A*} est donc plus performant.
+
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{images/recbacksolved75.png}
+    \caption{Capture d'écran d'un labyrinthe parfait (facteur de bouclage de $0$) de taille $75 \times 75$ résolu avec l'algorithme \texttt{recursive-backtracking}}
+\end{figure}
+
+Nous sommes également très satisfaits des performances du programme, qui descends rarement en dessous de 60 images par seconde, et uniquement lors de l'affichage de labyrinthes de très grande taille.
+
+\section{Partie libre : création d'un jeu}
+
+Une partie significative du projet était libre, et nous avons choisi de créer un petit jeu mettant à profit nos labyrinthes générés, ainsi que les algorithmes de résolution que nous avons implémentés.
+
+Nous avons décidé de créer un jeu similaire au classique de l'arcade "PAC-MAN", où le joueur doit déplacer un personnage dans un labyrinthe généré aléatoirement tout en évitant des ennemis qui se déplacent de façon autonome en direction du joueur grâce à l'algorithme \texttt{A*}.
+
+Le joueur doit collecter des points dispersés dans le labyrinthe afin de débloquer l'accès à un escalier menant au niveau suivant. A chaque nouveau niveau, le labyrinthe est plus grand, et le nombre d'ennemis et de points à ramasser augmente.
+
+Lorsque le joueur finit inévitablement par se faire attraper par un ennemi, un écran de fin de partie lui est présenté lui permettant de consulter son score, de recommencer ou de retourner au menu principal.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{images/gamelevel0.png}
+    \caption{Capture d'écran du premier niveau du jeu : le joueur doit ramasser trois points parmi les six disponibles tout en évitant deux ennemis}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{images/gamelevel4.png}
+    \caption{Capture d'écran du cinquième niveau du jeu : le labyrinthe est plus grand, les ennemis et les points plus nombreux.}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{images/loosemenu.png}
+    \caption{Capture d'écran du menu de fin de partie : le joueur peut consulter son score, recommencer ou retourner au menu principal.}
+\end{figure}
+
+
+Bien que très simple, le jeu est étonnamment amusant et équilibré : les ennemis suivent toujours un chemin quasi-optimal pour attraper le joueur, mais il est souvent possible de les éviter en anticipant leurs mouvements. Pour établir un score élevé, il est nécessaire d'avoir une vue d'ensemble du labyrinthe afin d'identifier les chemins les plus sûrs pour collecter les points et anticiper les ennemis. Il est par exemple dangereux de s'engager dans un long couloir ne présentant pas ou peu de boucles à proximité, car elles permettent de se sortir d'une situation où deux ennemis se rapprochent de part et d'autre.
+
+\chapter{Implémentation}
 
 Dans ce chapitre, nous allons décrire la structure du programme, ainsi que les différentes fonctionnalités que nous avons implémentées et les obstacles que nous avons rencontrés.
 
@@ -474,6 +582,8 @@ Nous avons également fait le choix de stocker les constantes régulièrement ut
 
 \subsection{La classe \texttt{Labyrinthe}}
 
+\subsubsection{Structure de donnée et méthodes utilitaires}
+
 La classe \texttt{Labyrinthe} est la classe principale du programme, qui représente un labyrinthe. Elle contient toute la logique nécéssaire à la génération la résolution et l'affichage d'un labyrinthe à l'écran.
 
 Elle hérite de la classe \texttt{pygame.sprite.Sprite}, ce qui lui fournit par défaut des attributs de taille, de position, une image, une forme, ainsi que des méthodes pour l'affichage et la mise à jour de l'objet.
@@ -486,30 +596,58 @@ Les cases sont quand à elles identifiées par un identifiant entier unique. Si 
 
 Ainsi, nous avons facilement pu implémenter de nombreuses méthodes utilitaires permettant d'ajouter ou de retirer des murs, d'obtenir une liste des cases adjacentes à une case donnée, de vérifier si un mur existe entre deux cases, etc. Ces méthodes sont utilisées par les algorithmes qui manipulent le labyrinthe.
 
+\subsubsection{Génération et Résolution instantanées ou par étapes}
+
+Lorsque nous avons commencé à travailler sur les algorithmes de génération et de résolution, nous avons instinctivement simplement créé des méthodes qui remplissaient leur rôle en une seule fois, c'est à dire des fonctions bloquantes qui ne permettaient pas d'observer le fonctionnement du programme au fur et à mesure.
+
+Cette approche est efficace pour une première implémentation, mais notre objectif était de créer des visualisations interactives qui affichent toutes les données intéressantes afin de mieux comprendre le fonctionnement des algorithmes.
+
+Ainsi, nous avons créé des méthodes alternatives en plus de celles qui existaient déjà, qui n'avancent l'algorithme sélectionné que d'une étape à la fois en tirant parti du fait que ces algorithmes sont basés sur des boucles. Ainsi, on peut afficher la nouvelle visualisation à chaque étape, en échange d'un temps d'exécution beaucoup plus long.
+
+Cette façon de procéder a toutefois un inconvénient majeur : comme on génère ou résoud un labyrinthe avec plusieurs appels de fonctions, on ne peut plus utiliser de variables locales pour stocker des données essentielles comme la pile ou la liste de cases visitées présentes dans l'algorithme de \texttt{recursive backtracking}. Plus encore, les structures de données utilisées changent d'un algorithme à l'autre, tout comme les visualisations. Il était donc nécessaire de stocker ces données directement dans l'instance du Labyrinthe.
+
+Nous aurions pu définir de nouvelles classes pour stocker ces données, mais comme leur utilisation est très spécifique, nous avons opté pour le choix de la simplicité et utilisé des dictionnaires. Lors de l'appel de la méthode de génération ou résolution, on choisit la bonne structure de donnée, le bon algorithme et la bonne visualisation à l'aide d'une simple structure \texttt{if-elif-else}. L'inconvénient principal de cette méthode est le fait qu'il est difficile d'ajouter de nouveaux algorithmes sans modifier d'autres morceaux de code sans réel lien fonctionnel, ce qui est considéré comme une mauvaise pratique.
+
+\subsubsection{Interface et visualisation}
+
+Les dernières méthodes intéressantes de la classe \texttt{Labyrinthe} sont celles qui permettent d'afficher le labyrinthe à l'écran.
+
+En effet, le programme opère à une résolution fixée de 1200 par 700 pixels, et le labyrinthe à l'écran est censé occuper le même espace, quel que soit sa taille. Ainsi, l'approche logique aurait été de dessiner les éléments du labyrinthe en changeant la taille de chaque élément, mais nous avons décidé d'utiliser une astuce pour ne pas avoir à le faire.
+
+Dans le fichier \texttt{constants.py}, nous avons défini une variable entière "Résolution du Labyrinthe" qui correspond à la taille d'une case du labyrinthe, en pixel. On peut constater que cette variable est fixe et est plutôt grande (120 pixels), ce qui peut sembler contre intuitif.
+
+Au moment de générer l'image du labyrinthe, on le dessine sur une surface virtuelle en utilisant cette résolution, que l'on redimensionne ensuite pour l'afficher à l'écran. Ainsi, on obtient un labyrinthe de taille fixe, quelle que soit sa dimension, et on peut facilement le redimensionner pour l'afficher à l'écran où l'on veut, à la taille que l'on veut, sans nécessairement avoir à redimensionner chaque élément et surtout, sans avoir à le redessiner si il n'a pas changé.
+
+En effet, afin d'optimiser les performances du programme, nous avons implémenter un système de "cache" qui permet de stocker l'image du labyrinthe au sein de l'instance, et de ne la redessiner que si le labyrinthe a changé depuis la dernière fois qu'il a été affiché (par exemple lorsque les algorithmes qui le modifient sont appelés).
+
+On constate un gain de performances significatif en utilisant cette méthode, particulièrement dans des contextes où le labyrinthe ne change plus, comme lors de la résolution d'un labyrinthe déjà généré.
+
+Afin de tirer parti au maximum de cette optimisation, la visualisation est donc dessinée sur une nouvelle surface virtuelle de la taille du labyrinthe. Cette surface est ensuite superposée à celle du labyrinthe, ce qui permet d'obtenir l'image finale.
+
+Cette technique de "cache" est utilisé à plusieurs reprises dans le code, bien qu'elle ne soit réellement nécéssaire que dans ce contexte.
+
+\subsection{Les classes \texttt{MenuFactory}, \texttt{Menu}, \texttt{Button} et \texttt{Text}}
+
+Un grand nombre de classes du programme sont des menus, qui représentent chacun un écran spécifique (écran titre, écran de génération personnalisée, affichage du jeu, etc.). Afin de faciliter la création de ces menus, nous avons créé une classe \texttt{MenuFactory} qui permet de créer des menus sans répétition de code. Elle permet d'ajouter très facilement des éléments graphiques à un menu, de les positionner, de les afficher, de les mettre à jour, etc.
 
 
+La classe \texttt{MenuFactory} est une classe abstraite qui définit les méthodes et les attributs communs à tous les menus du programme. Elle contient une méthode \texttt{update} qui met à jour les éléments graphiques du menu, une méthode \texttt{draw} qui affiche les éléments graphiques du menu à l'écran, et des méthodes \texttt{on\_click} et \texttt{on\_key} qui gèrent respectivement les clics de souris et les appuis de touches clavier.
 
-\chapter{Résultats}
+Cette classe possède deux attributs, \texttt{elements} et \texttt{buttons}, qui sont des groupes de sprites contenant respectivement tous les éléments graphiques du menu, et tous les boutons du menu. Ces groupes de sprites sont utilisés pour afficher et mettre à jour les éléments graphiques du menu. Les groupes de sprites sont des classes fournies par \texttt{pygame-ce}, qui fonctionnent de façon assez similaire aux listes, mais qui permettent uniquement de stocker des objets de type \texttt{pygame.sprite.Sprite}. En contrepartie, il est possible d'appeler des méthodes sur l'ensemble des sprites stockés dans un groupe beaucoup plus rapidement qu'avec une liste.
 
-Présenter les résultats obtenus
+Lorsque le menu est mis à jour, la méthode \texttt{update} est appelée, ce qui met à jour les éléments graphiques du menu. Cette méthode appelle ensuite la méthode \texttt{update} de chaque élément graphique du menu, ce qui permet de mettre à jour les éléments graphiques du menu. Enfin, la méthode \texttt{draw} est appelée, ce qui affiche les éléments graphiques du menu à l'écran.
 
-Ajouter des statistiques comme le temps de génération d'un labyrinthe, le nombre de nœuds explorés par A*, etc.
+Lorsqu'un clic de souris est détecté, la méthode \texttt{on\_click} est appelée, qui détermine si un bouton a été cliqué et si oui, lequel. Cette méthode tire profit du fait que les boutons sont stockés dans un groupe de sprites, ce qui permet de détecter très facilement des collisions avec un rectangle invisible placé à la position de la souris. Si un bouton est cliqué, la méthode \texttt{on\_click} du bouton est appelée, ce qui permet de définir le comportement du bouton.
 
-On peut aussi ajouter des statistiques sur les performances du programme, comme le temps d'exécution, la consommation de mémoire, etc, ainsi que sur le nombre de lignes, etc.
+Lorsqu'on veut ajouter un élément à un menu, on peut simplement l'instancier au sein de la méthode \texttt{\_\_init\_\_} de sa classe, puis l'ajouter au groupe correspondant. L'affichage et la mise à jour de l'élément seront alors gérés automatiquement par la classe \texttt{MenuFactory}.
 
-\chapter{Discussion et perspectives}
+Tous les écrans du programme sont des instances de classes qui héritent de la classe \texttt{MenuFactory}, et sont stockés dans une pile au sein de la classe \texttt{Menu}. Lorsqu'un clic de souris est détecté, la méthode \texttt{on\_click} de l'écran du dessus de la pile est appelée, ce qui permet de gérer les clics de souris de façon cohérente.
 
-Interpréter les résultats obtenus et les comparer à ce qui était attendu
+De la même façon, seul le menu en haut de la pile est mis à jour et dessiné à chaque frame, ce qui permet de garder en mémoire les écrans précédents sans les traiter inutilement.
 
-Analyser les avantages et inconvénients de chaque algorithme
-
-Présenter ce que ce projet nous a permis d'apprendre
-
-Proposer de potentielles améliorations qui pourraient être apportées à l'avenir
+\subsection{Les classes \texttt{Game}, \texttt{Character}, \texttt{Enemy} et \texttt{Point}}
 
 
-
-\chapter{Sandbox pour tester des trucs}
 
 
 \chapter*{Conclusion}
@@ -562,7 +700,7 @@ git clone https://github.com/HerbeMalveillante/ProjetPeiP24.git
     \item Ouvrir un terminal et se placer dans le dossier contenant le code source du programme.
     \item Vérifier la version de Python utilisée dans le PATH à l'aide de la commande suivante :
           \begin{verbatim}
-python --version
+python3 --version
     \end{verbatim}
           Il est bon de noter que la commande permettant d'invoquer Python peut dépendre de votre système d'exploitation et/ou de votre installation de Python. Les commandes les plus courantes sont \texttt{python}, \texttt{python3} et \texttt{py}.
     \item (optionnel) Créer un environnement virtuel Python à l'aide de la commande suivante :

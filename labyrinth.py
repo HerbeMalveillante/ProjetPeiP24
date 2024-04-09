@@ -30,8 +30,8 @@ def generate_color(min, max, value):
     if min == max:
         return (128, 128, 128)
 
-    green = int((value - min) / (max - min) * 255)
-    red = 255 - green
+    red = int((value - min) / (max - min) * 255)
+    green = 255 - red
 
     return (red, green, 0)
 

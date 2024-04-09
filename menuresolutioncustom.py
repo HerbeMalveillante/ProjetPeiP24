@@ -125,13 +125,16 @@ class Resolution_Custom(menufactory.MenuFactory):
         """
         self.grid_size += 1
         self.grid_size_label.update_text(str(self.grid_size))
+        if self.grid_size >= 75:
+            print("ATTENTION : Un labyrinthe de taille supérieure à 75x75 peut causer des problèmes d'affichage !")
 
     def decrease_grid_size(self):
         """
         Decreases the size of the maze grid by 1.
         """
-        self.grid_size -= 1
-        self.grid_size_label.update_text(str(self.grid_size))
+        if self.grid_size > 2:  # The minimum grid size is 2.
+            self.grid_size -= 1
+            self.grid_size_label.update_text(str(self.grid_size))
 
     def toggle_resolution(self):
         """
