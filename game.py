@@ -19,8 +19,8 @@ class Game(MenuFactory):
     - stack (list): A list representing the screen stack.
     - STAIRS_IMAGE (pygame.Surface): The image of the stairs.
     - screen (pygame.Surface): The game screen.
-    - debug_text (Text): The debug text object.
-    - debug_text_2 (Text): The second debug text object.
+    - points_label (Text): The debug text object.
+    - level_label (Text): The second debug text object.
     - quit_button (Button): The quit button object.
     - level (int): The current level of the game.
     - total_points (int): The total points collected in the game.
@@ -55,12 +55,21 @@ class Game(MenuFactory):
 
         # Add two debug text elements to display information about the game state.
         # Adding them to the elements group ensures they are updated and drawn automatically.
-        self.debug_text = Text(self.screen.get_width() - 300, 20, WHITE, "LoremIpsum")
-        self.elements.add(self.debug_text)
-        self.debug_text_2 = Text(self.screen.get_width() - 300, 50, WHITE, "LoremIpsum")
-        self.elements.add(self.debug_text_2)
-        self.debug_text_3 = Text(self.screen.get_width() - 300, 110, WHITE, "LoremIpsum")
-        self.elements.add(self.debug_text_3)
+        self.points_label = Text(self.screen.get_width() - 500, 20, WHITE, "LoremIpsum")
+        self.elements.add(self.points_label)
+        self.level_label = Text(self.screen.get_width() - 500, 50, WHITE, "LoremIpsum")
+        self.elements.add(self.level_label)
+        self.total_points_label = Text(self.screen.get_width() - 500, 110, WHITE, "LoremIpsum")
+        self.elements.add(self.total_points_label)
+
+        self.elements.add(Text(self.screen.get_width() - 500, 250, WHITE, "Déplacements :"))
+        self.elements.add(Text(self.screen.get_width() - 500, 280, WHITE, "Flèches directionnelles"))
+        self.elements.add(Text(self.screen.get_width() - 500, 310, WHITE, "ou ZQSD"))
+
+        self.elements.add(Text(self.screen.get_width() - 500, 350, WHITE, "Objectif :"))
+        self.elements.add(Text(self.screen.get_width() - 500, 380, WHITE, "Collecter les points"))
+        self.elements.add(Text(self.screen.get_width() - 500, 410, WHITE, "pour débloquer les escaliers"))
+        self.elements.add(Text(self.screen.get_width() - 500, 440, WHITE, "et passer au niveau suivant."))
 
         # Add a quit button to exit the game. It calls the back method when clicked.
         self.quit_button = Button(
@@ -164,9 +173,9 @@ class Game(MenuFactory):
 
         # Update the debug text elements to display the current game state.
         # Here, we are displaying the number of points collected and the number of points needed to unlock the stairs, as well as the current level.
-        self.debug_text.update_text(f"Points : {self.point_count}/{self.points_to_get}")
-        self.debug_text_2.update_text(f"Level : {self.level}")
-        self.debug_text_3.update_text(f"Total_Points : {self.total_points}")
+        self.points_label.update_text(f"Points : {self.point_count}/{self.points_to_get}")
+        self.level_label.update_text(f"Level : {self.level}")
+        self.total_points_label.update_text(f"Total des points : {self.total_points}")
 
         for e in self.enemies:
             # Update the state of each enemy in the game
@@ -259,16 +268,16 @@ class Game(MenuFactory):
 
         # Handle the character movement
         if down:
-            if key == pygame.K_UP:
+            if key == pygame.K_UP or key == pygame.K_z:
                 if self.labyrinth.id_to_coord(self.character.pos)[1] > 0:
                     self.character.move("up")
-            elif key == pygame.K_DOWN:
+            elif key == pygame.K_DOWN or key == pygame.K_s:
                 if self.labyrinth.id_to_coord(self.character.pos)[1] < self.labyrinth.height - 1:
                     self.character.move("down")
-            elif key == pygame.K_LEFT:
+            elif key == pygame.K_LEFT or key == pygame.K_q:
                 if self.labyrinth.id_to_coord(self.character.pos)[0] > 0:
                     self.character.move("left")
-            elif key == pygame.K_RIGHT:
+            elif key == pygame.K_RIGHT or key == pygame.K_d:
                 if self.labyrinth.id_to_coord(self.character.pos)[0] < self.labyrinth.width - 1:
                     self.character.move("right")
 
