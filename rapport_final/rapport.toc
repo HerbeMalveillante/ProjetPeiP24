@@ -13,13 +13,23 @@
 \contentsline {subsubsection}{\nonumberline L'algorithme "A*"}{9}{subsubsection*.17}%
 \contentsline {subsubsection}{\nonumberline D'autres algorithmes}{10}{subsubsection*.19}%
 \contentsline {chapter}{\numberline {2}Méthodologie}{11}{chapter.2}%
-\contentsline {chapter}{\numberline {3}Implémentation}{12}{chapter.3}%
-\contentsline {chapter}{\numberline {4}Résultats}{13}{chapter.4}%
-\contentsline {chapter}{\numberline {5}Discussion et perspectives}{14}{chapter.5}%
-\contentsline {chapter}{\numberline {6}Sandbox pour tester des trucs}{15}{chapter.6}%
-\contentsline {chapter}{Conclusion}{16}{chapter*.20}%
-\contentsline {chapter}{Bibliographie}{17}{chapter*.21}%
-\contentsline {chapter}{Compte rendus hebdomadaires}{18}{chapter*.22}%
-\contentsline {chapter}{Annexes}{19}{chapter*.23}%
-\contentsline {section}{Annexe 1 : Code source et installation}{19}{section*.24}%
+\contentsline {section}{\numberline {2.1}Versionnage}{11}{section.2.1}%
+\contentsline {subsection}{\numberline {2.1.1}Git}{11}{subsection.2.1.1}%
+\contentsline {subsection}{\numberline {2.1.2}GitHub}{12}{subsection.2.1.2}%
+\contentsline {section}{\numberline {2.2}Programme principal}{12}{section.2.2}%
+\contentsline {subsection}{\numberline {2.2.1}Langage de programmation, librairies et outils.}{12}{subsection.2.2.1}%
+\contentsline {subsection}{\numberline {2.2.2}Conception}{13}{subsection.2.2.2}%
+\contentsline {section}{\numberline {2.3}Rédaction du rapport}{13}{section.2.3}%
+\contentsline {chapter}{\numberline {3}Implémentation}{14}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Structure du programme}{14}{section.3.1}%
+\contentsline {section}{\numberline {3.2}Classes, fonctions et méthodes principales}{14}{section.3.2}%
+\contentsline {subsection}{\numberline {3.2.1}La classe \texttt {Labyrinthe}}{14}{subsection.3.2.1}%
+\contentsline {chapter}{\numberline {4}Résultats}{16}{chapter.4}%
+\contentsline {chapter}{\numberline {5}Discussion et perspectives}{17}{chapter.5}%
+\contentsline {chapter}{\numberline {6}Sandbox pour tester des trucs}{18}{chapter.6}%
+\contentsline {chapter}{Conclusion}{19}{chapter*.20}%
+\contentsline {chapter}{Bibliographie}{20}{chapter*.21}%
+\contentsline {chapter}{Compte rendus hebdomadaires}{21}{chapter*.22}%
+\contentsline {chapter}{Annexes}{22}{chapter*.23}%
+\contentsline {section}{Annexe 1 : Code source et installation}{22}{section*.24}%
 \providecommand \tocbasic@end@toc@file {}\tocbasic@end@toc@file 

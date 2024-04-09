@@ -89,7 +89,7 @@
 
     (33)2-47-36-14-14
 
-    \href{http://www.polytech.univ-tours.fr}{\textcolor{red}{www.polytech.univ-tours.fr}}
+    \textcolor{red}{\url{http://www.polytech.univ-tours.fr}}
 
 
     \vfill
@@ -307,7 +307,7 @@ Une fois un labyrinthe généré, on sélectionne aléatoirement un certain nomb
 
 \subsubsection{Un peu de théorie}
 
-La résolution d'un labyrinthe est essentiellement un problème de recherche de chemin dans un graphe, mais appliqué à des graphes ayant des propriétés particulières, comme vu précédemment.
+L'élucidation d'un labyrinthe consiste principalement en la recherche d'un chemin dans un graphe, tout en tenant compte des propriétés spécifiques de ce dernier, comme abordé précédemment.
 
 Ainsi, il est tout à fait possible d'utiliser n'importe quel algorithme de recherche de chemin dans un graphe pour résoudre n'importe quel labyrinthe, comme par exemple l'algorithme de Dijkstra.
 
@@ -365,21 +365,127 @@ L'ajout de ces algorithmes pourrait être une piste d'améliorations pour le fut
 
 \chapter{Méthodologie}
 
-Décrire les langages de programmation, librairies et outils utilisés (Python, Pygame-ce, Git, LaTeX, etc.)
+% Décrire les langages de programmation, librairies et outils utilisés (Python, Pygame-ce, Git, LaTeX, etc.)
+% Décrire les différentes étapes de développement du projet : conception, implémentation, tests, etc.
+% Peut être ne pas en faire un chapitre à part entière ?
 
-Décrire les différentes étapes de développement du projet : conception, implémentation, tests, etc.
+Au sein de ce chapitre, nous allons décrire les différentes étapes de développement du programme, en décrivant les outils utilisés ainsi que les différentes étapes de conception.
 
-Peut être ne pas en faire un chapitre à part entière ?
+Il est bon de rappeler que des instructions détaillées sur l'installation du programme et la consultation du code source sont disponibles en annexe 1. Il est également possible de consulter directement le dépôt Git du projet à l'adresse suivante : \url{https://github.com/HerbeMalveillante/ProjetPeiP24}
+
+\section{Versionnage}
+
+Garder une trace de l'évolution du code source est une étape cruciale dans tout projet informatique, surtoût lorsqu'il est réalisé en équipe.
+
+Conserver le projet stocké en "local" sur une machine est la meilleure façon de s'exposer à des pertes de données, des erreurs de manipulation, etc. De plus, il est souvent nécessaire de travailler en même temps sur un même fichier, ce qui peut être une source de conflits évidente.
+
+Imaginons que deux développeurs modifient le même fichier en même temps, et que l'un des deux enregistre ses modifications avant l'autre. Lorsque le second enregistre ses modifications, il écrase celles du premier, et les modifications de ce dernier sont perdues. C'est ce qu'on appelle un conflit.
+
+De plus, si un changement majeur dans le code source provoque un bug et qu'il est difficile de faire machine arrière, il est souvent nécessaire de revenir à une version antérieure du code source, ce qui peut faire perdre beaucoup de progression si les sauvegardes n'ont pas été régulières.
+
+Pour éviter tous ces problèmes, il est nécessaire d'utiliser un logiciel de gestion de version, qui permet de conserver un historique de toutes les modifications apportées au code source, de revenir à une version antérieure, de créer des branches pour travailler sur des fonctionnalités différentes, etc.
+
+L'outil que nous avons choisi d'utiliser est Git\cite{Git2024}, associé à la plateforme en ligne GitHub\cite{GitHub2024}.
+
+\subsection{Git}
+
+Git est un logiciel libre de gestion de version créé par Linus Torvalds (le créateur du noyau Linux) en 2005. Il est aujourd'hui le logiciel de ce type le plus utilisé au monde, et est considéré comme un standard de facto dans le monde du développement logiciel de part sa nature libre et gratuite, et sa grande robustesse.
+
+Git peut fonctionner de façon décentralisée, c'est à dire que chaque développeur peut avoir une copie du code source sur sa machine, et travailler dessus de façon indépendante. Il est également possible de travailler en équipe, en partageant le code source sur un serveur distant, et en synchronisant les modifications apportées par chaque développeur.
+
+Lorsqu'on a terminé une fonctionnalité, on peut "commit" nos modifications, c'est à dire les enregistrer dans l'historique du projet. On peut ensuite "push" ces modifications sur le serveur distant, où elles seront visibles par les autres membres de l'équipe qui pourront les "pull" pour les télécharger sur leur machine.
+
+Si des conflits surviennent, Git est capable de les gérer de façon très efficace, en permettant de les résoudre manuellement, ou en utilisant des outils de résolution de conflits.
+
+Cet outil est également très utile pour travailler collaborativement grâce à son système de branches, qui permet de travailler sur des fonctionnalités différentes en parallèle, et de fusionner ces branches une fois les fonctionnalités terminées afin d'éviter de mettre en ligne des fonctionnalités non abouties sur la branche principale.
+
+Git est disponible sous forme de ligne de commande, mais il existe également de nombreuses interfaces graphiques qui permettent de l'utiliser de façon plus intuitive.
+
+\subsection{GitHub}
+
+GitHub est une plateforme en ligne qui fait office de serveur distant pour les projets Git. Elle permet d'héberger des projets gratuitement afin de les rendre accessibles à tous facilement et est ainsi le berceau de nombreux projets open-source tels que le noyau Linux lui-même\cite{LinuxGithub2024}, le langage de programmation Python\cite{PythonGithub2024}, etc.
+
+En plus de cette fonctionnalité, GitHub propose de nombreux outils supplémentaires pour faciliter la coopération et permettre à des collaborateurs externes de facilement travailler sur un projet, en créant sa propre "version alternative" appelée "fork", en proposant des modifications au projet original appelées "pull requests", en faisant des rapports de bugs, etc.
+
+Parfois, certaines versions alternatives peuvent devenir aussi populaires que le projet original, comme c'est le cas de la version communautaire de Pygame, qui est utilisée pour ce projet.
+
+Tout au long du projet, nous avons utilisé Git et GitHub pour conserver un historique de nos modifications, ce qui s'est avéré très utile. Nous avons également pu utiliser GitHub pour en mettre à disposition le code source.
+
+\section{Programme principal}
+
+\subsection{Langage de programmation, librairies et outils.}
+
+Le langage de programmation que nous avons utilisé pour ce projet est Python, associé à la version communautaire de la librairie Pygame "Pygame-CE"\cite{PygameGithub2024}.
+
+Le choix de cette librairie au lieu d'autres librairies graphiques a été basé sur sa simplicité d'utilisation, sa grande versatilité, ainsi que nos connaissances préalables avec cette librairie.
+
+La version communautaire a été préférée pour ses nombreuses améliorations par rapport à la version officielle, notamment en termes de performances et de compatibilité avec les dernières versions de Python. En effet, la version originale de Pygame est de moins en moins maintenue. Les programmes écrits avec la version officielle fonctionnent correctement avec la version communautaire, mais l'inverse n'est pas garanti.
+
+Des outils de formattage externe tels que \texttt{black}\cite{Black2024} ont également été utilisés pour garantir une cohérence dans le code source, et une conformité avec les standards \texttt{PEP 8}\cite{PEP82024} qui définissent les conventions en matière de style de code Python.
+
+Les librairies \texttt{rich} et \texttt{graphviz} ont également été utilisées pendant le développement, la première pour améliorer la lisibilité des messages affichés dans la console (notamment lors de l'affichage de longs tableaux et listes), et la seconde lors de nos recherches sur les structures de données à utiliser pour stocker les labyrinthes. Ces librairies n'ont pas été utilisées dans la version finale du programme.
+
+\subsection{Conception}
+
+La première étape de la conception du programme a été de définir les différentes fonctionnalités que nous souhaitions implémenter, ainsi que de réaliser de nombreuses recherches sur les algorithmes de génération et de résolution de labyrinthes.
+
+Nous avons ensuite défini une "liste de tâches" à réaliser, en les classant par ordre de priorité, avant de commencer à travailler sur des versions primitives du programme. Ces versions primitives nous ont permis de tester les algorithmes de génération et de résolution de labyrinthes, ainsi que de nous familiariser avec la librairie Pygame-CE et les diverses optimisations qu'il convient d'apporter pour obtenir les meilleures performances. Cette liste de tâches nous a également permis d'éclaircir les objectifs de la partie "libre" du projet, sur laquelle nous n'étions pas guidés par le sujet.
+
+Un point majeur de cette étape fut de définir la structure de donnée à utiliser pour stocker les labyrinthes. En effet, il est tout à fait possible d'utiliser la programmation orientée objet pour définir un labyrinthe sous la forme d'un graphe, d'une matrice, d'une liste de cases, etc. L'enjeu était de trouver une structure adaptée aux algorithmes, mais également facile à utiliser pour l'adapter à l'interface graphique.
+
+Une fois que nous avons obtenu des résultats satisfaisants et que nous avons défini une direction à suivre, nous avons pu commencer à travailler sur la version finale du programme, en ajoutant des fonctionnalités au fur et à mesure et en les testant régulièrement.
+
+\section{Rédaction du rapport}
+
+La rédaction du rapport a été réalisée en utilisant le langage de composition de documents \LaTeX (LaTeX), qui est un langage de balisage  avancé permettant de créer des documents de grande qualité typographique adaptés à la publication scientifique.
+
+Ce langage est très populaire dans le monde de la recherche, et est souvent utilisé pour rédiger des articles, des thèses, des rapports, etc. Il permet de gérer de façon très efficace les références bibliographiques, les tableaux, les figures, les équations, etc.
+
+Ainsi, nous avons pu nous concentrer sur le fond du rapport, LaTeX se chargeant automatiquement de la forme. Le code source du rapport est également disponible sur le dépôt Git du projet.
 
 \chapter{Implémentation}
 
-Décrire la structure du programme
+% Décrire la structure du programme
+% Expliquer comment le code est organisé, et comment les algorithmes sont implémentés
+% Décrire les différentes complications qui se sont présentées et la façon dont nous les avons résolu.
+% Ce sera probablement le chapitre le plus long
 
-Expliquer comment le code est organisé, et comment les algorithmes sont implémentés
+Dans ce chapitre, nous allons décrire la structure du programme, ainsi que les différentes fonctionnalités que nous avons implémentées et les obstacles que nous avons rencontrés.
 
-Décrire les différentes complications qui se sont présentées et la façon dont nous les avons résolu.
+\section{Structure du programme}
 
-Ce sera probablement le chapitre le plus long
+Le programme que nous avons réalisé est divisé en plusieurs fichiers Python, chacun regroupant un certain nombre de fonctionnalités spécifiques.
+
+Nous avons utilisé un paradigme de programmation orientée objet tout au long du projet, afin de créer des classes qui représentent les différents éléments du programme, comme les labyrinthes, les menus, les éléments graphiques, les entités évoluant au sein du jeu, etc.
+
+Afin d'éviter de créer des conflits d'importation de type "importation circulaire" (deux fichiers s'importent mutuellement), la division du programme peut avoir lieu de façon assez naturelle, en isolant les classes utilisées à plusieurs endroits dans un fichier à part.
+
+Cette façon de procéder encourage la réutilisation du code source, ce qui a beaucoup été fait dans ce projet, notamment pour les éléments graphiques et les labyrinthes en eux-même.
+
+De nombreuses classes héritent de classes fournies par \texttt{pygame-ce}, ce qui permet de faciliter l'implémentation de certaines fonctionnalités, comme la gestion des événements, l'affichage des éléments graphiques, etc.
+
+Ainsi, de façon générale, chaque classe qui représente un élément visible à l'écran est responsable de son propre affichage, de sa mise à jour, et de sa gestion des événements, le tout étant piloté par une classe principale \texttt{Menu} qui gère l'affichage des différents menus du programme.
+
+Nous avons également fait le choix de stocker les constantes régulièrement utilisées dans un fichier à part, afin d'y avoir accès facilement et de pouvoir les modifier rapidement si besoin. Ce fichier peut également faire office de "configuration" du programme, en regroupant toutes les options modifiables par l'utilisateur.
+
+\section{Classes, fonctions et méthodes principales}
+
+\subsection{La classe \texttt{Labyrinthe}}
+
+La classe \texttt{Labyrinthe} est la classe principale du programme, qui représente un labyrinthe. Elle contient toute la logique nécéssaire à la génération la résolution et l'affichage d'un labyrinthe à l'écran.
+
+Elle hérite de la classe \texttt{pygame.sprite.Sprite}, ce qui lui fournit par défaut des attributs de taille, de position, une image, une forme, ainsi que des méthodes pour l'affichage et la mise à jour de l'objet.
+
+Lors de l'initialisation, cette classe prend en paramètre la taille du labyrinthe, le facteur de bouclage, et les algorithmes de génération et de résolution à utiliser. Elle crée ensuite un labyrinthe vide et initialise les algorithmes.
+
+Plutôt que de stocker les informations du labyrinthe sous forme de matrice ou de graphe, nous avons choisi de simplement stocker tous les murs qui le composent dans une liste, sous la forme d'un \texttt{tuple} des deux cases qu'il sépare.
+
+Les cases sont quand à elles identifiées par un identifiant entier unique. Si on imagine le labyrinthe comme une grille, alors on peut numéroter chaque case de $0$ à $n^2 - 1$, où $n$ est la taille d'un côté du labyrinthe.
+
+Ainsi, nous avons facilement pu implémenter de nombreuses méthodes utilitaires permettant d'ajouter ou de retirer des murs, d'obtenir une liste des cases adjacentes à une case donnée, de vérifier si un mur existe entre deux cases, etc. Ces méthodes sont utilisées par les algorithmes qui manipulent le labyrinthe.
+
+
+
 
 \chapter{Résultats}
 
@@ -456,6 +562,7 @@ git clone https://github.com/HerbeMalveillante/ProjetPeiP24.git
           \begin{verbatim}
 python --version
     \end{verbatim}
+          Il est bon de noter que la commande permettant d'invoquer Python peut dépendre de votre système d'exploitation et/ou de votre installation de Python. Les commandes les plus courantes sont \texttt{python}, \texttt{python3} et \texttt{py}.
     \item (optionnel) Créer un environnement virtuel Python à l'aide de la commande suivante :
           \begin{verbatim}
 python3 -m venv .envi
